@@ -1,0 +1,32 @@
+{
+  "id": 101,
+  "title": "JavaScript Basics",
+  "briefDescription": "An introductory quiz covering the core syntax and fundamental concepts of the JavaScript programming language.",
+  "tags": ["JavaScript", "Programming", "Web Development", "Beginner"],
+  "durationSeconds": 600,
+  "learningPath": "JavaScript Fundamentals",
+  "questions": [
+    {
+      "id": 12,
+      "type": "matching",
+      "title": "Assignment vs Equality",
+      "markdownDescription": "In JavaScript, the `=` symbol is used to **assign** a value, while the `==` or `===` symbols are used to **compare** two values. Confusing these two is a common mistake for beginners learning logic.\n\n```javascript\nlet x = 5; // Assignment\n```",
+      "prompt": "Match the operator symbol to its purpose.",
+      "explanation": "The single equals sign assigns, while the double/triple equals sign compares.",
+      "pairs": [
+        {
+          "id": 1,
+          "left": "=",
+          "right": "Assign a value",
+          "rationale": "Used to give a variable a specific value."
+        },
+        {
+          "id": 2,
+          "left": "===",
+          "right": "Compare two values",
+          "rationale": "Used to check if two things are exactly equal to each other."
+        }
+      ]
+    }
+  ]
+}

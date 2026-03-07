@@ -1,0 +1,19 @@
+.logo {
+    scale: 1;
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+}
+
+.logo:hover {
+    scale: 1.05;
+}
+
+.logo.vertical {
+    height: 100%;
+    max-height: 20rem;
+}
+
+.logo.horizontal {
+    width: 100%;
+    max-width: 20rem;
+}

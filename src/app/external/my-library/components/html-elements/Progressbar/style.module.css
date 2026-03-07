@@ -1,0 +1,31 @@
+.progressbar {
+    width: 100%;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+
+}
+
+.progressbar::-webkit-progress-bar {
+    background-color: var(--cold-white-2);
+    border-radius: var(--border-radius);
+
+}
+
+.progressbar::-webkit-progress-value {
+    background-color: var(--primary-6);
+    border-radius: var(--border-radius);
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.progressbar.full::-webkit-progress-value {
+    border-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.progressbarCircle {
+    position: relative;
+    height: 15rem;
+    width: 15rem;
+}

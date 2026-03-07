@@ -1,7 +1,4 @@
-.page {
-  display: flex;
-}
-.prodcuts {
+.container {
   display: flex;
   flex-direction: column;
 }

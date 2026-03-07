@@ -1,0 +1,20 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.addProducts {
+  display: flex;
+  flex-direction: column;
+}
+
+.addProducts .inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addProducts .inputs input {
+  font-size: 1rem;
+}

@@ -1,0 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter+Tight:wght@400;700;900&family=Inter:wght@400;700;900&family=Kanit:wght@400;700;900&display=swap");
+
+:root {
+  /* --- Layout & Metrics --- */
+  font-size: 3vh;
+  --border-radius: 0.3rem;
+  --border-pill-radius: 100rem;
+  --border-color: rgb(199, 199, 199);
+  --focus-ring-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  --transition: all 200ms ease-in-out;
+  --transition-2: all 175ms ease-in-out;
+
+  /* --- Font Families --- */
+  --font-1: "Inter Tight", sans-serif;
+  --font-2: "Kanit", sans-serif;
+  --font-3: "Archivo Black", sans-serif;
+  --font-4: "Inter", system-ui, sans-serif;
+
+  /* --- Font Weights --- */
+  --weight-normal: 400;
+  --weight-bold: 700;
+  --weight-bolder: 900;
+
+  /* --- Brand UI Colors --- */
+  --primary-color: rgb(76, 52, 255);
+  --primary-hover-color: rgb(97, 76, 255);
+  --background-color: rgb(248, 248, 248);
+  --panel-color: white;
+  --bg-input: rgb(233, 230, 255);
+
+  /* --- Primary Scale --- */
+  --primary-1: rgb(48, 20, 255);
+  --primary-2: rgb(62, 36, 255);
+  --primary-3: rgb(76, 52, 255);
+  --primary-4: rgb(93, 71, 255);
+  --primary-5: rgb(105, 86, 255);
+  --primary-6: rgb(116, 97, 255);
+  --primary-7: rgb(184, 176, 255);
+  --primary-8: rgb(206, 198, 255);
+  --primary-9: rgb(242, 240, 255);
+  --primary-10: rgb(250, 250, 255);
+
+  /* --- Neutral / Text Scale --- */
+  --text-1: rgb(0, 0, 0);
+  --text-2: rgb(20, 20, 20);
+  --text-3: rgb(40, 40, 40);
+  --text-4: rgb(60, 60, 60);
+  --text-5: rgb(80, 80, 80);
+  --text-6: rgb(100, 100, 100);
+
+  /* --- Grayscale --- */
+  --white-1: white;
+  --white-2: rgb(235, 235, 235);
+  --white-3: rgb(215, 215, 215);
+  --white-4: rgb(195, 195, 195);
+  --white-5: rgb(175, 175, 175);
+
+  --gray-1: rgb(75, 75, 75);
+  --gray-2: rgb(95, 95, 95);
+  --gray-3: rgb(115, 115, 115);
+  --gray-4: rgb(135, 135, 135);
+  --gray-5: rgb(155, 155, 155);
+
+  --black-1: rgb(0, 0, 0);
+  --black-2: rgb(20, 20, 20);
+  --black-3: rgb(40, 40, 40);
+  --black-4: rgb(60, 60, 60);
+  --black-5: rgb(80, 80, 80);
+  --black-6: rgb(100, 100, 100);
+
+  /* --- Cold Scale (Contextual) --- */
+  --cold-white-1: rgb(250, 250, 255);
+  --cold-white-2: rgb(246, 246, 250);
+  --cold-white-3: rgb(228, 228, 240);
+  --cold-white-4: rgb(220, 220, 235);
+  --cold-white-5: rgb(210, 210, 225);
+  --cold-white-6: rgb(200, 200, 215);
+  --cold-white-7: rgb(200, 200, 215);
+
+  --cold-gray-1: rgb(55, 65, 75);
+  --cold-gray-2: rgb(75, 85, 95);
+  --cold-gray-3: rgb(95, 105, 115);
+  --cold-gray-4: rgb(115, 125, 135);
+  --cold-gray-5: rgb(135, 145, 155);
+
+  /* --- Positive / Success Scale --- */
+  --positive-1: rgb(20, 140, 60);
+  --positive-2: rgb(30, 160, 75);
+  --positive-3: rgb(40, 180, 90);
+  --positive-4: rgb(60, 195, 110);
+  --positive-5: rgb(85, 210, 130);
+  --positive-6: rgb(120, 225, 160);
+  --positive-7: rgb(180, 245, 205);
+  --positive-8: rgb(210, 250, 225);
+  --positive-9: rgb(235, 255, 245);
+  --positive-10: rgb(248, 255, 252);
+
+  /* --- Neutral / Warning Scale --- */
+  --neutral-1: rgb(150, 90, 10);
+  --neutral-2: rgb(180, 110, 15);
+  --neutral-3: rgb(215, 140, 20);
+  --neutral-4: rgb(235, 165, 40);
+  --neutral-5: rgb(245, 190, 70);
+  --neutral-6: rgb(250, 210, 110);
+  --neutral-7: rgb(252, 230, 160);
+  --neutral-8: rgb(254, 242, 200);
+  --neutral-9: rgb(255, 249, 230);
+  --neutral-10: rgb(255, 253, 245);
+
+  /* --- Negative / Error Scale --- */
+  --negative-1: rgb(180, 20, 40);
+  --negative-2: rgb(200, 35, 55);
+  --negative-3: rgb(225, 50, 70);
+  --negative-4: rgb(235, 80, 95);
+  --negative-5: rgb(245, 110, 125);
+  --negative-6: rgb(250, 145, 155);
+  --negative-7: rgb(255, 195, 200);
+  --negative-8: rgb(255, 220, 225);
+  --negative-9: rgb(255, 240, 242);
+  --negative-10: rgb(255, 250, 251);
+
+  /* --- Functional Utility Aliases --- */
+  --success-color: var(--positive-3);
+  --error-color: var(--negative-3);
+  --success-bg: var(--positive-9);
+  --error-bg: var(--negative-9);
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: var(--font-4);
+  color: var(--text-1);
+  margin: 0;
+  padding: 0;
+}
+@media (max-aspect-ratio: 9/16) {
+  :root {
+    font-size: 2vh;
+  }
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
