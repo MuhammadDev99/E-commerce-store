@@ -1,8 +1,8 @@
 import { MessageUI } from "@/types";
 import { messagesSignal } from "@/signals";
-export function showMessage(message: Omit<MessageUI, "id">): void;
+export function showMessage(message: MessageUI): void;
 export function showMessage(content: string): void;
-export function showMessage(payload: Omit<MessageUI, "id"> | string) {
+export function showMessage(payload: MessageUI | string) {
   const partialMessage =
     typeof payload === "string"
       ? {

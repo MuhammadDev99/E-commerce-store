@@ -11,5 +11,5 @@ export type MessageUI = {
   content: string;
   durationMs: number;
   type: "error" | "warning" | "info" | "success";
-  id: number;
+  id?: number;
 };

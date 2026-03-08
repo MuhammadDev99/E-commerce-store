@@ -1,6 +1,6 @@
 import "./global.css";
 import type { Metadata } from "next";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar/Navbar";
 import { MessageRenderer } from "@/components/ShowMessage";
 export const revalidate = 0;
 export const metadata: Metadata = {

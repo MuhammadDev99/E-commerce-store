@@ -1,0 +1,96 @@
+:root {
+  /* This is your base scale */
+  font-size: 3vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.8rem; /* Scaled relative to 3vh */
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+/* 1. Ensure the library container takes full width */
+.container :global(.iti) {
+  width: 100%;
+  display: block;
+  font-size: 1rem; /* Inherit the 3vh */
+}
+
+/* 2. Style the input itself */
+.inputField {
+  width: 100%;
+  /* Increased padding to accommodate larger dial code/flag */
+  padding: 0.6rem 0.6rem 0.6rem 4.8rem !important;
+  font-size: 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: var(--border-radius);
+  outline: none;
+  transition: var(--transition);
+  caret-color: var(--primary-5);
+  color: var(--black-1);
+  background-color: var(--primary-10);
+  border: 0.05rem solid var(--primary-8);
+}
+.inputField:focus {
+  border-color: var(--primary-3);
+  box-shadow: var(--focus-ring-shadow);
+}
+/* 3. FIX THE FLAG SIZE & POSITIONING */
+/* The library uses 'em' which can break with 3vh. We force a readable scale. */
+
+.container :global(.iti__flag-container) {
+  padding: 0.2rem;
+}
+.container :global(.iti__country-container) {
+  padding-left: 0.5rem;
+}
+
+.container :global(.iti__selected-flag) {
+  /* Scale the flag container to match the height of your 3vh input */
+  padding: 0 0.8rem;
+  background-color: #f9fafb;
+  border-radius: var(--border-radius);
+}
+
+.container :global(.iti__flag) {
+  /* Upscale the flag icon slightly so it isn't lost in the 3vh text */
+  transform: scale(1.5);
+}
+
+/* 4. Adjust the Dropdown List */
+.container :global(.iti__country-list) {
+  font-size: 0.8rem; /* Slightly smaller than the input text for readability */
+  max-width: 90vw; /* Prevent it from going off-screen on mobile */
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.container :global(.iti__country) {
+  padding: 0.5rem 0.8rem;
+}
+
+.container :global(.iti__search-input-wrapper) input {
+  font-size: 1rem;
+}
+.statusMessage {
+  min-height: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 0.7rem;
+}
+.successText {
+  color: #10b981;
+  font-size: 0.7rem;
+}

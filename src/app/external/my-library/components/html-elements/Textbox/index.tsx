@@ -6,7 +6,7 @@ type Props = {
   value?: string;
   className?: string;
   label?: string;
-  textboxType?: TextboxType;
+  type?: TextboxType;
   onChange?: (value: string) => void;
   children?: React.ReactNode;
 };
@@ -15,10 +15,10 @@ export default function Textbox({
   label,
   className,
   value,
-  textboxType = "text",
+  type = "text",
   onChange,
 }: Props) {
-  if (textboxType === "text") {
+  if (type === "text") {
     return (
       <div className={clsx(styles.floatingGroup, className)}>
         <input
@@ -32,7 +32,8 @@ export default function Textbox({
       </div>
     );
   }
-  if (textboxType === "email") {
+
+  if (type === "email") {
     return (
       <div className={clsx(styles.floatingGroup, className)}>
         <input
@@ -46,7 +47,7 @@ export default function Textbox({
       </div>
     );
   }
-  if (textboxType === "password") {
+  if (type === "password") {
     return (
       <div className={clsx(styles.floatingGroup, className)}>
         <input
@@ -60,7 +61,7 @@ export default function Textbox({
       </div>
     );
   }
-  if (textboxType === "date") {
+  if (type === "date") {
     return (
       <div className={clsx(styles.floatingGroup, className)}>
         <input
@@ -73,7 +74,7 @@ export default function Textbox({
       </div>
     );
   }
-  if (textboxType === "textarea") {
+  if (type === "textarea") {
     return (
       <div className={clsx(styles.floatingGroup, className, styles.textarea)}>
         <textarea

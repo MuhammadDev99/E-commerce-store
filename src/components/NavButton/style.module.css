@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 0.3rem;
+  box-sizing: border-box;
+  gap: 0.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}
+.container::after {
+  content: "";
+  height: 60%;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  right: -0.5rem;
+}
+.container .icon {
+  height: 1.3rem;
+}
+
+.container:hover {
+  background-color: var(--primary-1);
+  box-sizing: border-box;
+}
