@@ -3,16 +3,15 @@ import clsx from "clsx";
 import styles from "../style.module.css";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { clampNumber } from "../../../utils";
-
 export default function NumberInput({
   label,
-  startValue = 0,
+  value = 0,
   min = 0,
   max = 100,
   className,
   onChange,
 }: {
-  startValue?: number;
+  value?: number;
   min?: number;
   max?: number;
   className?: string;
@@ -20,18 +19,17 @@ export default function NumberInput({
   onChange?: (value: number) => void;
 }) {
   type StepDirection = "down" | "up";
-  const [value, setValue] = useState<number>(startValue);
+  const [internalValue, setInternalValue] = useState<number>(value);
   useEffect(() => {
-    updateValue(startValue);
-  }, [startValue]);
-
+    updateValue(value);
+  }, [value]);
   const timerRef = useRef<ReturnType<
     typeof setInterval | typeof setTimeout
   > | null>(null);
   const stepHoldDelay = 400;
   const stepInterval = 80;
   function handleStep(direction: StepDirection) {
-    setValue((previousValue) => {
+    setInternalValue((previousValue) => {
       const clamped = clampNumber(
         direction === "up" ? previousValue + 1 : previousValue - 1,
         min,
@@ -42,17 +40,15 @@ export default function NumberInput({
   }
   function updateValue(newValue: number) {
     const clamped = clampNumber(newValue, min, max);
-    setValue(clamped);
+    setInternalValue(clamped);
   }
-
-  const lastValueRef = useRef<number>(startValue);
+  const lastValueRef = useRef<number>(value);
   useEffect(() => {
-    if (value !== lastValueRef.current) {
-      onChange?.(value);
-      lastValueRef.current = value;
+    if (internalValue !== lastValueRef.current) {
+      onChange?.(internalValue);
+      lastValueRef.current = internalValue;
     }
-  }, [value, , onChange]);
-
+  }, [internalValue, onChange]);
   function clearTimer() {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -63,7 +59,6 @@ export default function NumberInput({
   function startStepping(direction: StepDirection) {
     clearTimer();
     handleStep(direction);
-
     timerRef.current = setTimeout(() => {
       timerRef.current = setInterval(() => {
         handleStep(direction);
@@ -82,7 +77,7 @@ export default function NumberInput({
           placeholder=" "
           type="number"
           onChange={(e) => updateValue(Number(e.target.value))}
-          value={value}
+          value={internalValue}
           min={min}
           max={max}
         />
@@ -122,8 +117,8 @@ export default function NumberInput({
             fill="none"
             stroke="currentColor"
             strokeWidth="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <path d="m6 9 6 6 6-6"></path>
           </svg>

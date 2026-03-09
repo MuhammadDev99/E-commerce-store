@@ -13,8 +13,9 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
+      role: { type: "string" },
       phoneNumber: { type: "string" },
-      birthDate: { type: "string" },
+      dateOfBirth: { type: "string" },
     },
   },
 });

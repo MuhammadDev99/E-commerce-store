@@ -27,33 +27,45 @@ export default function PhoneInput({
 
   const [isValid, setIsValid] = useState<boolean | null>(null);
 
-  // Initialize Library
   useEffect(() => {
     const inputElement = inputRef.current;
     if (!inputElement) return;
+
+    let isMounted = true; // Track mount status
 
     itiRef.current = intlTelInput(inputElement, {
       initialCountry: "auto",
       strictMode: true,
       separateDialCode: true,
-      geoIpLookup: (success: (iso2: any) => void, failure: () => void) => {
+      geoIpLookup: (
+        // Use 'any' or 'string' here, but the 'success' parameter
+        // needs the internal type or a cast to work.
+        success: (iso2: any) => void,
+        failure: () => void,
+      ) => {
         fetch("https://ipapi.co/json")
           .then((res) => res.json())
-          .then((data) => success(data.country_code))
+          .then((data) => {
+            if (isMounted) {
+              // Cast the response to any to bypass the strict union check
+              success(data.country_code.toLowerCase());
+            }
+          })
           .catch(() => {
-            if (typeof failure === "function") failure();
+            if (isMounted && typeof failure === "function") failure();
           });
       },
       loadUtils: () => import("intl-tel-input/utils"),
     });
 
-    // Set initial value if provided
     if (value) {
       itiRef.current.setNumber(value);
     }
 
     return () => {
+      isMounted = false; // Prevent async callbacks from firing
       itiRef.current?.destroy();
+      itiRef.current = null; // Clean up the ref
     };
   }, []);
 

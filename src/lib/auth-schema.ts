@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  serial,
+  integer,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -10,7 +17,8 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updatedAt").notNull(),
   // Custom Fields for your form
   phoneNumber: text("phoneNumber"),
-  birthDate: text("birthDate"),
+  dateOfBirth: text("dateOfBirth"),
+  role: text("role").notNull().default("user"),
 });
 
 export const session = pgTable("session", {
@@ -51,4 +59,16 @@ export const verification = pgTable("verification", {
   expiresAt: timestamp("expiresAt").notNull(),
   createdAt: timestamp("createdAt"),
   updatedAt: timestamp("updatedAt"),
+});
+
+export const product = pgTable("product", {
+  id: serial("id").primaryKey(), // Using serial for auto-incrementing IDs
+  name: text("name").notNull(),
+  title: text("title").notNull(),
+  price: integer("price").notNull(), // Store as cents (integers) to avoid float math issues
+  thumbnailUrl: text("thumbnailUrl"),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id), // Link product to the user who created it
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
