@@ -1,32 +1,25 @@
 import { Product } from "@/types";
 
-export const MOCK_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "Classic Tee",
-    title: "Essential Cotton Crewneck",
-    price: 25.0,
-    thumbnailUrl: "https://picsum.photos/id/1/200/200",
-  },
-  {
-    id: 2,
-    name: "Denim Jacket",
-    title: "Vintage Wash Trucker Jacket",
-    price: 85.5,
-    thumbnailUrl: "https://picsum.photos/id/2/200/200",
-  },
-  {
-    id: 3,
-    name: "Leather Boots",
-    title: "Rugged All-Weather Work Boots",
-    price: 120.99,
-    thumbnailUrl: "https://picsum.photos/id/3/200/200",
-  },
-  {
-    id: 4,
-    name: "Canvas Backpack",
-    title: "Water-Resistant Commuter Bag",
-    price: 45.0,
-    thumbnailUrl: "https://picsum.photos/id/4/200/200",
-  },
-];
+// Load products from perfumes.json
+const englishProducts: Product[] = require("./perfumes.json");
+const arabicProducts: Product[] = require("./perfumes_arabic.json");
+export const MOCK_PRODUCTS: Product[] = englishProducts.map((enProduct) => {
+  // Find the matching Arabic product by ID
+  const arProduct = arabicProducts.find((ar) => ar.id === enProduct.id);
+
+  // Return the English product, but spread the Arabic one over it if it exists
+  return {
+    ...enProduct,
+    // We only spread if arProduct is found to avoid errors
+    ...(arProduct
+      ? {
+          title: arProduct.title,
+          description: arProduct.description,
+          category: arProduct.category,
+          tags: arProduct.tags,
+        }
+      : {}),
+  };
+});
+
+// export const MOCK_PRODUCTS: Product[] = require("./perfumes.json");

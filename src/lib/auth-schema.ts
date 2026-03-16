@@ -5,6 +5,7 @@ import {
   boolean,
   serial,
   integer,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -61,14 +62,30 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updatedAt"),
 });
 
+export const genderEnum = pgEnum("gender", ["Women", "Men", "Unisex"]);
+
 export const product = pgTable("product", {
-  id: serial("id").primaryKey(), // Using serial for auto-incrementing IDs
-  name: text("name").notNull(),
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  price: integer("price").notNull(), // Store as cents (integers) to avoid float math issues
-  thumbnailUrl: text("thumbnailUrl"),
+  description: text("description").notNull(),
+  price: integer("price").notNull(),
+
+  // 2. Arrays: Use .array() for string[]
+  images: text("images").array().notNull(),
+  category: text("category").array().notNull(),
+  tags: text("tags").array().notNull(),
+
+  // 3. Numbers: Use integer
+  stockQuantity: integer("stockQuantity").notNull().default(0),
+  sizeMl: integer("sizeMl").notNull(),
+  discount: integer("discount").notNull().default(0),
+
+  // 4. Use the Enum defined above
+  gender: genderEnum("gender").notNull(),
+
+  // 5. Relations and Metadata
   userId: text("userId")
     .notNull()
-    .references(() => user.id), // Link product to the user who created it
+    .references(() => user.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });

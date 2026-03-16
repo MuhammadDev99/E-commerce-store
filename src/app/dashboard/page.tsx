@@ -3,8 +3,17 @@ import { useSignals, useSignal } from "@preact/signals-react/runtime";
 import styles from "./style.module.css";
 import { addProductDB } from "../utils/db";
 import { showMessage } from "../utils/showMessage";
-import { Product } from "../../types";
-import { NumberInput, Textbox } from "../external/my-library/components";
+import {
+  getEmptyProduct,
+  NewProduct,
+  Product,
+  ProductFormData,
+} from "../../types";
+import {
+  NumberInput,
+  RadioInput,
+  Textbox,
+} from "../external/my-library/components";
 // 1. Import the authClient
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -18,25 +27,37 @@ export default function DashboardPage() {
   // 2. Get the session data
   const { data: session } = authClient.useSession();
 
-  const product = useSignal<Product>({
-    title: "",
-    name: "",
-    price: 0,
-    thumbnailUrl: "",
-    id: 0,
-  });
+  const product = useSignal<ProductFormData>(getEmptyProduct());
 
   const addProduct = async () => {
-    const { title, name } = product.value;
-    if (!title || !name) {
-      showMessage("Please fill title and name");
+    const {
+      title,
+      description,
+      price,
+      images,
+      stockQuantity,
+      category,
+      gender,
+      sizeMl,
+      tags,
+      discount,
+    } = product.value;
+    if (
+      !title ||
+      !description ||
+      price <= 0 ||
+      sizeMl <= 0 ||
+      stockQuantity < 0 ||
+      !category
+    ) {
+      showMessage("Please fill all information");
       return;
     }
     const result = await safe(addProductDB(product.value));
     if (result.success) {
       showMessage({
         title: "Success",
-        content: name + " added successfully",
+        content: title + " added successfully",
         type: "success",
         durationMs: 3000,
       });
@@ -82,10 +103,10 @@ export default function DashboardPage() {
           />
 
           <Textbox
-            label="name"
-            value={product.value.name}
+            label="description"
+            value={product.value.description}
             onChange={(value) =>
-              (product.value = { ...product.value, name: value })
+              (product.value = { ...product.value, description: value })
             }
           />
 
@@ -96,6 +117,32 @@ export default function DashboardPage() {
               (product.value = { ...product.value, price: value })
             }
           />
+
+          <NumberInput
+            label="Quantity"
+            value={product.value.stockQuantity}
+            onChange={(value) =>
+              (product.value = { ...product.value, stockQuantity: value })
+            }
+          />
+          <NumberInput
+            label="Discount"
+            value={product.value.discount}
+            onChange={(value) =>
+              (product.value = { ...product.value, discount: value })
+            }
+          />
+          {/* <Textbox
+            label="Category"
+            value={product.value.category}
+            onChange={(value) =>
+              (product.value = { ...product.value, category: value })
+            }
+          /> */}
+          <h2>Gender</h2>
+          <RadioInput label="Men" name="gender" />
+          <RadioInput label="Women" name="gender" />
+          <RadioInput label="Unisex" name="gender" />
         </div>
         <button onClick={addProduct}>Add</button>
 

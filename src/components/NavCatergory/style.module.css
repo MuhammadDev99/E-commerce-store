@@ -1,0 +1,84 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  margin-left: auto;
+  position: relative;
+  cursor: pointer;
+}
+
+.title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0rem;
+  transition: var(--transition);
+}
+.mouseHover .title {
+  color: var(--primary-4);
+}
+.arrow {
+  height: 1.2rem;
+  width: 1.2rem;
+  transition:
+    transform 0.4s ease,
+    color 0.4s ease;
+  transform-style: preserve-3d;
+  transform: rotateX(0deg);
+  /* Initial color of the SVG */
+  color: #333;
+}
+.mouseHover .arrow {
+  transform: rotateX(180deg);
+  /* This now works because the SVG uses currentColor */
+  color: var(--primary-4);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  background-color: var(--primary-4);
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 120px;
+  direction: rtl;
+  /* margin-top: 0.75rem; */
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  /* SLIDE ANIMATION LOGIC */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px); /* Start 10px higher */
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0.3s;
+  pointer-events: none; /* Prevents interaction while hidden */
+  /* top shadow */
+}
+.mouseHover .items {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0); /* Slide to natural position */
+  pointer-events: auto;
+}
+
+.item {
+  padding: 0.5rem 1rem;
+  margin: 0;
+  color: white;
+  transition: background 0.2s;
+}
+
+/* change border radius for last child */
+.item:last-child {
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
+.item:hover {
+  background-color: var(--primary-6);
+}

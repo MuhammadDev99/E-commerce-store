@@ -1,6 +1,7 @@
 import ProductDisplay from "./components/Product";
 import styles from "./page.module.css";
 import { MOCK_PRODUCTS } from "@/mockData";
+
 export default function Home() {
   return (
     <div className={styles.page}>

@@ -1,39 +1,61 @@
 "use client"; // 1. Must be a client component to use hooks
-
+import Link from "next/link";
 import NavButtonDisplay from "@/components/NavButton";
 import styles from "./style.module.css";
+import Image from "next/image";
 // 2. Import the authClient
 import { authClient } from "@/lib/auth-client";
-import { DashboardNav, HomeNav, loginNav, registerNav } from "@/images";
-
+import {
+  cartImg,
+  accountImg,
+  searchImg,
+  DashboardNav,
+  HomeNav,
+  loginNav,
+  logoHorizontal,
+  registerNav,
+} from "@/images";
+import { Product } from "@/types";
+import arabicProductsRaw from "./perfumes_arabic.json";
+import NavCategory from "@/components/NavCatergory";
+const arabicProducts = arabicProductsRaw as Product[];
+const categories = [
+  "الافضل مبيعاً",
+  "عروض",
+  "منتجات جديدة",
+  "العطور",
+  "زيوت",
+  "العود",
+  "عالم العربية للعود",
+];
 const Navbar = () => {
-  // 3. Get the session data
-  const { data: session, isPending } = authClient.useSession();
-
+  const items = ["عود", "بخورات", "عffffffffffffffffffنبر", "رجالي"];
   return (
-    <div className={styles.navbar}>
-      <NavButtonDisplay icon={HomeNav} href={"/"}>
-        Home
-      </NavButtonDisplay>
+    <div className={styles.container}>
+      <div className={styles.buttons}>
+        <Link href={"/login"} className={styles.account}>
+          <Image src={accountImg} alt="account" />
+        </Link>
+        <Link href={"/cart"} className={styles.cart}>
+          <Image src={cartImg} alt="cart" />
+        </Link>
+        <Link href={"/search"} className={styles.search}>
+          <Image src={searchImg} alt="search" />
+        </Link>
+      </div>
+      <div className={styles.categories}>
+        {categories.map((category: string) => {
+          return (
+            <NavCategory items={items} key={category}>
+              {category}
+            </NavCategory>
+          );
+        })}
+      </div>
 
-      {/* 4. Only show Dashboard if session exists */}
-      {session && (
-        <NavButtonDisplay icon={DashboardNav} href={"/dashboard"}>
-          dashboard
-        </NavButtonDisplay>
-      )}
-
-      {/* 5. Usually, you want to hide Login/Register if the user IS logged in */}
-      {!session && !isPending && (
-        <>
-          <NavButtonDisplay icon={loginNav} href={"/login"}>
-            login
-          </NavButtonDisplay>
-          <NavButtonDisplay icon={registerNav} href={"/register"}>
-            register
-          </NavButtonDisplay>
-        </>
-      )}
+      <Link href={"/"} className={styles.logo}>
+        <Image src={logoHorizontal} alt="logo" />
+      </Link>
     </div>
   );
 };
