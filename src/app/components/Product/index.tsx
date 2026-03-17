@@ -1,24 +1,43 @@
-import type { Product } from "@/types";
-import styles from "./style.module.css";
-import Image from "next/image";
-import { cartImg, riyalSymbolImg } from "@/images";
+import type { Product } from "@/types"
+import styles from "./style.module.css"
+import Image from "next/image"
+import { cartImg, riyalSymbolImg, RiyalSymbolSvg } from "@/images"
+import clsx from "clsx"
 
 export default function ProductDisplay({ product }: { product: Product }) {
-  // Access the first string in the images array
-  const imagePath = product.images[0];
+    const imagePath = product.images[0]
+    const isDiscounted = product.discount > 0
+    return (
+        <div className={clsx(styles.container, isDiscounted && styles.discounted)}>
+            <div className={styles.thumbnailWrapper}>
+                <img className={styles.thumbnail} src={imagePath} alt={product.title} />
+            </div>
 
-  return (
-    <div className={styles.container}>
-      <img className={styles.thumbnail} src={imagePath} alt={product.title} />
-      <p className={styles.title}>{product.title}</p>
-      <div className={styles.priceContainer}>
-        <Image src={riyalSymbolImg} alt="Riyal Symbol" />
-        <p className={styles.price}>{product.price}</p>
-      </div>
+            <div className={styles.bottom}>
+                <div className={styles.info}>
+                    <p className={styles.title}>{product.title}</p>
 
-      <button className={styles.addToCartButton}>
-        Add To Cart <Image src={cartImg} alt="Add To Cart" />
-      </button>
-    </div>
-  );
+                    <div className={styles.priceContainer}>
+                        <div className={styles.oldPrice}>
+                            <RiyalSymbolSvg className={styles.riyalSymbol} />
+                            <p className={styles.priceNumber}>{product.price}</p>
+                        </div>
+                        <div className={styles.price}>
+                            <RiyalSymbolSvg className={styles.riyalSymbol} />
+                            <p className={styles.priceNumber}>
+                                {isDiscounted
+                                    ? Math.round(product.price * ((100 - product.discount) / 100))
+                                    : product.price}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button className={styles.addToCartButton}>
+                    أضف للسلة
+                    <Image src={cartImg} alt="أضف للسلة" />
+                </button>
+            </div>
+        </div>
+    )
 }

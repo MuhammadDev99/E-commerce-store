@@ -7,27 +7,11 @@
   padding: 3rem 0;
   width: 20rem;
 }
-
-.page>div {
+.page > div {
   width: 100% !important;
 }
-
 .page .name {
   display: flex;
   flex-direction: row;
   gap: 1rem;
-}
-
-.arabic .gender {
-  direction: rtl;
-}
-
-.gender {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-
-.arabic.page .name {
-  direction: rtl;
 }

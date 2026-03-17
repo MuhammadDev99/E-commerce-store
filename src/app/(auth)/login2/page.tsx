@@ -1,5 +1,5 @@
 "use client"
-import { Button, Text, Textbox } from "@/app/external/my-library/components"
+import { Button, Textbox } from "@/app/external/my-library/components"
 import styles from "./style.module.css"
 import { showMessage } from "@/utils/showMessage"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
@@ -59,23 +59,15 @@ export default function LoginPage() {
 
     return (
         <div className={styles.page}>
-            <Textbox
-                label="البريد الإلكتروني"
-                type="email"
-                value={form.value.email}
-                onChange={(value) => (form.value = { ...form.value, email: value })}
-            />
-            <Textbox
-                label="كلمة السر"
-                type="password"
-                value={form.value.password}
-                onChange={(value) => (form.value = { ...form.value, password: value })}
-            />
-            <Button onClick={handleLogin} styleType="primary">
-                تسجيل الدخول
-            </Button>
-            <Text>لا تملك حساب؟</Text>
-            <Button onClick={() => router.push("/register")}>تسجيل حساب</Button>
+            <p>سجل دخول او سجل حساب جديد</p>
+            <div>
+                <p> البريد الإلكتروني</p>
+                <input type="email" />
+            </div>
+            <div>
+                <p>رقم الهاتف</p>
+                <input type="email" />
+            </div>
         </div>
     )
 }

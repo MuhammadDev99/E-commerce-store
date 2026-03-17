@@ -11,6 +11,8 @@ import searchImg from "./search.png";
 import accountImg from "./account.png";
 import downArrowImg from "./down-arrow.png";
 import downArrowSvg from "./down-arrow.svg";
+import RiyalSymbolSvg from './vectors/riyal-symbol.svg'
+import SearchSVG from './vectors/search.svg'
 export {
   DashboardNav,
   HomeNav,
@@ -25,4 +27,6 @@ export {
   searchImg,
   downArrowImg,
   downArrowSvg,
+  RiyalSymbolSvg,
+  SearchSVG
 };

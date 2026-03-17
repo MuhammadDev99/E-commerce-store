@@ -1,8 +1,14 @@
 /* Import from Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600&display=swap");
+
 .container {
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .container {
@@ -13,7 +19,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 2rem;
-  border-bottom: 1rem solid black;
+  border-bottom: 0.075rem solid;
+  border-image: linear-gradient(to right,
+      var(--primary-9) 0%,
+      var(--primary-7) 25%,
+      /* Starts being the pure color here */
+      var(--primary-7) 75%,
+      /* Stays the pure color until here */
+      var(--primary-9) 100%) 1;
 }
 
 .container .buttons {
@@ -22,17 +35,21 @@
   gap: 1.5rem;
   align-items: center;
 }
+
 .container a {
   display: flex;
   flex-direction: row;
 }
+
 .container .buttons img {
   height: 1.5rem;
   filter: invert();
   opacity: 1;
   transition: var(--transition);
   rotate: 0;
+  cursor: pointer;
 }
+
 .container .buttons img:hover {
   height: 1.5rem;
   opacity: 0.75;
@@ -41,10 +58,14 @@
 
 .container .logo {
   height: 3rem;
+  cursor: pointer;
 }
+
 .container .logo img {
   height: 100%;
+
 }
+
 .categories {
   display: flex;
   flex-direction: row;

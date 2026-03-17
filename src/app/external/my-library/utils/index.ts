@@ -15,3 +15,8 @@ export async function safe<T>(promise: Promise<T>): Promise<SafeResult<T>> {
     return { success: false, data: undefined, error };
   }
 }
+
+export function isArabic(text: string): boolean {
+  const arabicPattern = /\p{Script=Arabic}/u;
+  return arabicPattern.test(text);
+};

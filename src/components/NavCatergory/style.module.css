@@ -15,9 +15,11 @@
   padding: 0.5rem 0rem;
   transition: var(--transition);
 }
+
 .mouseHover .title {
   color: var(--primary-4);
 }
+
 .arrow {
   height: 1.2rem;
   width: 1.2rem;
@@ -29,6 +31,7 @@
   /* Initial color of the SVG */
   color: #333;
 }
+
 .mouseHover .arrow {
   transform: rotateX(180deg);
   /* This now works because the SVG uses currentColor */
@@ -46,23 +49,28 @@
   min-width: 120px;
   direction: rtl;
   /* margin-top: 0.75rem; */
-  border-bottom-left-radius: var(--border-radius);
-  border-bottom-right-radius: var(--border-radius);
+  /* border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius); */
+  border-radius: var(--border-radius);
   /* SLIDE ANIMATION LOGIC */
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px); /* Start 10px higher */
+  transform: translateY(-10px);
+  /* Start 10px higher */
   transition:
     opacity 0.3s ease,
     transform 0.3s ease,
     visibility 0.3s;
-  pointer-events: none; /* Prevents interaction while hidden */
+  pointer-events: none;
+  /* Prevents interaction while hidden */
   /* top shadow */
 }
+
 .mouseHover .items {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0); /* Slide to natural position */
+  transform: translateY(0);
+  /* Slide to natural position */
   pointer-events: auto;
 }
 
@@ -77,6 +85,11 @@
 .item:last-child {
   border-bottom-left-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
+}
+
+.item:first-child {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
 }
 
 .item:hover {

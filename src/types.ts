@@ -1,5 +1,5 @@
 import { product } from "./lib/auth-schema";
-
+export type DisplayLanguage = 'arabic' | 'english'
 export type Product = typeof product.$inferSelect;
 export type NewProduct = typeof product.$inferInsert;
 export type ProductFormData = Omit<

@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 4rem;
+  padding: 0.5rem;
+  gap: 1rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+}
+
+.container:hover {
+  background-color: var(--primary-6);
+  color: white;
+}
+
+.container:hover .oldPrice {
+  color: var(--white-3) !important;
+}
+
+.container:hover .thumbnail {
+  transform: scale(1.15);
+}
+
+.container .thumbnailWrapper {
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
+
+.container .title {
+  font-weight: bold;
+}
+
+.container .thumbnail {
+  height: 100%;
+  transition: var(--transition)
+}
+
+.container .info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.container .priceContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: end;
+}
+
+.container .priceContainer .riyalSymbol {
+  height: 70%;
+  color: inherit;
+}
+
+.container .priceContainer>div {
+  display: flex;
+  flex-direction: row;
+  gap: 0.2rem;
+  align-items: center;
+  direction: ltr;
+}
+
+.container .priceContainer .price {
+  height: 1.2rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.container .priceContainer .oldPrice {
+  height: 0.8rem;
+  color: var(--black-7);
+  text-decoration: line-through;
+}

@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: "postgresql://postgres:mypassword@localhost:5433/auth_db",
+    url: "postgresql://postgres:mypassword@localhost:5434/auth_db",
   },
 });
