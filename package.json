@@ -18,7 +18,8 @@
     "open-props": "^1.7.23",
     "pg": "^8.20.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "recharts": "^3.8.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

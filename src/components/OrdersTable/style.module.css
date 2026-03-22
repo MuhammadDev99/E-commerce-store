@@ -1,0 +1,115 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-line-2);
+  overflow: hidden;
+  border-radius: var(--border-radius-2);
+}
+
+.header {
+  background-color: var(--white-light-2);
+  font-weight: bold;
+  color: var(--black-4)
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--white-1)
+}
+
+
+.item,
+.header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1em;
+  padding: 1em;
+  align-items: center;
+}
+
+.item,
+.header p {
+  font-size: 0.8em;
+}
+
+.item {
+  border-top: var(--border-line-2);
+}
+
+.item .customer {
+  display: flex;
+  flex-direction: column;
+}
+
+.item .customer .adress {
+  color: var(--black-5)
+}
+
+.item .status {
+  padding: 0.5em 1em;
+  background-color: antiquewhite;
+  width: fit-content;
+  border-radius: var(--border-radius-pill);
+  font-weight: bold;
+  color: var(--bubble-color);
+  background-color: color-mix(in srgb, var(--bubble-color), transparent 90%);
+}
+
+.item.pending .status {
+  --bubble-color: var(--color-orange-4);
+}
+
+.item.processing .status {
+  --bubble-color: var(--color-purple-4);
+}
+
+.item.shipped .status {
+  --bubble-color: var(--color-blue-4);
+}
+
+.item.delivered .status {
+  --bubble-color: var(--color-green-4);
+}
+
+.item.cancelled .status {
+  --bubble-color: var(--color-red-4);
+}
+
+.item.refunded .status {
+  --bubble-color: var(--color-red-4);
+}
+
+.item .id {
+  font-weight: bold;
+  color: var(--primary-4);
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.5em 1em;
+  width: fit-content;
+  border-radius: var(--border-radius-pill);
+  direction: ltr;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.item .id:hover {
+  color: var(--primary-2);
+  background-color: var(--primary-9);
+}
+
+.item .total {
+  font-size: 0.9rem;
+  color: var(--black-3);
+}
+
+.root .pagination {
+  border-top: var(--border-line-2);
+  display: flex;
+  flex-direction: row;
+  background-color: var(--white-light-2);
+  padding: 1em;
+  gap: 0.5em
+}

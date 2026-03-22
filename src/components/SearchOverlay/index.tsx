@@ -9,12 +9,32 @@ import { debounced } from "@/utils"
 import { useMemo, useEffect, useRef } from "react" // 1. Added useRef and useEffect
 import SearchResult from "../SearchResult"
 import { Product } from "@/types"
+import { useRouter } from "next/navigation"
 
 export default function SearchOverlay() {
     useSignals()
+    const router = useRouter()
     const searchResults = useSignal<Product[]>([])
     const searchQuery = useSignal<string>("")
+    const navigateSearchPage = () => {
+        if (searchQuery.value.trim().length > 0) {
+            searchSignal.value = false
+            router.push("/search/" + searchQuery.value)
+        }
+    }
+    useEffect(() => {
+        // Save the style as it was BEFORE we changed it
+        const originalStyle = window.getComputedStyle(document.body).overflow
 
+        if (searchSignal.value) {
+            document.body.style.overflow = "hidden"
+        }
+
+        return () => {
+            // Restore the exact original style when the signal changes or component unmounts
+            document.body.style.overflow = originalStyle
+        }
+    }, [searchSignal.value])
     // 2. Create a ref for the panel
     const panelRef = useRef<HTMLDivElement>(null)
 
@@ -57,7 +77,7 @@ export default function SearchOverlay() {
             {/* 4. Attach the ref to the panel element */}
             <div className={styles.panel} ref={panelRef}>
                 <div className={styles.search}>
-                    <SearchSVG className={styles.icon} />
+                    <SearchSVG className={styles.icon} onClick={navigateSearchPage} />
                     <input
                         type="search"
                         placeholder="اكتب شيئاً للبحث"
@@ -66,7 +86,12 @@ export default function SearchOverlay() {
                             handleQueryChange(e.target.value)
                             searchQuery.value = e.target.value
                         }}
-                        autoFocus // Good UX: focus input when overlay opens
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                navigateSearchPage()
+                            }
+                        }}
+                        autoFocus
                     />
                 </div>
                 {searchQuery.value && (

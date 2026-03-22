@@ -1,9 +1,9 @@
 "use client"
-import { Button, Text, Textbox } from "@/app/external/my-library/components"
+import { Button, Text, Textbox } from "@/external/my-library/components"
 import styles from "./style.module.css"
 import { showMessage } from "@/utils/showMessage"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
-import { safe } from "@/app/external/my-library/utils"
+import { safe } from "@/external/my-library/utils"
 import { MessageUI } from "@/types"
 // 1. Import the authClient
 import { authClient } from "@/lib/auth-client"

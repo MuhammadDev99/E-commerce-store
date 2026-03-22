@@ -1,0 +1,6 @@
+.root {
+  --accent-color: var(--primary-4);
+  width: 15rem;
+  height: 15rem;
+  direction: ltr;
+}

@@ -8,9 +8,14 @@
 :root {
   /* --- Layout & Metrics --- */
   font-size: 3vh;
-  --border-radius: 0.3rem;
-  --border-pill-radius: 100rem;
+  --border-radius: 0.3em;
+  --border-radius-1: 0.3em;
+  --border-radius-2: 0.6em;
+  --border-radius-3: 1em;
+  --border-radius-pill: 100em;
   --border-color: rgb(199, 199, 199);
+  --border-line-1: 0.05rem solid var(--white-2);
+  --border-line-2: 0.05rem solid var(--white-3);
   --focus-ring-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
   --transition: all 200ms ease-in-out;
   --transition-2: all 175ms ease-in-out;
@@ -27,14 +32,15 @@
   --weight-bolder: 900;
 
   /* --- Brand UI Colors --- */
-  --primary-color: rgb(76, 52, 255);
+  /* --primary-color: rgb(76, 52, 255); */
+  --primary-color: rgb(49, 26, 220);
   --primary-hover-color: rgb(97, 76, 255);
   --background-color: rgb(248, 248, 248);
   --panel-color: white;
   --bg-input: rgb(233, 230, 255);
 
   /* --- Primary Scale --- */
-  --primary-1: rgb(48, 20, 255);
+  /* --primary-1: rgb(48, 20, 255);
   --primary-2: rgb(62, 36, 255);
   --primary-3: rgb(76, 52, 255);
   --primary-4: rgb(93, 71, 255);
@@ -43,8 +49,42 @@
   --primary-7: rgb(184, 176, 255);
   --primary-8: rgb(206, 198, 255);
   --primary-9: rgb(242, 240, 255);
-  --primary-10: rgb(250, 250, 255);
+  --primary-10: rgb(250, 250, 255); */
+  --primary-base: rgb(48, 20, 255);
+  /* Generating the scale by mixing with white */
+  --primary-1: var(--primary-base);
+  --primary-2: color-mix(in srgb, var(--primary-base), white 10%);
+  --primary-3: color-mix(in srgb, var(--primary-base), white 20%);
+  --primary-4: color-mix(in srgb, var(--primary-base), white 30%);
+  --primary-5: color-mix(in srgb, var(--primary-base), white 40%);
+  --primary-6: color-mix(in srgb, var(--primary-base), white 50%);
+  --primary-7: color-mix(in srgb, var(--primary-base), white 60%);
+  --primary-8: color-mix(in srgb, var(--primary-base), white 70%);
+  --primary-9: color-mix(in srgb, var(--primary-base), white 80%);
+  --primary-10: color-mix(in srgb, var(--primary-base), white 90%);
+  --primary-11: color-mix(in srgb, var(--primary-base), white 98%);
 
+  /* --primary-1: color-mix(in srgb, var(--primary-color), black 15%);
+  --primary-2: var(--primary-color);
+  --primary-3: color-mix(in srgb, var(--primary-color), white 10%);
+  --primary-4: color-mix(in srgb, var(--primary-color), white 20%);
+  --primary-5: color-mix(in srgb, var(--primary-color), white 30%);
+  --primary-6: color-mix(in srgb, var(--primary-color), white 40%);
+  --primary-7: color-mix(in srgb, var(--primary-color), white 60%);
+  --primary-8: color-mix(in srgb, var(--primary-color), white 75%);
+  --primary-9: color-mix(in srgb, var(--primary-color), white 90%);
+  --primary-10: color-mix(in srgb, var(--primary-color), white 96%); */
+
+  /* --primary-1: rgb(6, 78, 59);
+  --primary-2: rgb(5, 150, 105);
+  --primary-3: rgb(16, 185, 129);
+  --primary-4: rgb(52, 211, 153);
+  --primary-5: rgb(110, 231, 183);
+  --primary-6: rgb(167, 243, 208);
+  --primary-7: rgb(209, 250, 229);
+  --primary-8: rgb(236, 253, 245);
+  --primary-9: rgb(240, 253, 244);
+  --primary-10: rgb(252, 255, 253); */
   /* --- Neutral / Text Scale --- */
   --text-1: rgb(0, 0, 0);
   --text-2: rgb(20, 20, 20);
@@ -54,6 +94,17 @@
   --text-6: rgb(100, 100, 100);
 
   /* --- Grayscale --- */
+  /* --white-1: white;
+  --white-2: rgb(235, 235, 235);
+  --white-3: rgb(215, 215, 215);
+  --white-4: rgb(195, 195, 195);
+  --white-5: rgb(175, 175, 175); */
+  --white-light-1: white;
+  --white-light-2: rgb(245, 245, 245);
+  --white-light-3: rgb(235, 235, 235);
+  --white-light-4: rgb(220, 220, 220);
+  --white-light-5: rgb(190, 190, 190);
+
   --white-1: white;
   --white-2: rgb(235, 235, 235);
   --white-3: rgb(215, 215, 215);
@@ -130,6 +181,234 @@
   --error-color: var(--negative-3);
   --success-bg: var(--positive-9);
   --error-bg: var(--negative-9);
+
+  /* --- Font Sizes --- */
+  --font-size-1: 0.75em;
+  --font-size-2: 0.875em;
+  --font-size-3: 1em;
+  --font-size-4: 1.125em;
+  --font-size-5: 1.25em;
+  --font-size-6: 1.5em;
+  --font-size-7: 1.875em;
+  --font-size-8: 2.25em;
+
+  /* --- Spacing System (Margins & Paddings) --- */
+  --space-1: 0.25em;
+  /* 4px */
+  --space-2: 0.5em;
+  /* 8px */
+  --space-3: 0.75em;
+  /* 12px */
+  --space-4: 1em;
+  /* 16px */
+  --space-5: 1.5em;
+  /* 24px */
+  --space-6: 2em;
+  /* 32px */
+  --space-7: 3em;
+  /* 48px */
+  --space-8: 4em;
+  /* 64px */
+
+}
+
+:root {
+  --shadow-1: 0 0.0625em 0.1875em rgba(0, 0, 0, 0.05);
+
+  --shadow-2: rgba(149, 157, 165, 0.2) 0em 0.5em 1.5em;
+
+  --shadow-3: rgba(99, 99, 99, 0.2) 0em 0.125em 0.5em 0em;
+
+  --shadow-4: rgba(50, 50, 93, 0.25) 0em 3.125em 6.25em -1.25em,
+    rgba(0, 0, 0, 0.3) 0em 1.875em 3.75em -1.875em,
+    rgba(10, 37, 64, 0.35) 0em -0.125em 0.375em 0em inset;
+
+  --shadow-5: rgba(14, 63, 126, 0.04) 0em 0em 0em 0.0625em,
+    rgba(42, 51, 69, 0.04) 0em 0.0625em 0.0625em -0.03125em,
+    rgba(42, 51, 70, 0.04) 0em 0.1875em 0.1875em -0.09375em,
+    rgba(42, 51, 70, 0.04) 0em 0.375em 0.375em -0.1875em,
+    rgba(14, 63, 126, 0.04) 0em 0.75em 0.75em -0.375em,
+    rgba(14, 63, 126, 0.04) 0em 1.5em 1.5em -0.75em;
+  --shadow-6: rgba(67, 71, 85, 0.27) 0em 0em 0.25em,
+
+    rgba(90, 125, 188, 0.05) 0em 0.25em 1em;
+
+  --shadow-7: rgba(9, 30, 66, 0.25) 0em 0.25em 0.5em -0.125em,
+    rgba(9, 30, 66, 0.08) 0em 0em 0em 0.0625em;
+
+  --shadow-8: rgba(0, 0, 0, 0.06) 0em 0.125em 0.25em 0em inset;
+
+  --shadow-9: rgba(0, 0, 0, 0.05) 0em 0em 0em 0.0625em;
+
+  --shadow-10: rgba(50, 50, 93, 0.25) 0em 1.875em 3.75em -0.75em,
+    rgba(0, 0, 0, 0.3) 0em 1.125em 2.25em -1.125em;
+
+  --shadow-11: rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px;
+}
+
+:root {
+  /* --- Primary Staircase Shadow (Your original pink shadow, now Primary) --- */
+  --shadow-primary-staircase:
+    0.2em 0.2em 0px var(--primary-1),
+    0.4em 0.4em 0px var(--primary-3),
+    0.6em 0.6em 0px var(--primary-5),
+    0.8em 0.8em 0px var(--primary-6),
+    1.0em 1.0em 0px var(--primary-7);
+
+  /* --- The "Deep Lift" (Modern, high-elevation floating effect) --- */
+  --shadow-deep-lift:
+    0 0.1em 0.2em rgba(76, 52, 255, 0.05),
+    0 0.3em 0.6em rgba(76, 52, 255, 0.1),
+    0 0.8em 1.5em rgba(76, 52, 255, 0.1),
+    0 1.5em 3.0em rgba(76, 52, 255, 0.05);
+
+  /* --- The "Retro Brutalist" (Hard 3D offset, popular in modern SaaS) --- */
+  --shadow-brutal-3d:
+    0.3em 0.3em 0px var(--black-1),
+    0.35em 0.35em 0px var(--primary-5);
+
+  /* --- The "Soft Primary Glow" (Great for active buttons or highlights) --- */
+  --shadow-primary-glow:
+    0 0 0.5em var(--primary-7),
+    0 0 1.5em var(--primary-9);
+
+  /* --- The "Inner Pressed" (Good for search bars or clicked states) --- */
+  --shadow-pressed:
+    inset 0.15em 0.15em 0.4em rgba(0, 0, 0, 0.1),
+    inset -0.1em -0.1em 0.2em var(--white-1);
+
+  /* --- The "Outline Shadow" (A shadow that looks like a thick colored border) --- */
+  --shadow-thick-border:
+    0 0 0 0.2em var(--background-color),
+    0 0 0 0.4em var(--primary-5);
+}
+
+:root {
+  /* =====================
+     1. RED
+     ===================== */
+  --color-red-1: #ffebee;
+  /* Lightest */
+  --color-red-2: #ef9a9a;
+  /* Light */
+  --color-red-3: #f44336;
+  /* Base */
+  --color-red-4: #e53935;
+  /* Dark */
+  --color-red-5: #b71c1c;
+  /* Darkest */
+
+  /* =====================
+     2. ORANGE
+     ===================== */
+  --color-orange-1: #fff3e0;
+  --color-orange-2: #ffcc80;
+  --color-orange-3: #ff9800;
+  --color-orange-4: #f57c00;
+  --color-orange-5: #e65100;
+
+  /* =====================
+     3. YELLOW
+     ===================== */
+  --color-yellow-1: #fffde7;
+  --color-yellow-2: #fff59d;
+  --color-yellow-3: #ffeb3b;
+  --color-yellow-4: #fbc02d;
+  --color-yellow-5: #f57f17;
+
+  /* =====================
+     4. GREEN
+     ===================== */
+  --color-green-1: #e8f5e9;
+  --color-green-2: #a5d6a7;
+  --color-green-3: #4caf50;
+  --color-green-4: #388e3c;
+  --color-green-5: #1b5e20;
+
+  /* =====================
+     5. BLUE
+     ===================== */
+  --color-blue-1: #e3f2fd;
+  --color-blue-2: #90caf9;
+  --color-blue-3: #2196f3;
+  --color-blue-4: #1976d2;
+  --color-blue-5: #0d47a1;
+
+  /* =====================
+     6. PURPLE
+     ===================== */
+  --color-purple-1: #f3e5f5;
+  --color-purple-2: #ce93d8;
+  --color-purple-3: #9c27b0;
+  --color-purple-4: #7b1fa2;
+  --color-purple-5: #4a148c;
+
+  /* =====================
+     7. PINK
+     ===================== */
+  --color-pink-1: #fce4ec;
+  --color-pink-2: #f48fb1;
+  --color-pink-3: #e91e63;
+  --color-pink-4: #c2185b;
+  --color-pink-5: #880e4f;
+}
+
+:root {
+  /* 💜 Amethyst (Vibrant, elegant purple) */
+  --color-amethyst-1: #f4ebff;
+  --color-amethyst-2: #d6bbfb;
+  --color-amethyst-3: #9e77ed;
+  /* Base */
+  --color-amethyst-4: #6941c6;
+  --color-amethyst-5: #42307d;
+
+  /* 🥭 Mango (Juicy, golden yellow-orange) */
+  --color-mango-1: #fff7d6;
+  --color-mango-2: #ffe370;
+  --color-mango-3: #ffb319;
+  /* Base */
+  --color-mango-4: #e68a00;
+  --color-mango-5: #8a5200;
+
+  /* 🦩 Flamingo (Punchy hot coral/pink) */
+  --color-flamingo-1: #ffeaf5;
+  --color-flamingo-2: #ffb3d8;
+  --color-flamingo-3: #ff66a1;
+  /* Base */
+  --color-flamingo-4: #e62e70;
+  --color-flamingo-5: #8a0f3c;
+
+  /* ⚡ Azure (Electric, clean tech blue) */
+  --color-azure-1: #ebf5ff;
+  --color-azure-2: #99cfff;
+  --color-azure-3: #2e90fa;
+  /* Base */
+  --color-azure-4: #155eef;
+  --color-azure-5: #00359e;
+
+  /* 🍵 Matcha (Fresh, earthy, vibrant green) */
+  --color-matcha-1: #f1f8ec;
+  --color-matcha-2: #c6e4ac;
+  --color-matcha-3: #86cb55;
+  /* Base */
+  --color-matcha-4: #55942b;
+  --color-matcha-5: #2f5218;
+
+  /* 🍒 Cherry (Striking, romantic red) */
+  --color-cherry-1: #ffebee;
+  --color-cherry-2: #ffb3ba;
+  --color-cherry-3: #f04438;
+  /* Base */
+  --color-cherry-4: #b42318;
+  --color-cherry-5: #7a271a;
+
+  /* 🌊 Aqua (Tropical sea teal/mint) */
+  --color-aqua-1: #e6f9f6;
+  --color-aqua-2: #8fe5d6;
+  --color-aqua-3: #20c9ac;
+  /* Base */
+  --color-aqua-4: #118a76;
+  --color-aqua-5: #0a4c40;
 }
 
 body {
@@ -140,6 +419,28 @@ body {
   padding: 0;
 
 }
+
+/* Ensure the document takes up the full height */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Make the body a flex container */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tell the main tag (parent of your page) to fill emaining space */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 
 @media (max-aspect-ratio: 9/16) {
   :root {

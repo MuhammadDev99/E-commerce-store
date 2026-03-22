@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  background-color: var(--black-1);
+  width: 10em;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  border: none;
+  color: var(--white-1);
+  font-size: 1em;
+  padding: 0.4em;
+  border-radius: var(--border-radius-pill);
+  cursor: pointer;
+}
+
+.container:hover {
+  background-color: var(--primary-4)
+}
+
+.icon {
+  height: 1.2em;
+}

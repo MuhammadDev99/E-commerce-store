@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  gap: 1rem;
+  background-color: white;
+}
+
+.container .imageWrapper {
+  width: 35%;
+  overflow: hidden;
+  border-radius: var(--border-radius)
+}
+
+.container .imageWrapper img {
+  width: 100%;
+}
+
+.container .details {
+  width: 50%;
+}
+
+.details .title {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.details .price {
+  margin-top: 0.75rem;
+  font-size: 2rem;
+}
+
+.details .priceContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.details .description {
+  margin-top: 1rem;
+}
+
+.details .quantity {
+  margin-top: 1rem;
+  width: 6rem;
+}
+
+.details .addToCartButton {
+  margin-top: 1rem;
+}

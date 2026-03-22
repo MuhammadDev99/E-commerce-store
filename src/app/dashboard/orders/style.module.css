@@ -1,0 +1,34 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+  direction: rtl;
+  gap: 1em;
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.card {
+  flex: 1;
+}
+
+
+.cards .total {
+  --icon-color: var(--color-azure-4);
+}
+
+.cards .processing {
+  --icon-color: var(--color-mango-4);
+}
+
+.cards .delivered {
+  --icon-color: var(--color-aqua-4);
+}
+
+.cards .cancled {
+  --icon-color: var(--color-cherry-4);
+}

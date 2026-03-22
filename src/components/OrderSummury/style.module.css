@@ -1,0 +1,99 @@
+/* Container */
+.root {
+  padding: 1.5rem;
+  border: 1px solid #eee;
+  border-radius: var(--border-radius);
+  background-color: #fff;
+  border: 0.05rem solid var(--white-3);
+}
+
+/* Header */
+.root .title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+/* Base Row Logic (Used in breakdown and total) */
+.root .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--black-3);
+}
+
+.root .row .label {
+  font-size: 0.9rem;
+}
+
+/* Specific Row Variations */
+.root .row.discount {
+  color: var(--primary-5);
+}
+
+/* Coupon Section */
+.root .coupon {
+  margin: 1.5rem 0;
+}
+
+.root .coupon .label {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.root .coupon .group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.root .coupon .input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--primary-8);
+  border-radius: var(--border-radius);
+  outline: none;
+  min-width: 0;
+}
+
+.root .coupon .input:focus {
+  border: 1px solid var(--primary-3);
+  box-shadow: var(--focus-ring-shadow);
+}
+
+.root .coupon .button {
+  padding: 0.5rem 1rem;
+  background: var(--primary-3);
+  color: #fff;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+
+.root .coupon .button:hover {
+  background-color: var(--primary-5)
+}
+
+/* Divider */
+.root .divider {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 1rem 0;
+}
+
+/* Footer / Total Section */
+.root .total .row {
+  margin-bottom: 1.5rem;
+}
+
+.root .total .row .label {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #000;
+}
+
+.root .total .checkout {
+  width: 100%;
+}

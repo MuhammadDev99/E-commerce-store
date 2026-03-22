@@ -1,0 +1,51 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1em;
+  gap: 0.5em;
+  /* JS reads this gap */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: var(--white-light-2);
+}
+
+.numberedButtons .selected:hover {
+  background-color: var(--primary-4) !important
+}
+
+/* This is the secret to robustness: 
+   Render them, let them have their natural width, but hide them. */
+.hiddenMeasurement {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  display: flex;
+  flex-direction: row;
+  pointer-events: none;
+  z-index: -1;
+  /* Ensure no line breaks, so widths are accurate */
+  white-space: nowrap;
+}
+
+.numberedButtons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sideButton {
+  flex-shrink: 0;
+}

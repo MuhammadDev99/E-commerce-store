@@ -1,0 +1,51 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--border-radius-1);
+  padding: 0.5em 1em;
+  font-weight: bold;
+  cursor: pointer;
+  border: 0.05em solid transparent;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.container .icon {
+  height: 1em;
+}
+
+.disabled.container {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.normal.container {
+  background-color: var(--white-1);
+  border-color: var(--white-3);
+  color: var(--black-3);
+}
+
+.normal.container:hover {
+  background-color: var(--white-light-2);
+}
+
+.primary.container {
+  background-color: var(--primary-4);
+  color: var(--white-1);
+}
+
+.primary.container:hover {
+  background-color: var(--primary-6);
+}
+
+.negative.container {
+  background-color: var(--white-1);
+  border-color: var(--color-red-2);
+  color: var(--color-red-3);
+}
+
+.negative.container:hover {
+  background-color: rgb(255, 245, 245);
+}

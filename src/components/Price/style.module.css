@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.2em;
+  align-items: center;
+  font-weight: bold;
+  width: fit-content;
+  height: 1em;
+  direction: ltr;
+  color: inherit;
+  font-size: inherit;
+}
+
+.lineThrough.container {
+  text-decoration: line-through;
+  color: var(--black-5)
+}
+
+.container .riyalSymbol {
+  height: 65%;
+  color: inherit;
+}

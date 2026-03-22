@@ -1,0 +1,101 @@
+.container {
+  background-color: #ffffff;
+  border: 0.06em solid #e5e7eb;
+  border-radius: var(--border-radius-2);
+  padding: 1.1em;
+  box-shadow: var(--shadow-1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  direction: rtl;
+  width: fit-content;
+  height: fit-content;
+}
+
+
+/* Header Section */
+.container .header .headerMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.1em
+}
+
+.container .header .headerMain .textGroup .title {
+  font-size: 0.875em;
+  color: #6b7280;
+  margin: 0 0 0.2em 0;
+}
+
+.container .header .headerMain .textGroup .value {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.1667em;
+}
+
+.container .header .headerMain .textGroup .value .unit {
+  font-size: 0.6667em;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.container .header .headerMain .iconWrapper {
+  background-color: #f3f4f6;
+  padding: 0.625em;
+  background-color: color-mix(in srgb, var(--icon-color, #374151), transparent 90%);
+  border-radius: var(--border-radius-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container .header .headerMain .iconWrapper .icon {
+  width: 1.5em;
+  height: 1.5em;
+  color: var(--icon-color, #374151)
+}
+
+.container .footer {
+  display: flex;
+  align-items: center;
+  gap: 0.625em;
+  margin-top: 1.25em;
+}
+
+.container .footer .trendBadge {
+  display: flex;
+  align-items: center;
+  font-size: 0.75em;
+  gap: 0.3333em;
+  padding: 0.3333em 0.6667em;
+  border-radius: var(--border-radius-2);
+  font-weight: 600;
+}
+
+.container .footer .success {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.container .footer .danger {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.container .footer .trendBadge .trendIcon {
+  width: 1.1667em;
+  height: 1.1667em;
+  transition: transform 0.3s ease;
+}
+
+.container .footer .trendBadge .rotate {
+  transform: rotateX(180deg);
+}
+
+.container .footer .comparisonText {
+  font-size: 0.75em;
+  color: #9ca3af;
+  margin: 0;
+}

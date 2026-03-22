@@ -1,11 +1,11 @@
 // "use client";
-// import { Button, Textbox } from "@/app/external/my-library/components";
+// import { Button, Textbox } from "@/external/my-library/components";
 // import styles from "./style.module.css";
 // import { showMessage } from "@/utils/showMessage";
 // import { useSignal, useSignals } from "@preact/signals-react/runtime";
 // import { MessageUI } from "@/types";
-// import { safe } from "@/app/external/my-library/utils";
-// import PhoneInput from "@/app/external/my-library/components/html-elements/PhoneInput";
+// import { safe } from "@/external/my-library/utils";
+// import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput";
 // type RegisterForm = {
 //   firstName: string;
 //   lastName: string;
@@ -144,13 +144,13 @@
 // }
 
 "use client"
-import { Button, Textbox } from "@/app/external/my-library/components"
+import { Button, Textbox } from "@/external/my-library/components"
 import styles from "./style.module.css"
 import { showMessage } from "@/utils/showMessage"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import { MessageUI } from "@/types"
-import { safe } from "@/app/external/my-library/utils"
-import PhoneInput from "@/app/external/my-library/components/html-elements/PhoneInput"
+import { safe } from "@/external/my-library/utils"
+import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
 // 1. Import the authClient
 import { authClient } from "@/lib/auth-client"
 

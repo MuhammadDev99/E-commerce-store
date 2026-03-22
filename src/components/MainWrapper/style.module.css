@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.store.container {
+  padding-top: 3rem;
+}
+
+.dashboard.container {
+  padding-right: 13.95rem;
+}
