@@ -1,10 +1,10 @@
+// components/CouponsTable/index.tsx
 "use client"
 import clsx from "clsx"
 import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import Link from "next/link"
-// Import CouponTableKey to properly type your column state
 import { Coupon, CouponsTableHeader, CouponTableKey } from "@/types"
 import { useState, useTransition } from "react"
 import { getCouponsAdmin } from "@/utils/db"
@@ -16,16 +16,19 @@ export default function CouponsTable({
     initialTotalPages,
     pageSize = 10,
     initialSearchQuery = "",
-    initialSearchColumn = "code", // <--- 1. Default column
+    initialSearchColumn = "code",
+    initialSortColumn = "createdAt",
+    initialSortDirection = "desc",
 }: {
     className?: string
     initialData: Coupon[]
     initialTotalPages: number
     pageSize?: number
     initialSearchQuery?: string
-    initialSearchColumn?: CouponTableKey // <--- Strongly typed
+    initialSearchColumn?: CouponTableKey
+    initialSortColumn?: string
+    initialSortDirection?: "asc" | "desc"
 }) {
-    // 2. Add state for the column
     const [coupons, setCoupons] = useState<Coupon[]>(initialData)
     const [totalPages, setTotalPages] = useState(initialTotalPages)
     const [currentPage, setCurrentPage] = useState(0)
@@ -33,23 +36,35 @@ export default function CouponsTable({
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
     const [searchColumn, setSearchColumn] = useState<CouponTableKey>(initialSearchColumn)
 
+    const [sortColumn, setSortColumn] = useState<string>(initialSortColumn)
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(initialSortDirection)
+
     const [isPending, startTransition] = useTransition()
 
     const router = useRouter()
     const pathname = usePathname()
     const urlSearchParams = useSearchParams()
 
-    // 3. Update fetchData to accept the column
-    const fetchData = async (pageIndex: number, query: string, column: CouponTableKey) => {
+    const fetchData = async (
+        pageIndex: number,
+        query: string,
+        column: CouponTableKey,
+        sortCol: string,
+        sortDir: "asc" | "desc",
+    ) => {
         const newParams = new URLSearchParams(urlSearchParams.toString())
 
-        // Update query in URL
         if (query) newParams.set("q", query)
         else newParams.delete("q")
 
-        // Update column in URL
         if (column) newParams.set("col", column)
         else newParams.delete("col")
+
+        if (sortCol) newParams.set("sort", sortCol)
+        else newParams.delete("sort")
+
+        if (sortDir) newParams.set("dir", sortDir)
+        else newParams.delete("dir")
 
         router.replace(`${pathname}?${newParams.toString()}`, { scroll: false })
 
@@ -58,7 +73,9 @@ export default function CouponsTable({
                 page: pageIndex + 1,
                 pageSize,
                 query,
-                searchColumn: column, // Pass column to the DB action
+                searchColumn: column,
+                sortColumn: sortCol,
+                sortDirection: sortDir,
             })
             setCoupons(result.items)
             setTotalPages(result.totalPages)
@@ -67,21 +84,14 @@ export default function CouponsTable({
     }
 
     const headers: CouponsTableHeader[] = [
-        { display: "الكوبون", value: "code", searchable: true },
-        { display: "الاسم", value: "name", searchable: true },
-        { display: "النوع", value: "type", searchable: false },
-        { display: "القيمة", value: "value", searchable: false },
-        { display: "الحالة", value: "status", searchable: false },
-        { display: "الاستخدام", value: "usedCount", searchable: false },
+        { display: "الكوبون", value: "code", searchable: true, sortable: true },
+        { display: "الاسم", value: "name", searchable: true, sortable: true },
+        { display: "النوع", value: "type", searchable: false, sortable: true },
+        { display: "القيمة", value: "value", searchable: false, sortable: true },
+        { display: "الحالة", value: "status", searchable: false, sortable: true },
+        { display: "الاستخدام", value: "usedCount", databaseSupport: false },
     ]
-    // const headers: CouponsTableHeader[] = [
-    //     { display: "الكوبون", value: "code", searchable: true },
-    //     { display: "الاسم", value: "name", searchable: true },
-    //     { display: "النوع", value: "type", searchable: false },
-    //     { display: "القيمة", value: "value", searchable: false },
-    //     { display: "الحالة", value: "status", searchable: false,sortable },
-    //     { display: "الاستخدام", value: "usedCount", databaseSupport:false },
-    // ]
+
     const items = coupons.map((coupon) => {
         const isExpired = coupon.endDate && new Date(coupon.endDate) < new Date()
         const isFull = coupon.globalUsageLimit && (coupon.usedCount ?? 0) >= coupon.globalUsageLimit
@@ -93,6 +103,7 @@ export default function CouponsTable({
             free_shipping: "شحن مجاني",
         }[coupon.type]
 
+        // RESTORED: This returns the individual row UI
         return (
             <div key={coupon.id} className={clsx(styles.item, isPending && styles.loading)}>
                 <Link href={`/dashboard/marketing/coupon/${coupon.id}`} className={styles.code}>
@@ -132,15 +143,24 @@ export default function CouponsTable({
                 items={items}
                 currentPage={currentPage}
                 pagesCount={totalPages}
-                // Pass both searchQuery and searchColumn on page change
-                onPageChange={(p) => fetchData(p, searchQuery, searchColumn)}
-                // Update BOTH local states when the user interacts with the search/dropdown
+                onPageChange={(p) =>
+                    fetchData(p, searchQuery, searchColumn, sortColumn, sortDirection)
+                }
                 onSearch={(q, col) => {
                     setSearchQuery(q)
                     setSearchColumn(col)
                 }}
-                // Fetch using BOTH states
-                onSearchSubmit={() => fetchData(0, searchQuery, searchColumn)}
+                // 3. UPDATED: Use the raw arguments (q, col) passed up, bypassing the stale state!
+                onSearchSubmit={(q, col) => fetchData(0, q, col, sortColumn, sortDirection)}
+                searchQuery={searchQuery}
+                searchColumn={searchColumn as CouponTableKey}
+                sortColumn={sortColumn as CouponTableKey}
+                sortDirection={sortDirection}
+                onSortChange={(col, dir) => {
+                    setSortColumn(col)
+                    setSortDirection(dir)
+                    fetchData(0, searchQuery, searchColumn, col, dir)
+                }}
                 gridTemplate="1.5fr 2fr 1.5fr 1fr 1fr 1fr"
             />
         </div>

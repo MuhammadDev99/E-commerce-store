@@ -12,19 +12,24 @@ export default async function MarketingPage({
 }: {
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
-    // 1. Get the query and column from the URL
+    // 1. Get the query, column, and sorting details from the URL
     const params = await searchParams
     const searchQuery = params.q || ""
-    // Safely cast the URL param to your valid keys, defaulting to "code"
-    const searchColumn = (params.col as CouponTableKey) || "code"
 
-    // 2. Initial fetch for Page 1 with BOTH parameters
+    // Safely cast the URL params, providing default fallbacks
+    const searchColumn = (params.col as CouponTableKey) || "code"
+    const sortColumn = params.sort || "createdAt"
+    const sortDirection = (params.dir as "asc" | "desc") || "desc"
+
+    // 2. Initial fetch for Page 1 with BOTH search and sorting parameters
     const PAGE_SIZE = 3
     const result = await getCouponsAdmin({
         page: 1,
         pageSize: PAGE_SIZE,
         query: searchQuery,
         searchColumn: searchColumn,
+        sortColumn: sortColumn, // <--- Pass to DB
+        sortDirection: sortDirection, // <--- Pass to DB
     })
 
     return (
@@ -40,7 +45,9 @@ export default async function MarketingPage({
                 initialTotalPages={result.totalPages}
                 pageSize={PAGE_SIZE}
                 initialSearchQuery={searchQuery}
-                initialSearchColumn={searchColumn} // <--- Pass down to Client
+                initialSearchColumn={searchColumn}
+                initialSortColumn={sortColumn} // <--- Pass down to Client
+                initialSortDirection={sortDirection} // <--- Pass down to Client
             />
         </div>
     )

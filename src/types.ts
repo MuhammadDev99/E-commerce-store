@@ -1,3 +1,4 @@
+// types.ts
 import { product, coupon } from "./lib/auth-schema";
 export type DisplayLanguage = 'arabic' | 'english'
 export type Product = typeof product.$inferSelect;
@@ -10,8 +11,6 @@ export type ProductFormData = Omit<
   "id" | "userId" | "createdAt"
 > & { stockQuantity: number; discount: number };
 
-// Use a function instead of a constant (Best Practice)
-// This ensures you get a "fresh" object every time you reset the form
 export const getEmptyProduct = (): NewProduct => ({
   title: "",
   description: "",
@@ -19,12 +18,13 @@ export const getEmptyProduct = (): NewProduct => ({
   images: [],
   stockQuantity: 0,
   category: [],
-  gender: "Men", // Default value
+  gender: "Men",
   sizeMl: 0,
   tags: [],
   discount: 0,
   userId: ""
 });
+
 export type MessageUI = {
   title: string;
   content: string;
@@ -37,30 +37,21 @@ export type PageItems<T> = {
   pageNumber: number;
   totalItems: number;
   totalPages: number;
-  // This allows the client to fetch the specific data for this page
   getData: () => Promise<T[]>;
 }
+
 export interface TableHeader<V extends string = string> {
   display: string;
   value: V;
-  searchable: boolean;
+  searchable?: boolean;
+  sortable?: boolean;
+  databaseSupport?: boolean;
 }
 
-/**
- * A helper to generate the specialized header type for a specific row
- * T: The Drizzle InferSelect type (e.g. CouponRow)
- * K: Any extra UI/Virtual strings (e.g. "status")
- */
 export type TableHeaderFor<T, K extends string = never> = TableHeader<
   Extract<keyof T, string> | K
 >;
 
 export type CouponRow = typeof coupon.$inferSelect;
-
-
-// src/types.ts
-
-// Add this line right above CouponsTableHeader:
 export type CouponTableKey = Extract<keyof CouponRow, string> | "status";
-
 export type CouponsTableHeader = TableHeaderFor<CouponRow, "status">;

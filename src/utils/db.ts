@@ -5,7 +5,7 @@ import { cartItem, coupon, product, product as productTable } from "@/lib/auth-s
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CartItem, Coupon, CouponTableKey, NewProduct, PageItems, Product } from "@/types";
-import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 export async function addProductDB(productData: NewProduct) {
   const session = await auth.api.getSession({
@@ -247,7 +247,9 @@ export async function getCouponsAdmin(options: {
   page: number;
   pageSize: number;
   query?: string;
-  searchColumn?: CouponTableKey;
+  searchColumn?: string; // Keep this flexible or use CouponTableKey
+  sortColumn?: string;
+  sortDirection?: "asc" | "desc";
 }) {
   // 1. Security Check
   const session = await auth.api.getSession({
@@ -258,13 +260,13 @@ export async function getCouponsAdmin(options: {
     throw new Error("Unauthorized: Admin access required.");
   }
 
-  const { page, pageSize, query, searchColumn } = options;
+  const { page, pageSize, query, searchColumn, sortColumn = "createdAt", sortDirection = "desc" } = options;
 
-  // 2. Pagination Math (Ensuring 1-based indexing from UI is handled)
+  // 2. Pagination Math
   const validPage = Math.max(1, page);
   const offset = (validPage - 1) * pageSize;
 
-  // 3. Dynamic Filter Building
+  // 3. Dynamic Filter Building (RESTORED)
   let filters = undefined;
 
   if (query && query.trim() !== "") {
@@ -316,7 +318,27 @@ export async function getCouponsAdmin(options: {
     }
   }
 
-  // 4. Database Queries (Run in parallel for better performance)
+  // 4. Dynamic Sorting Block
+  let orderByCol;
+  switch (sortColumn) {
+    case "code": orderByCol = coupon.code; break;
+    case "name": orderByCol = coupon.name; break;
+    case "type": orderByCol = coupon.type; break;
+    case "value": orderByCol = coupon.value; break;
+    case "usedCount": orderByCol = coupon.usedCount; break;
+    case "status":
+      // Sorts statuses visually separating them using their database boolean expression
+      orderByCol = sql`(${coupon.endDate} IS NOT NULL AND ${coupon.endDate} < NOW()) OR (${coupon.globalUsageLimit} IS NOT NULL AND ${coupon.usedCount} >= ${coupon.globalUsageLimit})`;
+      break;
+    case "createdAt":
+    default:
+      orderByCol = coupon.createdAt;
+      break;
+  }
+
+  const orderFn = sortDirection === "asc" ? asc : desc;
+
+  // 5. Database Queries
   const [data, [countResult]] = await Promise.all([
     // Fetch the actual rows
     db
@@ -325,13 +347,13 @@ export async function getCouponsAdmin(options: {
       .where(filters)
       .limit(pageSize)
       .offset(offset)
-      .orderBy(desc(coupon.createdAt)),
+      .orderBy(orderFn(orderByCol)), // Apply Sorting
 
     // Fetch total count for pagination buttons
     db
       .select({ value: count() })
       .from(coupon)
-      .where(filters),
+      .where(filters), // Apply Filters
   ]);
 
   return {
