@@ -1,0 +1,15 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 0.15em;
+  direction: ltr;
+  width: fit-content;
+}
+
+.star {
+  width: 1em;
+  height: 1em;
+  color: #fbbf24;
+  flex-shrink: 0;
+  transition: color 0.2s ease-in-out;
+}

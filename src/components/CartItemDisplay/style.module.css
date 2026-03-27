@@ -1,0 +1,100 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  gap: 1em;
+  padding: 0.2em;
+  box-sizing: border-box;
+  border: 0.05rem solid white;
+  cursor: pointer;
+}
+
+
+.title {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.price {
+  font-size: 1.5em;
+}
+
+.info {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5em;
+  align-items: center;
+}
+
+.info .header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info .header .priceContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 1em;
+}
+
+.info .header .priceContainer .oldPrice {
+  font-size: 0.7rem;
+}
+
+.info .footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1em;
+}
+
+.info .footer .total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.5em !important;
+  gap: 0.25em;
+}
+
+.info .footer .total .word {
+  font-size: 0.75em;
+}
+
+.info .quantityInput {
+  height: fit-content;
+  width: 6em;
+}
+
+.root .imageWrapper {
+  height: 6em;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.root .imageWrapper .image {
+  height: 100%;
+}
+
+.removeButton {
+  position: absolute;
+  height: 1.5rem;
+
+  /* Vertical Centering */
+  top: 50%;
+  transform: translateY(-50%);
+
+  /* Horizontal Position */
+  left: 0.3em;
+
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  /* Optional: makes the hover smoother */
+}
+
+.removeButton:hover {
+  opacity: 1;
+}

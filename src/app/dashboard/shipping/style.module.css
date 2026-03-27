@@ -1,6 +1,210 @@
-.page {
+/* Main Layout */
+.pageContainer {
+  padding: 2rem;
+  background-color: #f4f6f8;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* Consider using your project's font variable */
+  direction: rtl;
+  /* RTL Support matching your Navbar */
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.titleSection h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.headerIcon {
+  width: 28px;
+  height: 28px;
+  fill: #4f46e5;
+  /* Indigo accent */
+}
+
+.pageHeader p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Grid System */
+.gridLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  /* 2/3 for table, 1/3 for settings */
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .gridLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1.25rem 0;
+  color: #334155;
+  font-weight: 600;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+}
+
+/* Table Styles */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+
+.table th {
+  text-align: right;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table td {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.selectedRow {
+  background-color: #f8fafc;
+}
+
+/* Buttons */
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.primaryBtn:hover {
+  background-color: #4338ca;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #64748b;
+}
+
+.iconBtn:hover {
+  color: #4f46e5;
+}
+
+.btnIcon {
+  width: 16px;
+  height: 16px;
+  fill: white;
+}
+
+.outlineBtn {
+  width: 100%;
+  padding: 0.6rem;
+  border: 2px dashed #cbd5e1;
+  background: transparent;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.outlineBtn:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Sidebar Widgets */
+.companyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.companyInfo {
   display: flex;
   flex-direction: column;
-  background-color: beige;
-  height: 100%;
+  gap: 0.25rem;
+}
+
+.statusActive {
+  font-size: 0.75rem;
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.zoneItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.price {
+  font-weight: 600;
+  color: #334155;
 }

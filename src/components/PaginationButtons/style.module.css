@@ -3,7 +3,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 1em;
+  padding: 0.5em 1em;
   gap: 0.5em;
   /* JS reads this gap */
   width: 100%;
@@ -11,6 +11,10 @@
   overflow: hidden;
   background-color: var(--white-light-2);
 }
+
+/* .root button {
+  font-size: 1em;
+} */
 
 .numberedButtons .selected:hover {
   background-color: var(--primary-4) !important

@@ -14,6 +14,9 @@ import {
     loginNav,
     logoHorizontal,
     registerNav,
+    PersonCircleSVG,
+    ShoppingCartSVG,
+    MagnifyingGlassSVG,
 } from "@/images"
 import { Product } from "@/types"
 import arabicProductsRaw from "./perfumes_arabic.json"
@@ -22,7 +25,9 @@ import { Text } from "@/external/my-library/components"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import { useRouter } from "next/navigation"
 import SearchOverlay from "@/components/SearchOverlay"
-import { searchSignal } from "@/signals"
+import { cartCountSignal, searchSignal } from "@/signals"
+import { useEffect } from "react"
+import { getCartCount } from "@/utils/db"
 const arabicProducts = arabicProductsRaw as Product[]
 const categories = [
     "الافضل مبيعاً",
@@ -35,27 +40,37 @@ const categories = [
 ]
 
 export default function Navbar() {
+    useSignals() // 1. Enable signals reactivity
     const router = useRouter()
+    const { data: session } = authClient.useSession()
 
+    // 2. Fetch cart count on mount or when session changes
+    useEffect(() => {
+        if (session) {
+            getCartCount().then((count) => {
+                cartCountSignal.value = count
+            })
+        } else {
+            cartCountSignal.value = 0
+        }
+    }, [session])
     const items = ["عود", "بخورات", "مسك", "رجالي"]
     return (
         <div className={styles.container}>
             <div className={styles.buttons}>
-                <Image
-                    src={accountImg}
-                    alt="account"
+                <Link href={"/login"} className={styles.accountWrapper}>
+                    <PersonCircleSVG className={styles.account} />
+                    {session && <p className={styles.name}>{session.user.name.split(" ")[0]}</p>}
+                </Link>
+
+                <Link href={"/cart"} className={styles.cartWrapper}>
+                    {session && cartCountSignal.value > 0 && (
+                        <p className={styles.count}>{cartCountSignal.value}</p>
+                    )}
+                    <ShoppingCartSVG className={styles.account} />
+                </Link>
+                <MagnifyingGlassSVG
                     className={styles.account}
-                    onClick={() => router.push("/login")}
-                />
-                <Image
-                    src={cartImg}
-                    alt="cart"
-                    className={styles.cart}
-                    onClick={() => router.push("/cart")}
-                />
-                <Image
-                    src={searchImg}
-                    alt="search"
                     onClick={() => (searchSignal.value = !searchSignal.value)}
                 />
             </div>

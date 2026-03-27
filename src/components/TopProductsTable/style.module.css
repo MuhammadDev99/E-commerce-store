@@ -5,13 +5,14 @@
   direction: rtl;
   overflow: hidden;
   border: var(--border-line-2);
-  border-radius: var(--border-radius-2)
+  border-radius: var(--border-radius-2);
 }
 
 .root .header {
   background-color: var(--white-light-2);
   font-weight: bold;
-  color: var(--black-3)
+  color: var(--black-3);
+  border-bottom: var(--border-line-2)
 }
 
 .root .header,
@@ -24,11 +25,22 @@
   align-items: center;
 }
 
-.root .items .item {
+.root .items {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex: 1;
+}
+
+.root .item {
   border-top: var(--border-line-2)
 }
 
-.root .items .item .product {
+.root .item:first-child {
+  border: none;
+}
+
+.root .item .product {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -36,7 +48,7 @@
   padding-left: 0.5em;
 }
 
-.root .items .item .product .imageWrapper {
+.root .item .product .imageWrapper {
   display: flex;
   height: 2rem;
   width: 2rem;
@@ -45,17 +57,17 @@
   flex-shrink: 0;
 }
 
-.root .items .item .product img {
+.root .item .product img {
   height: 100%;
 }
 
-.root .items .item .product .title {
+.root .item .product .title {
   color: var(--black-1);
   cursor: pointer;
   text-decoration: none;
 }
 
-.root .items .item .product .title:hover {
+.root .item .product .title:hover {
   color: var(--primary-2);
   text-decoration: underline;
   /* font-weight: bold; */
@@ -64,4 +76,8 @@
 .root .price,
 .root .total {
   color: var(--black-2)
+}
+
+.pagination {
+  border-top: var(--border-line-2)
 }

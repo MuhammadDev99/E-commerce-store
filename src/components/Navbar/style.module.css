@@ -81,3 +81,74 @@
 .categories p {
   margin: 0;
 }
+
+.accountWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* .accountWrapper:hover .name {
+  font-size: 0.55em;
+} */
+
+.name {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.5em;
+  margin-top: -0.3em;
+  z-index: 10;
+  padding: 0.2em 0.8em;
+  border-radius: var(--border-radius-pill);
+  /* transition: var(--transition); */
+  font-weight: bold;
+  /* background-color: var(--primary-4);
+  color: white; */
+}
+
+.container .buttons a {
+  height: 1.5em;
+}
+
+.container .buttons svg,
+.container .buttons p {
+  /* transition: color 150ms ease-in-out; */
+}
+
+.container .buttons svg {
+  height: 1.5em;
+  color: inherit;
+  cursor: pointer;
+  /* color: red;
+  background-color: aqua; */
+}
+
+.container .buttons a {
+  color: black;
+}
+
+.container .buttons a:hover,
+.container .buttons svg:hover {
+  color: var(--primary-3);
+}
+
+.container .cartWrapper {
+  position: relative;
+}
+
+.container .cartWrapper .count {
+  position: absolute;
+  background-color: var(--primary-4);
+  font-weight: bold;
+  color: white;
+  padding: 0.1em 0.3em;
+  border-radius: 50%;
+  top: -0.2em;
+  right: -0.7em;
+  font-size: 0.5em;
+  min-width: 1.1em;
+  text-align: center;
+}

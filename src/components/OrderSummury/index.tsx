@@ -4,19 +4,22 @@ import { Button } from "@/external/my-library/components"
 import Price from "../Price"
 import styles from "./style.module.css"
 import clsx from "clsx"
-import { Product } from "@/types"
+import { CartItem } from "@/types"
 import { TAX_PERCENTAGE } from "@/config"
 
 export default function OrderSummary({
     className,
     products,
 }: {
-    products: Product[]
+    products: CartItem[]
     className?: string
 }) {
     const { subtotal, discount, tax, total } = useMemo(() => {
-        const sub = products.reduce((acc, item) => acc + item.price, 0)
-        const disc = products.reduce((acc, item) => acc + item.price * (item.discount / 100), 0)
+        const sub = products.reduce((acc, item) => acc + item.price * item.quantity, 0)
+        const disc = products.reduce(
+            (acc, item) => acc + item.price * item.quantity * (item.discount / 100),
+            0,
+        )
         const t = (sub - disc) * TAX_PERCENTAGE
         return {
             subtotal: sub,

@@ -1,0 +1,84 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.item .customer {
+  display: flex;
+  flex-direction: row;
+  height: 3em;
+  gap: 1em;
+  width: fit-content;
+  align-items: center;
+  font-weight: bold;
+  color: var(--black-3);
+}
+
+.item .customer .imageWrapper {
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  background-color: var(--black-4);
+  box-shadow: var(--shadow-4);
+}
+
+.item .customer .imageWrapper .image {
+  width: 100%;
+  object-fit: cover;
+}
+
+.item .customer .imageWrapper .nameShort {
+  position: absolute;
+  bottom: 50%;
+  right: 50%;
+  translate: 50% 50%;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.item .contact {
+  color: var(--black-3)
+}
+
+.item .contact>p {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3em;
+  align-items: center;
+}
+
+.item .contact svg {
+  height: 1em;
+}
+
+.item .contact .phone span {
+  direction: ltr;
+}
+
+.item .customer .name {
+  text-decoration: none;
+  color: var(--black-2);
+}
+
+.item .customer .name:hover {
+  color: var(--primary-3);
+  text-decoration: underline;
+}
+
+.item .orderCount {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--black-2)
+}
+
+.item .totalSpent {
+  font-size: 1.1em;
+  color: var(--black-2)
+}

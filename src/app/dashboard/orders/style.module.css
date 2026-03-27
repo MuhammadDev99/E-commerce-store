@@ -32,3 +32,7 @@
 .cards .cancled {
   --icon-color: var(--color-cherry-4);
 }
+
+.ordersTable {
+  height: 90vh;
+}

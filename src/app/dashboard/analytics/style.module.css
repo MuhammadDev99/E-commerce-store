@@ -130,3 +130,7 @@
 .charts .sales {
   flex-grow: 1;
 }
+
+.productsTable {
+  height: 90vh;
+}

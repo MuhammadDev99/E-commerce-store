@@ -1,0 +1,104 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--white-light-2);
+  direction: rtl;
+  overflow: hidden;
+  border: var(--border-line-2);
+  border-radius: var(--border-radius-2);
+  /* height: 100%; */
+}
+
+.root .title {
+  font-size: 1.5em;
+  text-align: center;
+  margin-top: 0.3em;
+  font-weight: bold;
+  color: var(--black-3)
+}
+
+.root .header {
+  background-color: var(--white-light-2);
+  font-weight: bold;
+  color: var(--black-3);
+  font-size: 0.85em;
+  border-bottom: var(--border-line-2);
+}
+
+.root .items {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex: 1;
+  background-color: white;
+}
+
+.root .items>div {
+  border-top: var(--border-line-2)
+}
+
+.root .items>div:first-child {
+  border: none;
+}
+
+.root .header,
+
+
+.items>div {
+  display: grid;
+  /* Use the full template variable here */
+  grid-template-columns: var(--grid-template);
+
+  padding: 1em 2em;
+  align-items: center;
+}
+
+
+.price,
+.total {
+  color: var(--black-2)
+}
+
+.pagination {
+  border-top: var(--border-line-2);
+  font-size: 1em;
+}
+
+.root .searchWrapper {
+  background-color: var(--white-light-2);
+  padding: 1em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1em;
+}
+
+.root .search {
+  /* --accent-color: var(--primary-7); */
+  font-size: 1rem;
+  flex-grow: 1;
+}
+
+.root .searchOptions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5em;
+  color: var(--black-3)
+}
+
+.root .searchOptions>div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.root .searchOptions .searchSortWrapper .sortDirectionButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.57em;
+  height: 3.7em;
+  justify-content: space-between;
+}

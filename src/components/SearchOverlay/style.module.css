@@ -11,6 +11,7 @@
   font-size: large;
   z-index: 6;
   box-sizing: border-box;
+  font-size: 1rem;
 }
 
 .panel {
@@ -19,7 +20,7 @@
   background-color: var(--white-2);
   margin: 3rem auto;
   padding: 1rem;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-1);
   max-height: 90%;
 }
 
@@ -30,7 +31,7 @@
   padding: 0.1rem;
   height: 2.5rem;
   box-sizing: border-box;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-1);
   align-items: center;
   transition: 300ms ease-out;
 }
@@ -42,8 +43,8 @@
 .panel .search input {
   border: none;
   flex-grow: 1;
-  border-top-right-radius: var(--border-radius);
-  border-bottom-right-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius-1);
+  border-bottom-right-radius: var(--border-radius-1);
   padding: 0 0.5rem;
   height: 100%;
   font-size: 1rem;
@@ -80,7 +81,7 @@
   overflow-y: auto;
   max-height: 60vh;
   background-color: white;
-  border-radius: var(--border-radius)
+  border-radius: var(--border-radius-1)
 }
 
 .panel .results>div {

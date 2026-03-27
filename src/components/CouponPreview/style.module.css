@@ -1,0 +1,68 @@
+.previewWrapper {
+  display: flex;
+  justify-content: center;
+  background-color: #f9fafb;
+}
+
+.couponCard {
+  background: linear-gradient(135deg, var(--primary-2) 0%, var(--primary-4) 40%, var(--primary-4) 60%, var(--primary-2) 100%);
+  color: white;
+  width: 12em;
+  padding: 1em;
+  border-radius: var(--border-radius-2);
+  position: relative;
+  text-align: center;
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+
+.brandName {
+  font-size: 0.9em;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.discountValue {
+  font-size: 2.25em;
+  font-weight: 800;
+  margin: 0.2em 0;
+}
+
+.discountLabel {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.dashDivider {
+  border-top: 0.1em dashed rgba(255, 255, 255, 0.3);
+  margin: 0.8em 0;
+}
+
+.codeContainer {
+  background: white;
+  color: var(--primary-2);
+  padding: 0.25em;
+  border-radius: var(--border-radius-1);
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+/* Decorative ticket circles */
+.circle {
+  position: absolute;
+  width: 0.8em;
+  height: 0.82em;
+  background-color: var(--white-light-2);
+  border-radius: 50%;
+  top: 70%;
+}
+
+.leftCircle {
+  left: -0.4em;
+}
+
+.rightCircle {
+  right: -0.4em;
+}

@@ -19,41 +19,30 @@ export function debounced<T extends (...args: any[]) => void>(
 }
 
 import { MOCK_PRODUCTS } from "@/mockData";
-import { addedItemSignal } from "@/signals";
+import { addedItemSignal, cartCountSignal } from "@/signals";
 import { ADD_TO_CART_NOTIFICATION_DELAY } from "@/config";
+import { addItemToCartDB } from "./db";
+import { db } from "@/db";
+import { cartItem } from "@/lib/auth-schema";
 export async function searchProducts(query: string): Promise<Product[]> {
     return new Promise(resolve => {
         resolve(MOCK_PRODUCTS.filter(product => product.title.toLowerCase().includes(query.toLowerCase())))
     })
 }
 
-export async function getProductById(id: number): Promise<Product> {
-    return new Promise(resolve => {
-        const foundProduct = MOCK_PRODUCTS.find(product => product.id === id);
-        if (!foundProduct) {
-            throw new Error("Product not found")
-        }
-        resolve(foundProduct)
-    })
-}
 
-export async function getCartItems(): Promise<Product[]> {
-    return new Promise(resolve => {
-        resolve(MOCK_PRODUCTS.filter(x => x.id < 4))
-    })
-}
-let timeout: ReturnType<typeof setTimeout>
-export async function addItemToCart(product: Product, qunaitity: number = 1): Promise<boolean> {
-    return new Promise(resolve => {
-        if (timeout) {
-            clearTimeout(timeout)
-        }
-        addedItemSignal.value = { ...product }
-        timeout = setTimeout(() => addedItemSignal.value = null, ADD_TO_CART_NOTIFICATION_DELAY)
-        resolve(true)
-    })
-}
+let timeout: ReturnType<typeof setTimeout>;
 
+export async function addItemToCart(product: Product, quantity: number = 1): Promise<boolean> {
+    if (timeout) clearTimeout(timeout);
+
+    addedItemSignal.value = { ...product };
+    timeout = setTimeout(() => addedItemSignal.value = null, ADD_TO_CART_NOTIFICATION_DELAY);
+    await addItemToCartDB(product, quantity);
+    cartCountSignal.value++
+
+    return true;
+}
 interface FormatOptions {
     style?: 'short' | 'medium' | 'long' | 'full'; // Preset styles (short, medium, etc.)
     showDate?: boolean;  // Whether to include the date
@@ -100,4 +89,31 @@ export function formatTime(
 
 export function getProductLinkById(id: number): string {
     return '/product/' + id
+}
+
+export function getClientLinkById(id: number | string): string {
+    return '/clients/' + id
+}
+export function assertNever(x: never): never {
+    throw new Error("Unexpected object: " + x);
+}
+/**
+ * Converts a string into a consistent "random" number within a specific range.
+ * The same input string will always produce the same output.
+ */
+export function stringToRandom(text: string, min: number = 0, max: number = 1): number {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        // Simple hash to turn string into a large integer
+        hash = text.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    /**
+     * Math.sin(hash) returns a value between -1 and 1.
+     * This "scrambles" sequential inputs so that 1 and 2 
+     * result in completely different parts of the sine wave.
+     */
+    const pseudoRandom = (Math.sin(hash) + 1) / 2; // Normalize -1..1 to 0..1
+
+    return min + pseudoRandom * (max - min);
 }

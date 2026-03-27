@@ -1,0 +1,68 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.item .pill {
+  --accent-color: aqua;
+  padding: 0.25em 0.75em;
+  width: fit-content;
+  border-radius: var(--border-radius-pill);
+  background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+  color: var(--accent-color);
+  font-weight: bold;
+  /* border: 0.05em solid var(--accent-color) */
+}
+
+.item .pill.active {
+  --accent-color: var(--color-green-4)
+}
+
+.item .pill.expired {
+  --accent-color: var(--color-red-4)
+}
+
+.item .pill.fixed {
+  --accent-color: var(--color-flamingo-4)
+}
+
+.item .pill.percentage {
+  --accent-color: var(--color-azure-4)
+}
+
+.item .pill.free_shipping {
+  --accent-color: var(--color-mango-4)
+}
+
+.item>p,
+.item>a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item .code {
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--black-3);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.item .code:hover {
+  color: var(--primary-4);
+  text-decoration: underline;
+}
+
+.item .type {}
+
+.item .value,
+.item .value>div {
+  font-weight: normal;
+  color: var(--black-1);
+}
+
+.item .status {}
+
+
+.item .usageCount {}

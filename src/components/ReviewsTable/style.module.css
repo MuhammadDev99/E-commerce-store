@@ -1,0 +1,100 @@
+.item .pill {
+  --accent-color: aqua;
+  padding: 0.25em 0.75em;
+  width: fit-content;
+  border-radius: var(--border-radius-pill);
+  background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.item .pill.approved {
+  --accent-color: var(--color-green-4)
+}
+
+.item .pill.pending {
+  --accent-color: var(--color-orange-4)
+}
+
+.item .pill.hidden {
+  --accent-color: var(--color-red-4)
+}
+
+.customer {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: bold;
+  color: var(--black-3);
+}
+
+.email {
+  font-size: 0.75em;
+  color: var(--gray-3);
+}
+
+
+.comment {
+  color: #4b5563;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  /* Limits comment to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.85em;
+  padding-left: 1em;
+}
+
+
+.actions {
+  display: flex;
+  gap: 0.5em;
+}
+
+.status {
+  --accent-color: var(--primary-4);
+}
+
+.status.public {
+  --accent-color: var(--color-green-4);
+}
+
+.status.private {
+  --accent-color: var(--color-red-4);
+}
+
+.status>div {
+  border-color: var(--accent-color) !important;
+  background-color: color-mix(in srgb, var(--accent-color), transparent 90%) !important;
+}
+
+.status select {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.rating {
+  font-weight: bold;
+  color: var(--accent-color);
+  background-color: color-mix(in srgb, var(--accent-color), transparent 85%);
+  width: fit-content;
+  padding: 0.3em 0.4em;
+  border-radius: 50%;
+  border: 0.1em solid var(--accent-color);
+}
+
+.product {
+  padding-left: 0.3em;
+  color: var(--black-2)
+}
+
+.item a {
+  text-decoration: none;
+}
+
+.item a:hover {
+  text-decoration: underline;
+  color: var(--primary-4);
+}

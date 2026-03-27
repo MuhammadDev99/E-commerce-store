@@ -16,7 +16,7 @@
   --border-color: rgb(199, 199, 199);
   --border-line-1: 0.05rem solid var(--white-2);
   --border-line-2: 0.05rem solid var(--white-3);
-  --focus-ring-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  --focus-ring-shadow: 0 0 0 0.12em rgba(99, 102, 241, 0.15);
   --transition: all 200ms ease-in-out;
   --transition-2: all 175ms ease-in-out;
 
@@ -51,6 +51,7 @@
   --primary-9: rgb(242, 240, 255);
   --primary-10: rgb(250, 250, 255); */
   --primary-base: rgb(48, 20, 255);
+  /* --primary-base: rgb(15, 12, 104); */
   /* Generating the scale by mixing with white */
   --primary-1: var(--primary-base);
   --primary-2: color-mix(in srgb, var(--primary-base), white 10%);
@@ -64,6 +65,13 @@
   --primary-10: color-mix(in srgb, var(--primary-base), white 90%);
   --primary-11: color-mix(in srgb, var(--primary-base), white 98%);
 
+  --primary-light-1: color-mix(in srgb, var(--primary-base), white 90%);
+  --primary-light-2: color-mix(in srgb, var(--primary-base), white 91.5%);
+  --primary-light-3: color-mix(in srgb, var(--primary-base), white 93%);
+  --primary-light-4: color-mix(in srgb, var(--primary-base), white 94.5%);
+  --primary-light-5: color-mix(in srgb, var(--primary-base), white 96%);
+  --primary-light-6: color-mix(in srgb, var(--primary-base), white 97.5%);
+  --primary-light-7: color-mix(in srgb, var(--primary-base), white 99%);
   /* --primary-1: color-mix(in srgb, var(--primary-color), black 15%);
   --primary-2: var(--primary-color);
   --primary-3: color-mix(in srgb, var(--primary-color), white 10%);

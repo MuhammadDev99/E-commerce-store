@@ -1,0 +1,100 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  width: 100%;
+}
+
+.root .label {
+  font-size: 1.1em;
+  color: var(--black-3);
+  transition: var(--transition);
+  margin: 0;
+}
+
+.root:has(.inputWrapper:focus-within) .label {
+  color: var(--primary-2);
+}
+
+.root .inputWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: var(--border-radius-1);
+  border: 0.08em solid var(--white-4);
+  background-color: white;
+  height: 2.3em;
+  padding: 0 0.4em;
+  gap: 0.3em;
+  box-sizing: border-box;
+  transition: var(--transition);
+  position: relative;
+  /* This prevents internal elements from overlapping the rounded corners */
+  overflow: hidden;
+  outline: 0.16em solid transparent;
+  width: 100%;
+}
+
+.root.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.root .inputWrapper:focus-within {
+  outline: 0.16em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+  border-color: var(--primary-4);
+}
+
+.root .inputWrapper .unit {
+  color: var(--gray-3);
+  pointer-events: none;
+  user-select: none;
+}
+
+.root .input {
+  min-width: 0;
+  height: 100%;
+  border: none !important;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+  caret-color: var(--primary-3);
+}
+
+/* FIX: Ensure number arrows (spin buttons) stay inside the input and are aligned */
+.root .input::-webkit-outer-spin-button,
+.root .input::-webkit-inner-spin-button {
+  height: 1.5em;
+  margin: 0;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Validation Styles */
+.root.required .label::after {
+  content: '*';
+  margin-left: 0.2em;
+  color: var(--color-red-3);
+}
+
+.root.negative .inputWrapper {
+  border-color: var(--color-red-4);
+}
+
+.root.negative .inputWrapper:focus-within {
+  border-color: var(--color-red-4);
+  outline-color: var(--color-red-1);
+}
+
+.root .message {
+  margin: 0.2em 0 0 0;
+  font-size: 0.75em;
+}
+
+.root.negative .message {
+  color: var(--color-red-4);
+}
+
+/* Note: Removed .input::after because <input> tags cannot have pseudo-elements */

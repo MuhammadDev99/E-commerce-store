@@ -1,20 +1,75 @@
 .page {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: 2em;
+  gap: 2em;
 }
 
-.addProducts {
+.arabic.page {
+  direction: rtl;
+}
+
+.page .title {
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+.page .productDisplay {
+  width: 15rem;
+}
+
+.page .form {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  gap: 1em;
 }
 
-.addProducts .inputs {
+.form .inputs {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.addProducts .inputs input {
+.form .inputs input {
   font-size: 1rem;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: row;
+  border-radius: var(--border-radius-2);
+  border: var(--border-line-2);
+  box-shadow: var(--shadow-1);
+  background-color: var(--white-1);
+  padding: 2em;
+}
+
+.fullProductDisplay {
+  border-radius: var(--border-radius-2);
+  border: var(--border-line-2);
+  box-shadow: var(--shadow-1)
+}
+
+.form .gender {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.form .gender .label {
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+.form .gender .options {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.form .addProductButton {
+  font-size: 1rem;
+  margin-top: 1em;
+  width: 50%;
 }

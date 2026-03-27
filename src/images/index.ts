@@ -37,6 +37,17 @@ import WrongSVG from './vectors/wrong.svg'
 import ClockSVG from './vectors/clock.svg'
 import DownArrow2SVG from './vectors/down-arrow-2.svg'
 import GlobeSVG from './vectors/globe.svg'
+import MailSVG from './vectors/mail.svg'
+import PhoneSVG from './vectors/phone.svg'
+import PinSVG from './vectors/pin.svg'
+import ControlsSVG from './vectors/controls.svg'
+import DateSVG from './vectors/date.svg'
+import TicketSVG from './vectors/ticket.svg'
+import EditSVG from './vectors/edit.svg'
+import PrintSVG from './vectors/print.svg'
+import PersonCircleSVG from './vectors/person-circle.svg'
+import ShoppingCartSVG from './vectors/shopping-cart.svg'
+import MagnifyingGlassSVG from './vectors/magnifying-glass.svg'
 export {
   DashboardNav,
   HomeNav,
@@ -76,5 +87,16 @@ export {
   ClockSVG,
   WrongSVG,
   DownArrow2SVG,
-  GlobeSVG
+  GlobeSVG,
+  MailSVG,
+  PhoneSVG,
+  PinSVG,
+  ControlsSVG,
+  DateSVG,
+  TicketSVG,
+  EditSVG,
+  PrintSVG,
+  PersonCircleSVG,
+  ShoppingCartSVG,
+  MagnifyingGlassSVG
 };

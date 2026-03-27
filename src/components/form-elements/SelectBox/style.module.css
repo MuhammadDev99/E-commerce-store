@@ -1,0 +1,103 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  gap: 0.2em;
+
+}
+
+.root .label {
+  font-size: 1.1em;
+  color: var(--black-3);
+  transition: var(--transition);
+}
+
+.root .dropdownWrapper {
+  border-radius: var(--border-radius-1);
+  border: 0.08em solid var(--white-4);
+  outline: none;
+  font-size: 1em;
+  padding: 0 0.4em;
+  caret-color: var(--primary-3);
+  min-width: none;
+  transition: var(--transition);
+  outline: 0.16em solid transparent;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+  box-sizing: border-box;
+  height: 2.3em;
+}
+
+.root:has(.dropdownWrapper:focus-within) .label {
+  color: var(--primary-2);
+}
+
+/* style.module.css */
+
+.root .dropdownWrapper .dropdown {
+  font-size: inherit;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  /* Make sure it fills the wrapper */
+
+  /* 1. Hide the native arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* 2. Add custom arrow as background */
+  /* This is a standard Down Arrow SVG encoded for CSS */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+
+  background-size: 1em;
+
+  background-position: right 0.25em center;
+
+  padding-right: 1.6em;
+
+  background-color: transparent;
+}
+
+/* Optional: Target IE11 if you need to */
+.root .dropdownWrapper .dropdown::-ms-expand {
+  display: none;
+}
+
+.root.required .label::after {
+  content: '*';
+  margin-left: 0.2em;
+  color: var(--color-red-3);
+}
+
+.root.negative .input {
+  border-color: var(--color-red-4);
+}
+
+.root.negative .input:focus {
+  border-color: var(--color-red-4);
+  outline-color: var(--color-red-1)
+}
+
+.root .message {
+  margin-top: 0.2em;
+  font-size: 0.75em;
+}
+
+.root.negative .message {
+  color: var(--color-red-4);
+}
+
+.root.required .input::after {
+  content: "*";
+}
+
+.root .dropdownWrapper:focus-within {
+  outline: 0.16em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+  border-color: var(--primary-4);
+}

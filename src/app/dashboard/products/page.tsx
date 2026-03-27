@@ -10,6 +10,11 @@ import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { safe } from "@/external/my-library/utils"
 import { useSignout } from "@/utils/auth"
+import ProductDisplay from "@/components/ProductDisplay"
+import FullProductDisplay from "@/components/FullProductDisplay"
+import Button from "@/components/Button"
+import { getDisplayLanguage } from "@/utils"
+import clsx from "clsx"
 
 export default function ProductsPage() {
     useSignals()
@@ -18,7 +23,7 @@ export default function ProductsPage() {
     // 2. Get the session data
     const { data: session } = authClient.useSession()
 
-    const product = useSignal<ProductFormData>(getEmptyProduct())
+    const product = useSignal<NewProduct>(getEmptyProduct())
 
     const addProduct = async () => {
         const {
@@ -33,10 +38,18 @@ export default function ProductsPage() {
             tags,
             discount,
         } = product.value
-        if (!title || !description || price <= 0 || sizeMl <= 0 || stockQuantity < 0 || !category) {
-            showMessage("Please fill all information")
-            return
-        }
+        // if (
+        //     !title ||
+        //     !description ||
+        //     price <= 0 ||
+        //     sizeMl <= 0 ||
+        //     !stockQuantity ||
+        //     stockQuantity < 0 ||
+        //     !category
+        // ) {
+        //     showMessage("Please fill all information")
+        //     return
+        // }
         const result = await safe(addProductDB(product.value))
         if (result.success) {
             showMessage({
@@ -54,84 +67,71 @@ export default function ProductsPage() {
             })
         }
     }
-
-    // 3. Handle Logout
-
+    const displayLanguage = getDisplayLanguage()
     return (
-        <div className={styles.page}>
-            {/* 4. User Header Section */}
-            <header className={styles.header}>
-                <div className={styles.userInfo}>
-                    {session ? (
-                        <p>
-                            Welcome, <strong>{session.user.name}</strong>
-                        </p>
-                    ) : (
-                        <p>Loading user...</p>
-                    )}
+        <div className={clsx(styles.page, styles[displayLanguage])}>
+            <div className={styles.formContainer}>
+                <div className={styles.form}>
+                    <p className={styles.title}>أضف منتج</p>
+                    <div className={styles.inputs}>
+                        <Textbox
+                            label="الاسم"
+                            value={product.value.title}
+                            onChange={(value) =>
+                                (product.value = { ...product.value, title: value })
+                            }
+                        />
+
+                        <Textbox
+                            label="الوصف"
+                            value={product.value.description}
+                            onChange={(value) =>
+                                (product.value = { ...product.value, description: value })
+                            }
+                        />
+
+                        <NumberInput
+                            label="السعر"
+                            unit="ر.س"
+                            value={product.value.price}
+                            onChange={(value) =>
+                                (product.value = { ...product.value, price: value })
+                            }
+                            max={9999}
+                        />
+
+                        <NumberInput
+                            label="الكمية"
+                            unit="قطعة"
+                            value={product.value.stockQuantity}
+                            onChange={(value) =>
+                                (product.value = { ...product.value, stockQuantity: value })
+                            }
+                        />
+                        <NumberInput
+                            label="الخصم"
+                            unit="%"
+                            value={product.value.discount}
+                            onChange={(value) =>
+                                (product.value = { ...product.value, discount: value })
+                            }
+                        />
+                        <div className={styles.gender}>
+                            <p className={styles.label}>الجنس</p>
+                            <div className={styles.options}>
+                                <RadioInput label="رجالي" name="gender" />
+                                <RadioInput label="نسائي" name="gender" />
+                                <RadioInput label="للجنسين" name="gender" />
+                            </div>
+                        </div>
+                    </div>
+                    <Button type="primary" className={styles.addProductButton} onClick={addProduct}>
+                        أضف المنتج
+                    </Button>
                 </div>
-                <button onClick={() => signout()} className={styles.logoutBtn}>
-                    Logout
-                </button>
-            </header>
-
-            <div className={styles.addProducts}>
-                <h1>Add Products</h1>
-                <div className={styles.inputs}>
-                    <Textbox
-                        label="title"
-                        value={product.value.title}
-                        onChange={(value) => (product.value = { ...product.value, title: value })}
-                    />
-
-                    <Textbox
-                        label="description"
-                        value={product.value.description}
-                        onChange={(value) =>
-                            (product.value = { ...product.value, description: value })
-                        }
-                    />
-
-                    <NumberInput
-                        label="Price"
-                        value={product.value.price}
-                        onChange={(value) => (product.value = { ...product.value, price: value })}
-                    />
-
-                    <NumberInput
-                        label="Quantity"
-                        value={product.value.stockQuantity}
-                        onChange={(value) =>
-                            (product.value = { ...product.value, stockQuantity: value })
-                        }
-                    />
-                    <NumberInput
-                        label="Discount"
-                        value={product.value.discount}
-                        onChange={(value) =>
-                            (product.value = { ...product.value, discount: value })
-                        }
-                    />
-                    {/* <Textbox
-            label="Category"
-            value={product.value.category}
-            onChange={(value) =>
-              (product.value = { ...product.value, category: value })
-            }
-          /> */}
-                    <h2>Gender</h2>
-                    <RadioInput label="Men" name="gender" />
-                    <RadioInput label="Women" name="gender" />
-                    <RadioInput label="Unisex" name="gender" />
-                </div>
-                <button onClick={addProduct}>Add</button>
-
-                <div className={styles.productList}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i}>Product {i + 1}</div>
-                    ))}
-                </div>
+                <ProductDisplay className={styles.productDisplay} product={product.value} />
             </div>
+            <FullProductDisplay product={product.value} className={styles.fullProductDisplay} />
         </div>
     )
 }

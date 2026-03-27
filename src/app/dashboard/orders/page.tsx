@@ -46,7 +46,7 @@ export default function OrdersPage() {
                     className={clsx(styles.card, styles.cancled)}
                 />
             </div>
-            <OrdersTable />
+            <OrdersTable className={styles.ordersTable} />
         </div>
     )
 }

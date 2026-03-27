@@ -1,6 +1,9 @@
 .page {
   display: flex;
   flex-direction: column;
-  background-color: beige;
-  height: 100%;
+  padding: 2em;
+}
+
+.table {
+  height: 90vh;
 }

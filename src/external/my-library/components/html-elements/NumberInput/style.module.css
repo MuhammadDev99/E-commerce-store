@@ -4,23 +4,92 @@
     background-color: var(--white-1);
     justify-content: space-between;
     border-radius: var(--border-radius);
-    width: fit-content;
     border: 0.1em solid var(--cold-white-3);
     transition: var(--transition);
     direction: ltr;
     padding-left: 0.3rem;
-    width: 7em;
+    width: 8em;
+    /* Slightly wider to accommodate units */
+    position: relative;
+    box-sizing: border-box;
+    height: fit-content;
 }
 
-.numberInput .inputAndLabel {
+.inputAndLabel {
     display: flex;
     flex-direction: column;
     padding: 0.3em;
     gap: 0.1em;
-    min-width: 0;
+    flex-grow: 1;
+    /* justify-content: space-between; */
 }
 
-.numberInput .inputAndLabel label {
+/* Container to stack input and overlay */
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.input {
+    border: none;
+    font-weight: bolder;
+    font-size: 1.4em;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    /* Ensure consistency */
+    z-index: 2;
+}
+
+/* Hide the native arrows */
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* The magic overlay */
+.unitOverlay {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    pointer-events: none;
+    /* Let clicks pass through to input */
+    font-weight: bolder;
+    white-space: pre;
+    /* Keeps spaces consistent */
+    display: flex;
+    z-index: 1;
+    font-size: 1em;
+    align-items: center;
+}
+
+/* This takes up exact same space as the numbers but is invisible */
+.hiddenValue {
+    opacity: 0;
+    user-select: none;
+    color: red;
+    font-size: 1.4em;
+}
+
+.unitText {
+    color: var(--gray-2);
+    /* Style your unit ($) here */
+    margin-left: 0;
+    /* Small gap between number and unit */
+    font-size: 0.8em;
+    margin-left: 0.2em;
+
+}
+
+/* Remaining styles stay mostly same */
+.label {
     text-transform: uppercase;
     font-size: 0.7em;
     font-weight: bolder;
@@ -28,47 +97,17 @@
     color: var(--gray-2);
 }
 
-.numberInput .inputAndLabel input {
-    border: none;
-    font-weight: bolder;
-    font-size: 1.4em;
-    outline: none;
-}
-
 .numberInput:focus-within {
     box-shadow: var(--focus-ring-shadow);
     border: 0.1em solid var(--primary-5);
 }
 
-.numberInput .inputAndLabel input::-webkit-outer-spin-button,
-.numberInput .inputAndLabel input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.numberInput .controlButtons {
+.controlButtons {
     display: flex;
     flex-direction: column;
     gap: 0.06em;
     background-color: var(--cold-white-3);
     border-radius: var(--border-radius);
-}
-
-.numberInput .controlButtons button {
-    font-size: inherit;
-    flex-grow: 1;
-    border: none;
-    cursor: pointer;
-    border-left: 0.1em solid var(--cold-white-3);
-    display: flex;
-}
-
-.numberInput .controlButtons button:hover {
-    background-color: var(--primary-3);
-}
-
-.numberInput .controlButtons button:hover svg {
-    filter: invert();
 }
 
 .numberInput .controlButtons button:nth-child(1) {
@@ -77,6 +116,26 @@
 
 .numberInput .controlButtons button:nth-child(2) {
     border-bottom-right-radius: var(--border-radius);
+}
+
+.controlButtons button {
+    font-size: inherit;
+    flex-grow: 1;
+    border: none;
+    cursor: pointer;
+    border-left: 0.1em solid var(--cold-white-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.controlButtons button:hover {
+    background-color: var(--primary-3);
+}
+
+.controlButtons button:hover svg {
+    color: white;
 }
 
 .stepUp .arrow {

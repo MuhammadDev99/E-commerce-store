@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
                     />
                 </div>
             </div>
-            <TopProductsTable className={styles.products} />
+            <TopProductsTable className={styles.productsTable} />
         </div>
     )
 }

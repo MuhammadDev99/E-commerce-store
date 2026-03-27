@@ -6,6 +6,7 @@ import {
   serial,
   integer,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -88,4 +89,36 @@ export const product = pgTable("product", {
     .notNull()
     .references(() => user.id),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+
+export const cartItem = pgTable("cart_item", {
+  id: serial("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  productId: integer("productId")
+    .notNull()
+    .references(() => product.id, { onDelete: "cascade" }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+}, (table) => [
+  unique("unique_user_product").on(table.userId, table.productId),
+]);
+
+export const couponTypeEnum = pgEnum("coupon_type", ["percentage", "fixed", "free_shipping"]);
+
+export const coupon = pgTable("coupon", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").notNull().unique(), // e.g., RAMADAN25
+  type: couponTypeEnum("type").notNull(),
+  value: integer("value"), // 20 for 20% or 2000 for 20.00 SAR (store in cents/halalas)
+  minOrder: integer("minOrder").default(0),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  globalUsageLimit: integer("globalUsageLimit"),
+  customerUsageLimit: integer("customerUsageLimit").default(1),
+  usedCount: integer("usedCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow(),
 });

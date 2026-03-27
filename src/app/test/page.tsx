@@ -1,48 +1,25 @@
-"use client";
-import { useSignal, useSignals } from "@preact/signals-react/runtime";
-import styles from "./style.module.css";
-import clsx from "clsx";
-import { DownArrowIcon } from "@/images/icons";
+"use client"
+import { useSignal, useSignals } from "@preact/signals-react/runtime"
+import styles from "./style.module.css"
+import clsx from "clsx"
+import SelectBox from "@/components/form-elements/SelectBox"
+import NumberInput from "@/components/form-elements/NumberInput"
+import TextBox from "@/components/form-elements/TextBox"
 
 export default function TestPage() {
-  const items = ["عود", "بخورات", "عffffffffffffffffffنبر", "رجالي"];
-  return (
-    <div style={{ padding: "50px" }}>
-      <TestComponent items={items}>عطورات</TestComponent>
-    </div>
-  );
-}
+    return (
+        <div className={styles.page}>
+            <TextBox label="كود الخصم" placeholder="RAMADAN25" />
 
-function TestComponent({
-  children,
-  items = [],
-}: {
-  children: React.ReactNode;
-  items?: string[];
-}) {
-  useSignals();
-  const showMenu = useSignal<boolean>(false);
-  const noItems = items.length === 0;
-  return (
-    <div
-      className={clsx(styles.container, showMenu.value && styles.mouseHover)}
-      onMouseEnter={() => (showMenu.value = true)}
-      onMouseLeave={() => (showMenu.value = false)}
-    >
-      <div className={styles.title}>
-        {!noItems && <DownArrowIcon className={styles.arrow} />}
-        {children}
-      </div>
-
-      {!noItems && showMenu.value && (
-        <div className={styles.items}>
-          {items.map((item) => (
-            <p key={item} className={styles.item}>
-              {item}
-            </p>
-          ))}
+            <SelectBox
+                label="نوع الكوبون"
+                options={[
+                    { display: "نسبة (%)", value: "percentage" },
+                    { display: "مبلغ ثابت (ر.س)", value: "fixed" },
+                    { display: "شحن مجاني", value: "free_shipping" },
+                ]}
+            />
+            <NumberInput unit="%" min={1} max={99} label="قيمة الخصم" />
         </div>
-      )}
-    </div>
-  );
+    )
 }

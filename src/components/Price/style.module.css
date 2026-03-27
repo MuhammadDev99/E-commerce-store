@@ -20,3 +20,15 @@
   height: 65%;
   color: inherit;
 }
+
+.container .price {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+}
+
+.container .price .decimal {
+  /* color: red; */
+  font-size: 0.6em;
+  margin-bottom: 0.3em;
+}

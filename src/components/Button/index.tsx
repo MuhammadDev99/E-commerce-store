@@ -1,5 +1,7 @@
+"use client"
 import clsx from "clsx"
 import styles from "./style.module.css"
+import { useRouter } from "next/navigation"
 
 export default function Button({
     className,
@@ -10,6 +12,7 @@ export default function Button({
     iconRotationDeg = 0,
     flipIconOrder = false,
     onClick,
+    href,
 }: {
     className?: string
     children?: React.ReactNode
@@ -19,10 +22,18 @@ export default function Button({
     iconRotationDeg?: number
     onClick?: () => void
     flipIconOrder?: boolean
+    href?: string
 }) {
+    const router = useRouter()
+    const handleOnClick = () => {
+        onClick?.()
+        if (href) {
+            router.push(href)
+        }
+    }
     return (
         <button
-            onClick={onClick}
+            onClick={handleOnClick}
             disabled={disabled}
             className={clsx(styles.container, className, styles[type], disabled && styles.disabled)}
         >

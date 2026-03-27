@@ -1,0 +1,64 @@
+.page {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  padding: 2em;
+  gap: 1em;
+}
+
+.page .couponPreview {
+  height: fit-content;
+  /* width: 20em; */
+}
+
+.page .form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  flex: 1;
+}
+
+.page .card {
+  display: flex;
+  flex-direction: column;
+  gap: 1em
+}
+
+.arabic.page {
+  direction: rtl;
+}
+
+.page input,
+.page select {
+  outline: none;
+  border: none;
+  border-radius: var(--border-radius-1);
+  border: 0.075em solid var(--white-5);
+  font-size: 1em;
+  padding: 0.35em 0.5em;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page input:focus {
+  border: 0.075em solid var(--primary-5);
+}
+
+.page .card .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+
+.page .card .field {
+  width: 100%;
+}
+
+.page .card .row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1em;
+  width: 100%;
+}

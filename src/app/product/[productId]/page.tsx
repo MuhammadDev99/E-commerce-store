@@ -1,16 +1,13 @@
 // This is now a Server Component (no "use client")
 import styles from "./style.module.css"
 import clsx from "clsx"
-import { getDisplayLanguage, getProductById } from "@/utils"
+import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/external/my-library/utils"
 import { Product } from "@/types"
 import FullProductDisplay from "@/components/FullProductDisplay"
+import { getProductById } from "@/utils/db"
 
-interface Props {
-    params: Promise<{ productId: string }>
-}
-
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params }: { params: Promise<{ productId: string }> }) {
     // In Server Components, we await the params promise directly
     const { productId } = await params
     const decodedId = Number(decodeURIComponent(productId))

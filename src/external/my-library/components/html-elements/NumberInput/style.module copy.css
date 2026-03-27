@@ -1,0 +1,96 @@
+.numberInput {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--white-1);
+    justify-content: space-between;
+    border-radius: var(--border-radius);
+    width: fit-content;
+    border: 0.1em solid var(--cold-white-3);
+    transition: var(--transition);
+    direction: ltr;
+    padding-left: 0.3rem;
+    width: 7em;
+    position: relative;
+}
+
+.overlayInput {
+    position: absolute;
+    background-color: transparent;
+    pointer-events: none;
+    bottom: 0.3rem;
+}
+
+.numberInput .inputAndLabel {
+    display: flex;
+    flex-direction: column;
+    padding: 0.3em;
+    gap: 0.1em;
+    min-width: 0;
+}
+
+.numberInput .inputAndLabel label {
+    text-transform: uppercase;
+    font-size: 0.7em;
+    font-weight: bolder;
+    font-family: var(--font-4);
+    color: var(--gray-2);
+}
+
+.numberInput .inputAndLabel input {
+    border: none;
+    font-weight: bolder;
+    font-size: 1.4em;
+    outline: none;
+}
+
+.numberInput:focus-within {
+    box-shadow: var(--focus-ring-shadow);
+    border: 0.1em solid var(--primary-5);
+}
+
+.numberInput .inputAndLabel input::-webkit-outer-spin-button,
+.numberInput .inputAndLabel input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.numberInput .controlButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.06em;
+    background-color: var(--cold-white-3);
+    border-radius: var(--border-radius);
+}
+
+.numberInput .controlButtons button {
+    font-size: inherit;
+    flex-grow: 1;
+    border: none;
+    cursor: pointer;
+    border-left: 0.1em solid var(--cold-white-3);
+    display: flex;
+}
+
+.numberInput .controlButtons button:hover {
+    background-color: var(--primary-3);
+}
+
+.numberInput .controlButtons button:hover svg {
+    filter: invert();
+}
+
+.numberInput .controlButtons button:nth-child(1) {
+    border-top-right-radius: var(--border-radius);
+}
+
+.numberInput .controlButtons button:nth-child(2) {
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.stepUp .arrow {
+    transform: rotate(180deg);
+}
+
+.arrow {
+    width: 1.1em;
+}

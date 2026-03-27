@@ -3,4 +3,15 @@
   flex-direction: column;
   background-color: beige;
   height: 100%;
+  padding: 2em;
+  gap: 1em;
+}
+
+.arabic.page {
+  direction: rtl;
+}
+
+.makeCouponButton {
+  width: fit-content;
+  font-size: 1rem !important;
 }
