@@ -36,7 +36,6 @@ export default function PaginatedTable<V extends string>({
     currentPage?: number
     onPageChange: (page: number) => void
     onSearch: (query: string, column: V) => void
-    // 1. UPDATED: Accept the query and column directly
     onSearchSubmit: (query: string, column: V) => void
     label?: string
     searchQuery?: string
@@ -47,6 +46,7 @@ export default function PaginatedTable<V extends string>({
 }) {
     useSignals()
 
+    // 1. Filter out columns explicitly marked as `databaseSupport: false` for logic
     const searchableHeaders = useMemo(
         () => headers.filter((h) => h.searchable && h.databaseSupport !== false),
         [headers],
@@ -57,6 +57,10 @@ export default function PaginatedTable<V extends string>({
         [headers],
     )
 
+    // 2. Filter out hidden headers for visual rendering
+    const visibleHeaders = useMemo(() => headers.filter((h) => !h.hidden), [headers])
+
+    // Sync Signals with the initial/external state
     const searchQuerySignal = useSignal<string>(searchQuery)
     const selectedColumnSignal = useSignal<V>(
         searchColumn ?? searchableHeaders[0]?.value ?? (headers[0]?.value as V),
@@ -67,7 +71,8 @@ export default function PaginatedTable<V extends string>({
         if (searchQuery !== undefined) searchQuerySignal.value = searchQuery
     }, [searchColumn, searchQuery, selectedColumnSignal, searchQuerySignal])
 
-    const effectiveGridTemplate = gridTemplate ?? `repeat(${headers.length}, 1fr)`
+    // Use visibleHeaders for the grid template calculation instead of all headers
+    const effectiveGridTemplate = gridTemplate ?? `repeat(${visibleHeaders.length}, 1fr)`
 
     return (
         <div
@@ -82,7 +87,7 @@ export default function PaginatedTable<V extends string>({
                         searchQuerySignal.value = query
                         onSearch(query, selectedColumnSignal.value)
                     }}
-                    // 2. UPDATED: Pass the fresh signal values straight into the submit function
+                    // Pass the fresh signal values straight into the submit function
                     onSearchSubmit={() =>
                         onSearchSubmit(searchQuerySignal.value, selectedColumnSignal.value)
                     }
@@ -137,7 +142,8 @@ export default function PaginatedTable<V extends string>({
             </div>
 
             <div className={styles.header}>
-                {headers.map((header) => (
+                {/* Map over visibleHeaders instead of all headers */}
+                {visibleHeaders.map((header) => (
                     <p key={header.value}>{header.display}</p>
                 ))}
             </div>

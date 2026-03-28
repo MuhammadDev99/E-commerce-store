@@ -46,6 +46,7 @@ export interface TableHeader<V extends string = string> {
   searchable?: boolean;
   sortable?: boolean;
   databaseSupport?: boolean;
+  hidden?: boolean;
 }
 
 export type TableHeaderFor<T, K extends string = never> = TableHeader<

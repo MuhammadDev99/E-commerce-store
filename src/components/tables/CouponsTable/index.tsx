@@ -84,6 +84,15 @@ export default function CouponsTable({
     }
 
     const headers: CouponsTableHeader[] = [
+        // ADDED: CreatedAt header - Sortable but hidden visually!
+        {
+            display: "تاريخ الإنشاء",
+            value: "createdAt",
+            searchable: false,
+            sortable: true,
+            hidden: true,
+        },
+
         { display: "الكوبون", value: "code", searchable: true, sortable: true },
         { display: "الاسم", value: "name", searchable: true, sortable: true },
         { display: "النوع", value: "type", searchable: false, sortable: true },
