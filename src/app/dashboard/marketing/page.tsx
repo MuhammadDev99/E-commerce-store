@@ -28,8 +28,8 @@ export default async function MarketingPage({
         pageSize: PAGE_SIZE,
         query: searchQuery,
         searchColumn: searchColumn,
-        sortColumn: sortColumn, // <--- Pass to DB
-        sortDirection: sortDirection, // <--- Pass to DB
+        sortColumn: sortColumn,
+        sortDirection: sortDirection,
     })
 
     return (
@@ -46,8 +46,8 @@ export default async function MarketingPage({
                 pageSize={PAGE_SIZE}
                 initialSearchQuery={searchQuery}
                 initialSearchColumn={searchColumn}
-                initialSortColumn={sortColumn} // <--- Pass down to Client
-                initialSortDirection={sortDirection} // <--- Pass down to Client
+                initialSortColumn={sortColumn}
+                initialSortDirection={sortDirection}
             />
         </div>
     )
