@@ -4,21 +4,21 @@ import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import Link from "next/link"
-import { Coupon, CouponsTableConfig, CouponsTableHeader, CouponTableKey } from "@/types"
+import { Coupon, CouponsTableConfig } from "@/types"
 import { getCoupons } from "@/utils/db"
 
 export default function CouponsTable({
     className,
     initialData,
     initialTotalPages,
-    pageSize = 3,
+    initialPageSize,
 }: {
     className?: string
     initialData: Coupon[]
     initialTotalPages: number
-    pageSize?: number
+    initialPageSize: number
 }) {
-    const headers: CouponsTableHeader[] = [
+    const headers: CouponsTableConfig["headers"][] = [
         {
             display: "تاريخ الإنشاء",
             value: "createdAt",
@@ -31,7 +31,7 @@ export default function CouponsTable({
         { display: "النوع", value: "type", searchable: false, sortable: true },
         { display: "القيمة", value: "value", searchable: false, sortable: true },
         { display: "الحالة", value: "status", searchable: false, sortable: true },
-        { display: "الاستخدام", value: "usedCount", databaseSupport: false },
+        { display: "الاستخدام", value: "usedCount", searchable: false, sortable: false },
     ]
 
     return (
@@ -92,18 +92,14 @@ export default function CouponsTable({
                 }}
                 initialData={initialData}
                 initialTotalPages={initialTotalPages}
-                pageSize={pageSize}
+                pageSize={initialPageSize}
                 // Set the default fallbacks right here!
                 defaultSearchColumn="code"
                 defaultSortColumn="createdAt"
                 defaultSortDirection="desc"
                 gridTemplate="1.5fr 2fr 1.5fr 1fr 1fr 1fr"
                 fetchData={async (params) => {
-                    return await getCoupons({
-                        page: params.page,
-                        pageSize: params.pageSize,
-                        searchParams: params.searchParams,
-                    })
+                    return await getCoupons(params)
                 }}
             />
         </div>

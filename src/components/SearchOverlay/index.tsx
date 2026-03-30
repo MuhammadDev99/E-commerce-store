@@ -42,7 +42,7 @@ export default function SearchOverlay() {
         () =>
             debounced((query: string) => {
                 searchResults.value = MOCK_PRODUCTS.filter((product) =>
-                    product.title.toLowerCase().includes(query.toLowerCase()),
+                    product.name.toLowerCase().includes(query.toLowerCase()),
                 )
             }, 400),
         [],

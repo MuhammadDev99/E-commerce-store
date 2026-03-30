@@ -7,7 +7,7 @@ export default function ProductsDisplay({
     className,
 }: {
     products: Product[]
-    className: string
+    className?: string
 }) {
     return (
         <div className={clsx(styles.products, className)}>

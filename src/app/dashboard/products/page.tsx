@@ -3,7 +3,7 @@ import { useSignals, useSignal } from "@preact/signals-react/runtime"
 import styles from "./style.module.css"
 import { addProductDB } from "@/utils/db"
 import { showMessage } from "@/utils/showMessage"
-import { getEmptyProduct, NewProduct, Product, ProductFormData } from "../../../types"
+import { NewProduct, Product } from "../../../types"
 import { NumberInput, RadioInput, Textbox } from "@/external/my-library/components"
 // 1. Import the authClient
 import { authClient } from "@/lib/auth-client"
@@ -13,7 +13,7 @@ import { useSignout } from "@/utils/auth"
 import ProductDisplay from "@/components/ProductDisplay"
 import FullProductDisplay from "@/components/FullProductDisplay"
 import Button from "@/components/Button"
-import { getDisplayLanguage } from "@/utils"
+import { getDisplayLanguage, getEmptyProduct } from "@/utils"
 import clsx from "clsx"
 
 export default function ProductsPage() {
@@ -27,7 +27,7 @@ export default function ProductsPage() {
 
     const addProduct = async () => {
         const {
-            title,
+            name,
             description,
             price,
             images,
@@ -54,7 +54,7 @@ export default function ProductsPage() {
         if (result.success) {
             showMessage({
                 title: "Success",
-                content: title + " added successfully",
+                content: name + " added successfully",
                 type: "success",
                 durationMs: 3000,
             })
@@ -76,9 +76,9 @@ export default function ProductsPage() {
                     <div className={styles.inputs}>
                         <Textbox
                             label="الاسم"
-                            value={product.value.title}
+                            value={product.value.name}
                             onChange={(value) =>
-                                (product.value = { ...product.value, title: value })
+                                (product.value = { ...product.value, name: value })
                             }
                         />
 

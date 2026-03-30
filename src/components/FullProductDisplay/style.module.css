@@ -32,8 +32,13 @@
 
 .details .priceContainer {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  flex-direction: row;
+  align-items: end;
+  gap: 1rem;
+}
+
+.details .stars {
+  margin-top: 0.75em;
 }
 
 .details .description {

@@ -21,7 +21,7 @@ export default function SearchResult({ product }: { product: Product }) {
                 <img src={product.images[0]} className={styles.thumbnail} />
             </div>
             <div className={styles.info}>
-                <p className={styles.title}>{product.title}</p>
+                <p className={styles.title}>{product.name}</p>
                 <div className={styles.priceContainer}>
                     <div className={styles.price}>
                         <RiyalSymbolSvg className={styles.riyalSymbol} />

@@ -6,19 +6,19 @@ export function showMessage(payload: MessageUI | string) {
   const partialMessage =
     typeof payload === "string"
       ? {
-          content: payload,
-          durationMs: 3000,
-          title: "",
-          type: "info" as const,
-        }
+        content: payload,
+        durationMs: 3000,
+        title: "",
+        type: "info" as const,
+      }
       : payload;
   const message: MessageUI = { ...partialMessage, id: Date.now() };
   messagesSignal.value = [...messagesSignal.value, message];
   setTimeout(
     () =>
-      (messagesSignal.value = messagesSignal.value.filter(
-        (x) => x.id !== message.id,
-      )),
+    (messagesSignal.value = messagesSignal.value.filter(
+      (x) => x.id !== message.id,
+    )),
     message.durationMs,
   );
 }

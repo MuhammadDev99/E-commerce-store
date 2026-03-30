@@ -1,18 +1,27 @@
-"use client"
-import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import styles from "./style.module.css"
 import clsx from "clsx"
-import { getDisplayLanguage } from "@/utils"
-import PaginatedTable from "@/components/PaginatedTable"
-import ClientsTable from "@/components/ClientsTable"
-import Card from "@/components/Card"
+import ClientsTable from "@/components/Tables/ClientsTable"
+import { getCustomersPageData } from "@/utils/db"
 
-export default function ClientsPage() {
-    useSignals()
-    const displayLanguage = getDisplayLanguage()
+export default async function ClientsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | undefined }>
+}) {
+    const params = await searchParams
+    const PAGE_SIZE = 3
+    const { items, totalPages } = await getCustomersPageData({
+        ...params,
+        pageSize: params["pageSize"] ?? PAGE_SIZE.toString(),
+    })
+
     return (
-        <div className={clsx(styles.page, styles[displayLanguage])}>
-            <ClientsTable className={styles.clientsTable} />
+        <div className={clsx(styles.page)}>
+            <ClientsTable
+                initialData={items}
+                initialTotalPages={totalPages}
+                initialPageSize={PAGE_SIZE}
+            />
         </div>
     )
 }

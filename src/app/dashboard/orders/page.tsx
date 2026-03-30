@@ -4,14 +4,18 @@ import AnalyticsCard from "@/components/AnalyticsCard"
 import { ClockSVG, CorrectSVG, DownArrowSVG, OrdersSVG, WrongSVG } from "@/images"
 import OrdersTable from "@/components/Tables/OrdersTable"
 import { getOrdersPageData } from "@/utils/db"
-import { Order, OrderKeys, OrderWithUser } from "@/types"
 
 export default async function OrdersPage({
     searchParams,
 }: {
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
-    const { items, totalPages } = await getOrdersPageData(await searchParams)
+    const params = await searchParams
+    const PAGE_SIZE = 3
+    const { items, totalPages } = await getOrdersPageData({
+        ...params,
+        pageSize: params["pageSize"] ?? PAGE_SIZE.toString(),
+    })
 
     return (
         <div className={clsx(styles.page)}>
@@ -49,7 +53,11 @@ export default async function OrdersPage({
                     className={clsx(styles.card, styles.cancled)}
                 />
             </div>
-            <OrdersTable initialData={items} initialTotalPages={totalPages} />
+            <OrdersTable
+                initialData={items}
+                initialTotalPages={totalPages}
+                initialPageSize={PAGE_SIZE}
+            />
         </div>
     )
 }

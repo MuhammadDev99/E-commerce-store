@@ -55,12 +55,12 @@ export default function CartItemDisplay({ item }: { item: CartItem }) {
             <CloseSVG className={styles.removeButton} onClick={onRemoveItem} />
 
             <div className={styles.imageWrapper}>
-                <img src={item.images[0]} className={styles.image} alt={item.title} />
+                <img src={item.images[0]} className={styles.image} alt={item.name} />
             </div>
 
             <div className={styles.info}>
                 <div className={styles.header}>
-                    <div className={styles.title}>{item.title}</div>
+                    <div className={styles.title}>{item.name}</div>
                     <div className={styles.priceContainer}>
                         <Price price={unitPrice} className={styles.price} />
                         {isDiscounted && (

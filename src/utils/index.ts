@@ -1,4 +1,4 @@
-import { DisplayLanguage, Product } from "@/types";
+import { DisplayLanguage, NewProduct, Product } from "@/types";
 
 export function getDisplayLanguage(): DisplayLanguage {
     return 'arabic'
@@ -26,7 +26,7 @@ import { db } from "@/db";
 import { cartItem } from "@/lib/auth-schema";
 export async function searchProducts(query: string): Promise<Product[]> {
     return new Promise(resolve => {
-        resolve(MOCK_PRODUCTS.filter(product => product.title.toLowerCase().includes(query.toLowerCase())))
+        resolve(MOCK_PRODUCTS.filter(product => product.name.toLowerCase().includes(query.toLowerCase())))
     })
 }
 
@@ -117,3 +117,17 @@ export function stringToRandom(text: string, min: number = 0, max: number = 1): 
 
     return min + pseudoRandom * (max - min);
 }
+
+export const getEmptyProduct = (): NewProduct => ({
+    name: "",
+    description: "",
+    price: 0,
+    images: [],
+    stockQuantity: 0,
+    category: [],
+    gender: "Men",
+    sizeMl: 0,
+    tags: [],
+    discount: 0,
+    userId: ""
+});

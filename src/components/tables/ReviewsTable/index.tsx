@@ -1,10 +1,10 @@
 import clsx from "clsx"
 import styles from "./style.module.css"
 import { mockReviews } from "@/MockDataReviews"
-import ReviewStars from "../ReviewStars"
-import PaginatedTable from "../PaginatedTable"
-import Button from "../Button"
-import SelectBox from "../form-elements/SelectBox"
+import ReviewStars from "../../ReviewStars"
+import PaginatedTable from "../../PaginatedTable"
+import Button from "../../Button"
+import SelectBox from "../../form-elements/SelectBox"
 import Link from "next/link"
 
 export default function ReviewsTable({ className }: { className?: string }) {

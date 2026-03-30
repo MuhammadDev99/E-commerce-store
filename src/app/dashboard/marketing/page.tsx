@@ -5,14 +5,18 @@ import CouponsTable from "@/components/Tables/CouponsTable"
 import Button from "@/components/Button"
 import { TicketSVG } from "@/images"
 import { getCoupons } from "@/utils/db"
-import { CouponTableKey } from "@/types"
 
 export default async function MarketingPage({
     searchParams,
 }: {
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
-    const { items, totalPages } = await getCoupons(await searchParams)
+    const params = await searchParams
+    const PAGE_SIZE = 3
+    const { items, totalPages } = await getCoupons({
+        ...params,
+        pageSize: params["pageSize"] ?? PAGE_SIZE.toString(),
+    })
 
     return (
         <div className={clsx(styles.page)}>
@@ -22,7 +26,11 @@ export default async function MarketingPage({
                 </Button>
             </Card>
 
-            <CouponsTable initialData={items} initialTotalPages={totalPages} />
+            <CouponsTable
+                initialData={items}
+                initialTotalPages={totalPages}
+                initialPageSize={PAGE_SIZE}
+            />
         </div>
     )
 }

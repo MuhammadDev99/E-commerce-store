@@ -6,6 +6,7 @@ import { safe } from "@/external/my-library/utils"
 import { Product } from "@/types"
 import FullProductDisplay from "@/components/FullProductDisplay"
 import { getProductById } from "@/utils/db"
+import ErrorDisplay from "@/components/ErrorDisplay"
 
 export default async function ProductPage({ params }: { params: Promise<{ productId: string }> }) {
     // In Server Components, we await the params promise directly
@@ -16,15 +17,13 @@ export default async function ProductPage({ params }: { params: Promise<{ produc
 
     // Fetching data directly on the server
     const productResult = await safe<Product>(getProductById(decodedId))
-
+    if (!productResult.success) {
+        console.log(productResult.error)
+        return <ErrorDisplay error={productResult.error} />
+    }
     return (
         <div className={clsx(styles.page, styles[displayLanguage])}>
-            {productResult.success && (
-                <FullProductDisplay
-                    product={productResult.data}
-                    className={styles.productDisplay}
-                />
-            )}
+            <FullProductDisplay product={productResult.data} className={styles.productDisplay} />
         </div>
     )
 }

@@ -37,7 +37,7 @@ export default function ProductDisplay({ product, className }: ProductDisplayPro
                     <img
                         className={styles.thumbnail}
                         src={imagePath}
-                        alt={product.title}
+                        alt={product.name}
                         onClick={navigateToProduct}
                     />
                 )}
@@ -45,7 +45,7 @@ export default function ProductDisplay({ product, className }: ProductDisplayPro
 
             <div className={styles.bottom}>
                 <div className={styles.info}>
-                    <p className={styles.title}>{product.title ?? "Product Title"}</p>
+                    <p className={styles.title}>{product.name ?? "Product Title"}</p>
 
                     <div className={styles.priceContainer}>
                         <div className={styles.oldPrice}>

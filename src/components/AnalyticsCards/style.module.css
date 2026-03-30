@@ -1,0 +1,136 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1em;
+  gap: 1em;
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.card {
+  .page {
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f7;
+    /* Slightly softer than beige */
+    min-height: 100vh;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    /* Wraps on mobile */
+  }
+
+  .card {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* Charts Grid Layout */
+  .chartsGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /* Sales chart takes more space */
+    gap: 1.5rem;
+  }
+
+  .chartContainer {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chartContainer h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .chartWrapper {
+    width: 100%;
+    height: 300px;
+    /* Fixed height for charts */
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .chartsGrid {
+      grid-template-columns: 1fr;
+      /* Stack charts on smaller screens */
+    }
+  }
+
+  /* RTL Support for the grid */
+  .ar .chartContainer h3 {
+    text-align: right;
+  }
+
+  flex: 1;
+}
+
+.cards .sales {
+  --icon-color: var(--color-amethyst-4);
+}
+
+.cards .orders {
+  --icon-color: var(--color-aqua-4);
+}
+
+.cards .visitors {
+  --icon-color: var(--color-azure-4);
+}
+
+.cards .conversion {
+  --icon-color: var(--color-cherry-4);
+}
+
+.charts {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  direction: rtl;
+}
+
+.charts>div {
+  border: var(--border-line-1);
+  gap: 1em;
+  padding: 1em;
+  border-radius: var(--border-radius-2);
+  background-color: var(--white-1);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  height: 15rem;
+}
+
+.charts>div>div {
+  height: 100%;
+}
+
+.charts>div>p {
+  font-weight: bold;
+}
+
+.charts .sales {
+  flex-grow: 1;
+}
+
+.productsTable {
+  height: 90vh;
+}

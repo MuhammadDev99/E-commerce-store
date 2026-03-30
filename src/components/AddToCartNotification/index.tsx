@@ -28,15 +28,15 @@ export default function AddToCartNotification({ className }: { className?: strin
                 <>
                     <div className={styles.header}>
                         <p>
-                            تمت إضافة <span className={styles.title}>{product.title}</span> بنجاح
+                            تمت إضافة <span className={styles.title}>{product.name}</span> بنجاح
                         </p>
                         <CorrectSVG className={styles.icon} />
                     </div>
                     <div className={styles.content}>
                         <div>
-                            <img src={product.images?.[0]} alt={product.title} />
+                            <img src={product.images?.[0]} alt={product.name} />
                             <div className={styles.info}>
-                                <p>{product.title}</p>
+                                <p>{product.name}</p>
                                 <div className={styles.priceContainer}>
                                     <Price
                                         className={styles.price}

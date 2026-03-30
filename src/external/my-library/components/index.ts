@@ -11,6 +11,5 @@ import TrueFalseInput from "./html-elements/TrueFalseInput";
 import SortableList from "./html-elements/SortableList";
 import NumberInput from './html-elements/NumberInput'
 import Text from './html-elements/Text'
-import QuizItem from "./html-elements/QuizItem";
 import Logo from "./html-elements/Logo";
-export { Button, CheckboxInput, ColorSelector, Progressbar, RadioInput, Slider, Textbox, ToggleInput, Dropdown, TrueFalseInput, SortableList, NumberInput, Text, QuizItem, Logo }
+export { Button, CheckboxInput, ColorSelector, Progressbar, RadioInput, Slider, Textbox, ToggleInput, Dropdown, TrueFalseInput, SortableList, NumberInput, Text, Logo }

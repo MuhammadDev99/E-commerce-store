@@ -4,7 +4,7 @@ import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import { formatTime } from "@/utils"
-import { Order, OrderWithUser, OrdersTableConfig } from "@/types"
+import { OrdersTableConfig } from "@/types"
 import { getOrdersPageData } from "@/utils/db"
 import Link from "next/link"
 
@@ -12,10 +12,12 @@ export default function OrdersTable({
     className,
     initialData,
     initialTotalPages,
+    initialPageSize,
 }: {
     className?: string
-    initialData: OrderWithUser[]
+    initialData: OrdersTableConfig["row"][]
     initialTotalPages: number
+    initialPageSize: number
 }) {
     const headers: OrdersTableConfig["headers"][] = [
         { display: "رقم الطلب", value: "orderReference", searchable: true, sortable: true },
@@ -33,10 +35,9 @@ export default function OrdersTable({
             defaultSearchColumn="customer"
             defaultSortColumn="createdAt"
             gridTemplate="1.2fr 2.5fr 1fr 1fr 1fr"
-            fetchData={async (params) => {
-                return await getOrdersPageData(params)
-            }}
+            fetchData={async (params) => await getOrdersPageData(params)}
             headers={headers}
+            pageSize={initialPageSize}
             renderItem={({ order, customer }, isPending) => {
                 const orderStatusText = () => {
                     switch (order.status) {

@@ -8,6 +8,7 @@ import AddToCart from "../AddToCart"
 import { NumberInput } from "@/external/my-library/components"
 import { addItemToCart } from "@/utils"
 import { useSignals, useSignal } from "@preact/signals-react/runtime"
+import ReviewStars from "../ReviewStars"
 export default function FullProductDisplay({
     product,
     className,
@@ -25,11 +26,11 @@ export default function FullProductDisplay({
     return (
         <div className={clsx(styles.container, className)}>
             <div className={styles.imageWrapper}>
-                <img src={thumbnail} className={styles.image} alt={product.title} />
+                <img src={thumbnail} className={styles.image} alt={product.name} />
             </div>
 
             <div className={styles.details}>
-                <p className={styles.title}>{product.title}</p>
+                <p className={styles.title}>{product.name}</p>
                 <div className={styles.priceContainer}>
                     <Price
                         price={product.price ?? 0}
@@ -44,6 +45,7 @@ export default function FullProductDisplay({
                         />
                     )}
                 </div>
+                <ReviewStars rating={0} className={styles.stars} />
                 <p className={styles.description}>{product.description}</p>
                 <NumberInput
                     label="الكمية"

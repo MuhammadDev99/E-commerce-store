@@ -28,7 +28,6 @@ import SearchOverlay from "@/components/SearchOverlay"
 import { cartCountSignal, searchSignal } from "@/signals"
 import { useEffect } from "react"
 import { getCartCount } from "@/utils/db"
-const arabicProducts = arabicProductsRaw as Product[]
 const categories = [
     "الافضل مبيعاً",
     "عروض",

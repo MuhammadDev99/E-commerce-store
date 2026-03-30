@@ -13,11 +13,11 @@ export const MOCK_PRODUCTS: Product[] = englishProducts.map((enProduct) => {
     // We only spread if arProduct is found to avoid errors
     ...(arProduct
       ? {
-          title: arProduct.title,
-          description: arProduct.description,
-          category: arProduct.category,
-          tags: arProduct.tags,
-        }
+        title: arProduct.name,
+        description: arProduct.description,
+        category: arProduct.category,
+        tags: arProduct.tags,
+      }
       : {}),
   };
 });
