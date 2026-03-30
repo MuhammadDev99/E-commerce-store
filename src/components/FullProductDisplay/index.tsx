@@ -5,10 +5,11 @@ import { RiyalSymbolSvg } from "@/images"
 import Price from "../Price"
 import clsx from "clsx"
 import AddToCart from "../AddToCart"
-import { NumberInput } from "@/external/my-library/components"
 import { addItemToCart } from "@/utils"
 import { useSignals, useSignal } from "@preact/signals-react/runtime"
 import ReviewStars from "../ReviewStars"
+import NumberInput from "../form-elements/NumberInput"
+import Button from "../Button"
 export default function FullProductDisplay({
     product,
     className,
@@ -47,23 +48,33 @@ export default function FullProductDisplay({
                 </div>
                 <ReviewStars rating={0} className={styles.stars} />
                 <p className={styles.description}>{product.description}</p>
-                <NumberInput
+                {/* <NumberInput
                     label="الكمية"
                     className={styles.quantity}
                     min={1}
                     value={quantity.value}
                     onChange={(value) => (quantity.value = value)}
-                />
-                <AddToCart
-                    className={styles.addToCartButton}
-                    onClick={() => {
-                        if (product.id) {
-                            addItemToCart(product as Product, quantity.value)
-                        } else {
-                            console.error("Cannot add product without an ID")
-                        }
-                    }}
-                />
+                /> */}
+                {/* <NumberInput
+                    label="الكمية"
+                    className={styles.quantity}
+                    min={1}
+                    value={quantity.value}
+                    onChange={(e) => (quantity.value = Number(e.target.value))}
+                /> */}
+                <div className={styles.actionButtons}>
+                    <AddToCart
+                        className={styles.addToCartButton}
+                        onClick={() => {
+                            if (product.id) {
+                                addItemToCart(product as Product, quantity.value)
+                            } else {
+                                console.error("Cannot add product without an ID")
+                            }
+                        }}
+                    />
+                    <Button className={styles.addReviewButton}>أضف تقييمك</Button>
+                </div>
             </div>
         </div>
     )

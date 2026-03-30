@@ -1,37 +1,38 @@
 {
-  "name": "test",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@preact/signals-react": "^3.9.0",
-    "@tap-payments/card-sdk": "^1.0.2",
-    "better-auth": "^1.5.4",
-    "clsx": "^2.1.1",
-    "drizzle-orm": "^0.45.1",
-    "intl-tel-input": "^26.8.0",
-    "next": "16.1.6",
-    "open-props": "^1.7.23",
-    "pg": "^8.20.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "recharts": "^3.8.0"
-  },
-  "devDependencies": {
-    "@svgr/webpack": "^8.1.0",
-    "@types/node": "^20.19.37",
-    "@types/pg": "^8.18.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "drizzle-kit": "^0.31.9",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "typescript": "^5"
-  }
+    "name": "test",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint",
+        "push": "git add . & git commit -m \"Update\" & git push origin main"
+    },
+    "dependencies": {
+        "@preact/signals-react": "^3.9.0",
+        "@tap-payments/card-sdk": "^1.0.2",
+        "better-auth": "^1.5.4",
+        "clsx": "^2.1.1",
+        "drizzle-orm": "^0.45.1",
+        "intl-tel-input": "^26.8.0",
+        "next": "16.1.6",
+        "open-props": "^1.7.23",
+        "pg": "^8.20.0",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "recharts": "^3.8.0"
+    },
+    "devDependencies": {
+        "@svgr/webpack": "^8.1.0",
+        "@types/node": "^20.19.37",
+        "@types/pg": "^8.18.0",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "babel-plugin-react-compiler": "1.0.0",
+        "drizzle-kit": "^0.31.9",
+        "eslint": "^9",
+        "eslint-config-next": "16.1.6",
+        "typescript": "^5"
+    }
 }

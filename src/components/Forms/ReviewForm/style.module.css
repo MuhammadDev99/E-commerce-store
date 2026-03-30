@@ -1,0 +1,36 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  margin-bottom: 10em;
+  direction: rtl;
+}
+
+.root .form {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  direction: rtl;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  width: 25em;
+  margin: auto;
+  font-size: 1.2em;
+}
+
+.root .form .contentInput {
+  height: 10em;
+}
+
+.root .form>* {
+  width: 100%;
+}
+
+.root .inputStars {
+  font-size: 1em;
+}
+
+.root .submitButton {
+  font-size: 1.1em;
+}

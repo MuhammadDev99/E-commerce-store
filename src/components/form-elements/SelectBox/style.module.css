@@ -101,3 +101,16 @@
   outline: 0.16em solid color-mix(in srgb, var(--primary-4), transparent 80%);
   border-color: var(--primary-4);
 }
+
+
+.root .dropdownWrapper {
+  border: 0.1em solid var(--white-4);
+  background-color: white;
+
+  outline: 0.2em solid transparent;
+}
+
+.root .dropdownWrapper:focus-within {
+  outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+  border-color: var(--primary-4);
+}

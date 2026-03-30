@@ -3,6 +3,8 @@
   flex-direction: column;
   width: fit-content;
   gap: 0.2em;
+  width: 15em;
+  height: 5em;
 }
 
 
@@ -20,8 +22,8 @@
   box-sizing: border-box;
   font-size: 1em;
   padding: 0.3em 0.4em;
-  height: 2.3em;
-  width: inherit;
+  height: 100%;
+  width: 100%;
 
   border-radius: var(--border-radius-1);
   border: 0.1em solid var(--white-4);
@@ -30,6 +32,7 @@
   background-color: var(--cold-white-2);
   border-color: var(--white-4);
   outline: 0.2em solid transparent;
+  padding-bottom: 1em;
 }
 
 .root .input:not(:placeholder-shown) {
@@ -74,18 +77,26 @@
   content: "*";
 }
 
-
-.root .input {
-  border: 0.1em solid var(--white-4);
-  background-color: var(--cold-white-2);
-  outline: 0.2em solid transparent;
+.root .inputWrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
 }
 
-.root .input:focus-within {
-  outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
-  border: 0.1em solid var(--primary-4);
+.root .inputWrapper .counter {
+  position: absolute;
+  bottom: 0.25em;
+  right: 1em;
 }
 
-.root .input:not(:placeholder-shown) {
-  background-color: white
+.arabic.root .inputWrapper .counter {
+  position: absolute;
+  bottom: 0.25em;
+  right: auto;
+  left: 1em;
+  font-size: 0.8em;
 }
+
+/* .arabic.root .inputWrapper .counter+textarea {
+  padding-bottom: 1em;
+} */

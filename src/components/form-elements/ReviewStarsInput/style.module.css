@@ -1,0 +1,64 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Center stars and label */
+  background-color: white;
+  direction: ltr;
+  font-size: 1em;
+  /* This controls the base scale */
+  gap: 0.5em;
+}
+
+.starsRow {
+  display: flex;
+  flex-direction: row;
+  /* Stars stay horizontal */
+  gap: 0.25em;
+}
+
+.starButton {
+  font-size: inherit;
+  /* Critical for scaling stars with .root */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #ccc;
+  transition: transform 0.1s ease, color 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.starButton:focus-visible {
+  outline: 0.125em solid #3b82f6;
+  border-radius: 0.25em;
+}
+
+.starIcon {
+  width: 2em;
+  height: 2em;
+}
+
+.filled {
+  color: #ffc107;
+}
+
+.starButton:active {
+  transform: scale(0.9);
+}
+
+.starsRow:hover .starButton:hover {
+  transform: scale(1.1);
+}
+
+.ratingLabel {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #374151;
+  /* Dark Gray */
+  margin-top: 0.25em;
+  /* Smoothly transition text if you want */
+  min-height: 1.2em;
+}

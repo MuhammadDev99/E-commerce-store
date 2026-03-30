@@ -1,9 +1,10 @@
 .container {
   display: flex;
   flex-direction: row;
-  padding: 1rem;
-  gap: 1rem;
+  padding: 1em;
+  gap: 1em;
   background-color: white;
+  border-radius: var(--border-radius-2);
 }
 
 .container .imageWrapper {
@@ -22,19 +23,19 @@
 
 .details .title {
   font-weight: bold;
-  font-size: 2rem;
+  font-size: 2em;
 }
 
 .details .price {
-  margin-top: 0.75rem;
-  font-size: 2rem;
+  margin-top: 0.5em;
+  font-size: 2em;
 }
 
 .details .priceContainer {
   display: flex;
   flex-direction: row;
   align-items: end;
-  gap: 1rem;
+  gap: 1em;
 }
 
 .details .stars {
@@ -42,14 +43,35 @@
 }
 
 .details .description {
-  margin-top: 1rem;
+  margin-top: 1em;
 }
 
 .details .quantity {
-  margin-top: 1rem;
-  width: 6rem;
+  margin-top: 1em;
+  width: 6em;
 }
 
-.details .addToCartButton {
-  margin-top: 1rem;
+.details .addToCartButton {}
+
+.details .actionButtons {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+  height: 2.5em;
+  align-items: center;
+  gap: 1em;
+  width: fit-content;
+  box-sizing: border-box;
+
+}
+
+.details .actionButtons>* {
+  height: 100%;
+  border-radius: var(--border-radius-pill);
+  padding: 0 1.5em;
+  box-sizing: border-box;
+}
+
+.details .actionButtons .addReviewButton {
+  box-shadow: var(--shadow-1)
 }

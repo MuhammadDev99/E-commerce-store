@@ -7,6 +7,7 @@ import { Product } from "@/types"
 import FullProductDisplay from "@/components/FullProductDisplay"
 import { getProductById } from "@/utils/db"
 import ErrorDisplay from "@/components/ErrorDisplay"
+import ReviewForm from "@/components/Forms/ReviewForm"
 
 export default async function ProductPage({ params }: { params: Promise<{ productId: string }> }) {
     // In Server Components, we await the params promise directly
@@ -24,6 +25,7 @@ export default async function ProductPage({ params }: { params: Promise<{ produc
     return (
         <div className={clsx(styles.page, styles[displayLanguage])}>
             <FullProductDisplay product={productResult.data} className={styles.productDisplay} />
+            <ReviewForm />
         </div>
     )
 }

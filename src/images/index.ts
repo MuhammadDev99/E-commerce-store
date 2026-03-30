@@ -48,6 +48,8 @@ import PrintSVG from './vectors/print.svg'
 import PersonCircleSVG from './vectors/person-circle.svg'
 import ShoppingCartSVG from './vectors/shopping-cart.svg'
 import MagnifyingGlassSVG from './vectors/magnifying-glass.svg'
+import StarSVG from './vectors/star.svg'
+import PinAndPaperSVG from './vectors/pin-and-paper.svg'
 export {
   DashboardNav,
   HomeNav,
@@ -98,5 +100,7 @@ export {
   PrintSVG,
   PersonCircleSVG,
   ShoppingCartSVG,
-  MagnifyingGlassSVG
+  MagnifyingGlassSVG,
+  StarSVG,
+  PinAndPaperSVG
 };

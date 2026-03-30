@@ -35,6 +35,7 @@
   width: 100%;
 }
 
+
 .root.disabled {
   opacity: 0.5;
   pointer-events: none;
@@ -97,4 +98,17 @@
   color: var(--color-red-4);
 }
 
-/* Note: Removed .input::after because <input> tags cannot have pseudo-elements */
+.root .inputWrapper {
+  border: 0.1em solid var(--white-4);
+  background-color: var(--cold-white-2);
+  outline: 0.2em solid transparent;
+}
+
+.root .inputWrapper:focus-within {
+  outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+  border-color: var(--primary-4);
+}
+
+.root .inputWrapper:has(input:not(:placeholder-shown)) {
+  background-color: white
+}
