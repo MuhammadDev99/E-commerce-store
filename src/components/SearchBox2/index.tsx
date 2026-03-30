@@ -5,25 +5,30 @@ import { SearchSVG } from "@/images"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import { useMemo } from "react"
 import { debounced } from "@/utils"
+
 export default function SearchBox2({
     className,
     autoFocus = false,
     onSearch,
     onSearchSubmit,
+    debounceMs = 0,
 }: {
     className?: string
     autoFocus?: boolean
     onSearch: (query: string) => void
     onSearchSubmit: () => void
+    debounceMs?: number
 }) {
     useSignals()
     const searchQuery = useSignal<string>("")
+
     const handleSearch = (query: string) => {
-        if (query.trim()) {
-            onSearch?.(query)
-        }
+        onSearch?.(query)
     }
-    const handleQueryChange = useMemo(() => debounced(handleSearch, 400), [])
+
+    const handleQueryChange =
+        debounceMs === 0 ? handleSearch : useMemo(() => debounced(handleSearch, debounceMs), [])
+
     return (
         <div className={clsx(styles.root, className)}>
             <SearchSVG className={styles.icon} onClick={onSearchSubmit} />
@@ -36,9 +41,16 @@ export default function SearchBox2({
                     searchQuery.value = e.target.value
                 }}
                 onKeyDown={(e) => {
-                    if (e.key === "Enter" && searchQuery.value.trim()) {
+                    if (e.key === "Enter") {
                         onSearchSubmit()
                     }
+                }}
+                // Added onBlur handler here
+                onBlur={() => {
+                    // if (searchQuery.value.trim() === "") {
+                    //     onSearchSubmit()
+                    // }
+                    onSearchSubmit()
                 }}
                 autoFocus={autoFocus}
             />

@@ -21,7 +21,6 @@ export default function Textbox({
     onChange,
 }: Props) {
     const isTextArabic = label && isArabic(label)
-    console.log(isTextArabic)
     if (isTextArabic) className = clsx(className, styles.arabic)
     if (type === "text") {
         return (

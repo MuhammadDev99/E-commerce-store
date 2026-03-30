@@ -23,7 +23,6 @@ export default function AnalyticsCard({
     className,
     icon: Icon,
 }: AnalyticsCardProps) {
-    console.log(previousValue)
     let percentDiffernce = 0
     if (previousValue) {
         percentDiffernce = ((value - previousValue) / previousValue) * 100

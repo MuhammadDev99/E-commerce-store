@@ -1,18 +1,28 @@
 // types.ts
-import { product, coupon } from "./lib/auth-schema";
+import { product, coupon, orders, orderItems, user } from "./lib/auth-schema";
+
 export type DisplayLanguage = 'arabic' | 'english'
+
+// --- Product Types ---
 export type Product = typeof product.$inferSelect;
 export type NewProduct = typeof product.$inferInsert;
-export type Coupon = typeof coupon.$inferSelect
-export type NewCoupon = typeof coupon.$inferInsert
+export type ProductAnalytics = Product & {
+  totalOrdered: number;
+  totalRevenue: number;
+}
+export type ProductAnalyticsTableKey = Extract<keyof ProductAnalytics, string>;
+export type ProductAnalyticsTableHeader = TableHeaderFor<ProductAnalytics>;
+
+// Composite type for UI (Order + its specific items)
+export type OrderWithItems = Order & {
+  items: (OrderItem & { product?: Product })[];
+};
+
+// --- Cart Types ---
 export type CartItem = Product & { quantity: number }
-export type ProductFormData = Omit<
-  NewProduct,
-  "id" | "userId" | "createdAt"
-> & { stockQuantity: number; discount: number };
 
 export const getEmptyProduct = (): NewProduct => ({
-  title: "",
+  name: "",
   description: "",
   price: 0,
   images: [],
@@ -40,6 +50,42 @@ export type PageItems<T> = {
   getData: () => Promise<T[]>;
 }
 
+
+
+
+
+// --- Coupon Types ---
+export type Coupon = typeof coupon.$inferSelect
+export type NewCoupon = typeof coupon.$inferInsert
+export type CouponTableKey = Extract<keyof Coupon, string> | "status";
+export type CouponsTableHeader = TableHeaderFor<Coupon, "status">;
+
+// --- Order Types ---
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type NewOrderItem = typeof orderItems.$inferInsert;
+export type OrderKeys = Extract<keyof Order, string>;
+export type OrdersTableHeader = TableHeaderFor<Order>;
+// type OrderTableKey = "id" | "createdAt" | "orderReference" | "userId" | "totalAmount" | "status" | "tapChargeId"
+// type OrdersTableHeader = TableHeader<"id" | "createdAt" | "userId" | 
+// "orderReference" | "totalAmount" | "status" | "tapChargeId">
+export type User = typeof user.$inferSelect;
+export type OrderWithUser = {
+  order: Order;
+  customer: User;
+};
+
+
+// export type PageDataOptions<T> = {
+//   page: number;
+//   pageSize: number;
+//   searchParams: { [key: string]: string | undefined }
+// }
+export type PageDataOptions = { [key: string]: string | undefined }
+}
+export type PageDataResponse<T> = { items: T[]; totalItems: number; totalPages: number }
+
 export interface TableHeader<V extends string = string> {
   display: string;
   value: V;
@@ -53,6 +99,22 @@ export type TableHeaderFor<T, K extends string = never> = TableHeader<
   Extract<keyof T, string> | K
 >;
 
-export type CouponRow = typeof coupon.$inferSelect;
-export type CouponTableKey = Extract<keyof CouponRow, string> | "status";
-export type CouponsTableHeader = TableHeaderFor<CouponRow, "status">;
+
+// The base "Contract" for any table
+export interface TableConfig<R = any, K extends string = keyof R & string, H = TableHeader<K>> {
+  row: R;
+  keys: K;
+  headers: H;
+}
+
+export type OrdersTableConfig = TableConfig<
+  { order: Order; customer: User },
+  keyof Order & string | 'customer'
+>;
+
+export type CouponsTableConfig = TableConfig<
+  Coupon,
+  keyof Coupon & string | 'status'
+>;
+
+export type PageDataURLParams = 'searchCol' | 'sortCol' | 'sortDir' | 'pageSize' | 'page' | 'q'

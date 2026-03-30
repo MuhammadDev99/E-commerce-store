@@ -1,11 +1,13 @@
 "use server";
-
+import { orders, user } from "@/lib/auth-schema";
 import { db } from "@/db";
 import { cartItem, coupon, product, product as productTable } from "@/lib/auth-schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { CartItem, Coupon, CouponTableKey, NewProduct, PageItems, Product } from "@/types";
-import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { CartItem, Coupon, CouponsTableConfig, CouponTableKey, NewProduct, Order, OrdersTableConfig, OrderWithUser, PageDataOptions, PageDataResponse, PageItems, Product } from "@/types";
+import { and, asc, count, desc, eq, ilike, or, SQL, sql } from "drizzle-orm";
+import { getPaginatedTableData, requireAdminAuth } from "./admin-helpers";
+import { AnyPgColumn } from "drizzle-orm/pg-core";
 
 export async function addProductDB(productData: NewProduct) {
   const session = await auth.api.getSession({
@@ -243,82 +245,172 @@ export async function getCouponPagesAdmin(pageSize: number = 10): Promise<PageIt
 
 
 
-export async function getCouponsAdmin(options: {
-  page: number;
-  pageSize: number;
-  query?: string;
-  searchColumn?: string; // Keep this flexible or use CouponTableKey
-  sortColumn?: string;
-  sortDirection?: "asc" | "desc";
-}) {
-  // 1. Security Check
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+// export async function getCouponsAdmin(options: {
+//   page: number;
+//   pageSize: number;
+//   query?: string;
+//   searchColumn?: string; // Keep this flexible or use CouponTableKey
+//   sortColumn?: string;
+//   sortDirection?: "asc" | "desc";
+// }) {
+//   // 1. Security Check
+//   const session = await auth.api.getSession({
+//     headers: await headers(),
+//   });
 
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Admin access required.");
-  }
+//   if (!session || session.user.role !== "admin") {
+//     throw new Error("Unauthorized: Admin access required.");
+//   }
 
-  const { page, pageSize, query, searchColumn, sortColumn = "createdAt", sortDirection = "desc" } = options;
+//   const { page, pageSize, query, searchColumn, sortColumn = "createdAt", sortDirection = "desc" } = options;
 
-  // 2. Pagination Math
-  const validPage = Math.max(1, page);
-  const offset = (validPage - 1) * pageSize;
+//   // 2. Pagination Math
+//   const validPage = Math.max(1, page);
+//   const offset = (validPage - 1) * pageSize;
 
-  // 3. Dynamic Filter Building (RESTORED)
-  let filters = undefined;
+//   // 3. Dynamic Filter Building (RESTORED)
+//   let filters = undefined;
+
+//   if (query && query.trim() !== "") {
+//     const q = `%${query.trim()}%`;
+//     const exactQuery = query.trim();
+
+//     switch (searchColumn) {
+//       case "code":
+//         filters = ilike(coupon.code, q);
+//         break;
+
+//       case "name":
+//         filters = ilike(coupon.name, q);
+//         break;
+
+//       case "type":
+//         // Map Arabic search terms to Database Enum values
+//         if ("قيمة ثابتة".includes(exactQuery)) filters = eq(coupon.type, "fixed");
+//         else if ("نسبة مئوية".includes(exactQuery)) filters = eq(coupon.type, "percentage");
+//         else if ("شحن مجاني".includes(exactQuery)) filters = eq(coupon.type, "free_shipping");
+//         // Fallback to searching the raw enum string
+//         else filters = ilike(coupon.type, q);
+//         break;
+
+//       case "value":
+//         // Numeric columns must be cast to TEXT for ILIKE to work in Postgres
+//         filters = sql`CAST(${coupon.value} AS TEXT) ILIKE ${q}`;
+//         break;
+
+//       case "usedCount":
+//         filters = sql`CAST(${coupon.usedCount} AS TEXT) ILIKE ${q}`;
+//         break;
+
+//       case "status":
+//         // Replicate "Active" logic: Not expired AND not reached usage limit
+//         const isExpired = sql`(${coupon.endDate} IS NOT NULL AND ${coupon.endDate} < NOW())`;
+//         const isFull = sql`(${coupon.globalUsageLimit} IS NOT NULL AND ${coupon.usedCount} >= ${coupon.globalUsageLimit})`;
+
+//         if ("مفعل".includes(exactQuery)) {
+//           filters = sql`NOT (${isExpired} OR ${isFull})`;
+//         } else if ("معطل".includes(exactQuery)) {
+//           filters = sql`(${isExpired} OR ${isFull})`;
+//         }
+//         break;
+
+//       default:
+//         // Default behavior: Search code OR name
+//         filters = or(ilike(coupon.code, q), ilike(coupon.name, q));
+//     }
+//   }
+
+//   // 4. Dynamic Sorting Block
+//   let orderByCol;
+//   switch (sortColumn) {
+//     case "code": orderByCol = coupon.code; break;
+//     case "name": orderByCol = coupon.name; break;
+//     case "type": orderByCol = coupon.type; break;
+//     case "value": orderByCol = coupon.value; break;
+//     case "usedCount": orderByCol = coupon.usedCount; break;
+//     case "status":
+//       // Sorts statuses visually separating them using their database boolean expression
+//       orderByCol = sql`(${coupon.endDate} IS NOT NULL AND ${coupon.endDate} < NOW()) OR (${coupon.globalUsageLimit} IS NOT NULL AND ${coupon.usedCount} >= ${coupon.globalUsageLimit})`;
+//       break;
+//     case "createdAt":
+//     default:
+//       orderByCol = coupon.createdAt;
+//       break;
+//   }
+
+//   const orderFn = sortDirection === "asc" ? asc : desc;
+
+//   // 5. Database Queries
+//   const [data, [countResult]] = await Promise.all([
+//     // Fetch the actual rows
+//     db
+//       .select()
+//       .from(coupon)
+//       .where(filters)
+//       .limit(pageSize)
+//       .offset(offset)
+//       .orderBy(orderFn(orderByCol)), // Apply Sorting
+
+//     // Fetch total count for pagination buttons
+//     db
+//       .select({ value: count() })
+//       .from(coupon)
+//       .where(filters), // Apply Filters
+//   ]);
+
+//   return {
+//     items: data,
+//     totalItems: countResult.value,
+//     totalPages: Math.ceil(countResult.value / pageSize),
+//   };
+// }
+
+
+export async function getCoupons(options: PageDataOptions<CouponsTableConfig['keys']>): Promise<PageDataResponse<CouponsTableConfig['row']>> {
+  // 1. Use abstracted security check
+  await requireAdminAuth();
+
+  const {
+    page,
+    pageSize,
+    searchParams
+  } = options;
+  const query = searchParams['q']
+  const sortColumn = searchParams['sort']
+  const sortDirection = searchParams['dir']
+  const searchColumn = searchParams['col']
+  // 2. Table-Specific Filter Logic
+  let filters: SQL<unknown> | undefined = undefined;
 
   if (query && query.trim() !== "") {
     const q = `%${query.trim()}%`;
     const exactQuery = query.trim();
 
     switch (searchColumn) {
-      case "code":
-        filters = ilike(coupon.code, q);
-        break;
-
-      case "name":
-        filters = ilike(coupon.name, q);
-        break;
-
+      case "code": filters = ilike(coupon.code, q); break;
+      case "name": filters = ilike(coupon.name, q); break;
       case "type":
-        // Map Arabic search terms to Database Enum values
         if ("قيمة ثابتة".includes(exactQuery)) filters = eq(coupon.type, "fixed");
         else if ("نسبة مئوية".includes(exactQuery)) filters = eq(coupon.type, "percentage");
         else if ("شحن مجاني".includes(exactQuery)) filters = eq(coupon.type, "free_shipping");
-        // Fallback to searching the raw enum string
         else filters = ilike(coupon.type, q);
         break;
-
       case "value":
-        // Numeric columns must be cast to TEXT for ILIKE to work in Postgres
-        filters = sql`CAST(${coupon.value} AS TEXT) ILIKE ${q}`;
-        break;
-
+        filters = sql`CAST(${coupon.value} AS TEXT) ILIKE ${q}`; break;
       case "usedCount":
-        filters = sql`CAST(${coupon.usedCount} AS TEXT) ILIKE ${q}`;
-        break;
-
+        filters = sql`CAST(${coupon.usedCount} AS TEXT) ILIKE ${q}`; break;
       case "status":
-        // Replicate "Active" logic: Not expired AND not reached usage limit
         const isExpired = sql`(${coupon.endDate} IS NOT NULL AND ${coupon.endDate} < NOW())`;
         const isFull = sql`(${coupon.globalUsageLimit} IS NOT NULL AND ${coupon.usedCount} >= ${coupon.globalUsageLimit})`;
-
-        if ("مفعل".includes(exactQuery)) {
-          filters = sql`NOT (${isExpired} OR ${isFull})`;
-        } else if ("معطل".includes(exactQuery)) {
-          filters = sql`(${isExpired} OR ${isFull})`;
-        }
+        if ("مفعل".includes(exactQuery)) filters = sql`NOT (${isExpired} OR ${isFull})`;
+        else if ("معطل".includes(exactQuery)) filters = sql`(${isExpired} OR ${isFull})`;
         break;
-
       default:
-        // Default behavior: Search code OR name
         filters = or(ilike(coupon.code, q), ilike(coupon.name, q));
     }
   }
 
-  // 4. Dynamic Sorting Block
+  // 3. Table-Specific Sorting Logic
   let orderByCol;
   switch (sortColumn) {
     case "code": orderByCol = coupon.code; break;
@@ -327,38 +419,174 @@ export async function getCouponsAdmin(options: {
     case "value": orderByCol = coupon.value; break;
     case "usedCount": orderByCol = coupon.usedCount; break;
     case "status":
-      // Sorts statuses visually separating them using their database boolean expression
       orderByCol = sql`(${coupon.endDate} IS NOT NULL AND ${coupon.endDate} < NOW()) OR (${coupon.globalUsageLimit} IS NOT NULL AND ${coupon.usedCount} >= ${coupon.globalUsageLimit})`;
       break;
     case "createdAt":
     default:
-      orderByCol = coupon.createdAt;
-      break;
+      orderByCol = coupon.createdAt; break;
   }
 
   const orderFn = sortDirection === "asc" ? asc : desc;
 
-  // 5. Database Queries
+  // 4. Use abstracted Paginated Query runner
+  return await getPaginatedTableData(coupon, {
+    page,
+    pageSize,
+    filters,
+    orderBy: orderFn(orderByCol),
+  });
+}
+
+
+// export async function getOrdersPageData(options: PageDataOptions<OrdersTableConfig['keys']>): Promise<PageDataResponse<OrdersTableConfig['row']>> {
+//   const {
+//     page,
+//     pageSize,
+//     query,
+//     searchColumn,
+//     sortColumn = "createdAt",
+//     sortDirection = "desc"
+//   } = options;
+
+//   const validPage = Math.max(1, page);
+//   const offset = (validPage - 1) * pageSize;
+
+//   // 2. Build Filters
+//   // We allow searching by Order Reference OR Customer Name OR Customer Email
+//   let filters = undefined;
+//   if (query && query.trim() !== "") {
+//     const q = `%${query.trim()}%`;
+//     filters = or(
+//       ilike(orders.orderReference, q),
+//       ilike(user.name, q),
+//       ilike(user.email, q)
+//     );
+//   }
+
+//   // 3. Handle Dynamic Sorting (Fixed with AnyPgColumn)
+//   let orderByCol: AnyPgColumn;
+//   switch (sortColumn) {
+//     case "totalAmount":
+//       orderByCol = orders.totalAmount;
+//       break;
+//     case "status":
+//       orderByCol = orders.status;
+//       break;
+//     case "orderReference":
+//       orderByCol = orders.orderReference;
+//       break;
+//     case "id":
+//       orderByCol = orders.id;
+//       break;
+//     case "createdAt":
+//     default:
+//       orderByCol = orders.createdAt;
+//       break;
+//   }
+//   const orderFn = sortDirection === "asc" ? asc : desc;
+
+//   // 4. Execution
+//   // We run the data fetch and the count in parallel for performance
+//   const [data, [countResult]] = await Promise.all([
+//     db
+//       .select({
+//         order: orders,
+//         customer: user, // Selects all user columns automatically
+//       })
+//       .from(orders)
+//       .innerJoin(user, eq(orders.userId, user.id))
+//       .where(filters)
+//       .limit(pageSize)
+//       .offset(offset)
+//       .orderBy(orderFn(orderByCol)),
+
+//     db
+//       .select({ value: sql<number>`count(*)` })
+//       .from(orders)
+//       // We join here too so the count reflects the search filters (like user name)
+//       .innerJoin(user, eq(orders.userId, user.id))
+//       .where(filters),
+//   ]);
+
+//   return {
+//     items: data as OrdersTableConfig['row'][],
+//     totalItems: Number(countResult.value),
+//     totalPages: Math.ceil(Number(countResult.value) / pageSize),
+//   };
+// }
+
+export async function getOrdersPageData(options: PageDataOptions<OrdersTableConfig['keys']>): Promise<PageDataResponse<OrdersTableConfig['row']>> {
+  const {
+    page,
+    pageSize,
+    searchParams
+  } = options;
+  const query = searchParams['q']
+  const sortColumn = searchParams['sort']
+  const sortDirection = searchParams['dir']
+  const searchColumn = searchParams['col']
+  const validPage = Math.max(1, page);
+  const offset = (validPage - 1) * pageSize;
+
+  // 2. Build Filters
+  let filters = undefined;
+  if (searchColumn && query && query.trim() !== "") {
+    const q = `%${query.trim()}%`;
+    if (searchColumn === 'customer') {
+      filters = or(ilike(user.name, q), ilike(user.email, q))
+    } else {
+      filters = ilike(orders[searchColumn], q)
+    }
+  }
+
+  // 3. Handle Dynamic Sorting (Fixed with AnyPgColumn)
+  let orderByCol: AnyPgColumn;
+  switch (sortColumn) {
+    case "totalAmount":
+      orderByCol = orders.totalAmount;
+      break;
+    case "status":
+      orderByCol = orders.status;
+      break;
+    case "orderReference":
+      orderByCol = orders.orderReference;
+      break;
+    case "id":
+      orderByCol = orders.id;
+      break;
+    case "createdAt":
+    default:
+      orderByCol = orders.createdAt;
+      break;
+  }
+  const orderFn = sortDirection === "asc" ? asc : desc;
+
+  // 4. Execution
+  // We run the data fetch and the count in parallel for performance
   const [data, [countResult]] = await Promise.all([
-    // Fetch the actual rows
     db
-      .select()
-      .from(coupon)
+      .select({
+        order: orders,
+        customer: user, // Selects all user columns automatically
+      })
+      .from(orders)
+      .innerJoin(user, eq(orders.userId, user.id))
       .where(filters)
       .limit(pageSize)
       .offset(offset)
-      .orderBy(orderFn(orderByCol)), // Apply Sorting
+      .orderBy(orderFn(orderByCol)),
 
-    // Fetch total count for pagination buttons
     db
-      .select({ value: count() })
-      .from(coupon)
-      .where(filters), // Apply Filters
+      .select({ value: sql<number>`count(*)` })
+      .from(orders)
+      // We join here too so the count reflects the search filters (like user name)
+      .innerJoin(user, eq(orders.userId, user.id))
+      .where(filters),
   ]);
 
   return {
-    items: data,
-    totalItems: countResult.value,
-    totalPages: Math.ceil(countResult.value / pageSize),
+    items: data as OrdersTableConfig['row'][],
+    totalItems: Number(countResult.value),
+    totalPages: Math.ceil(Number(countResult.value) / pageSize),
   };
 }

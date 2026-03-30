@@ -9,7 +9,7 @@ import LineChart from "@/components/LineChart"
 import PieChart from "@/components/PieCart"
 import { MOCK_PRODUCTS } from "@/mockData"
 import Price from "@/components/Price"
-import TopProductsTable from "@/components/TopProductsTable"
+import TopProductsTable from "@/components/Tables/TopProductsTable"
 const salesData = [
     { name: "Jan", total: 2400 },
     { name: "Feb", total: 1398 },

@@ -67,7 +67,7 @@ export const genderEnum = pgEnum("gender", ["Women", "Men", "Unisex"]);
 
 export const product = pgTable("product", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
+  name: text("name").notNull(),
   description: text("description").notNull(),
   price: integer("price").notNull(),
 
@@ -121,4 +121,30 @@ export const coupon = pgTable("coupon", {
   customerUsageLimit: integer("customerUsageLimit").default(1),
   usedCount: integer("usedCount").default(0),
   createdAt: timestamp("createdAt").defaultNow(),
+});
+
+
+// auth-schema.ts
+export const orderStatusEnum = pgEnum("order_status", ["pending", "paid", "failed"]);
+// 1. The Main Order Table (High level)
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(), // Real DB Primary Key (1, 2, 3...)
+  orderReference: text("order_reference").notNull().unique(), // The ORD-ABC-123 for Tap
+  userId: text("userId").notNull().references(() => user.id),
+  totalAmount: integer("totalAmount").notNull(),
+  status: orderStatusEnum("status").notNull().default("pending"), tapChargeId: text("tap_charge_id"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+// 2. The Order Items Table (Links products to the order)
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("orderId")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }), // Links to the order above
+  productId: integer("productId")
+    .notNull()
+    .references(() => product.id),
+  quantity: integer("quantity").notNull(),
+  priceAtPurchase: integer("priceAtPurchase").notNull(), // To keep record if price changes later
 });

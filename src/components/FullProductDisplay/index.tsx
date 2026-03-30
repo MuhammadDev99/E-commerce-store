@@ -56,7 +56,6 @@ export default function FullProductDisplay({
                     className={styles.addToCartButton}
                     onClick={() => {
                         if (product.id) {
-                            console.log(quantity.value)
                             addItemToCart(product as Product, quantity.value)
                         } else {
                             console.error("Cannot add product without an ID")

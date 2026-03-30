@@ -37,11 +37,6 @@ export default function DashboardNavBar({ className }: { className?: string }) {
                     <p>إدارة المنتجات</p>
                 </Link>
 
-                <Link href={"/dashboard/inventory"}>
-                    <InventorySVG className={styles.icon} />
-                    <p>المخزون</p>
-                </Link>
-
                 <Link href={"/dashboard/clients"}>
                     <ClientsSVG className={styles.icon} />
                     <p>العملاء</p>

@@ -1,17 +1,20 @@
-"use client"
-import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import styles from "./style.module.css"
 import clsx from "clsx"
-import { getDisplayLanguage } from "@/utils"
 import AnalyticsCard from "@/components/AnalyticsCard"
 import { ClockSVG, CorrectSVG, DownArrowSVG, OrdersSVG, WrongSVG } from "@/images"
-import OrdersTable from "@/components/OrdersTable"
+import OrdersTable from "@/components/Tables/OrdersTable"
+import { getOrdersPageData } from "@/utils/db"
+import { Order, OrderKeys, OrderWithUser } from "@/types"
 
-export default function OrdersPage() {
-    useSignals()
-    const displayLanguage = getDisplayLanguage()
+export default async function OrdersPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | undefined }>
+}) {
+    const { items, totalPages } = await getOrdersPageData(await searchParams)
+
     return (
-        <div className={clsx(styles.page, styles[displayLanguage])}>
+        <div className={clsx(styles.page)}>
             <div className={styles.cards}>
                 <AnalyticsCard
                     label="إجمالي الطلبات"
@@ -46,7 +49,7 @@ export default function OrdersPage() {
                     className={clsx(styles.card, styles.cancled)}
                 />
             </div>
-            <OrdersTable className={styles.ordersTable} />
+            <OrdersTable initialData={items} initialTotalPages={totalPages} />
         </div>
     )
 }

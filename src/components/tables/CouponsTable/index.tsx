@@ -4,27 +4,19 @@ import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import Link from "next/link"
-import { Coupon, CouponsTableHeader, CouponTableKey } from "@/types"
-import { getCouponsAdmin } from "@/utils/db"
+import { Coupon, CouponsTableConfig, CouponsTableHeader, CouponTableKey } from "@/types"
+import { getCoupons } from "@/utils/db"
 
 export default function CouponsTable({
     className,
     initialData,
     initialTotalPages,
-    pageSize = 10,
-    initialSearchQuery = "",
-    initialSearchColumn = "code",
-    initialSortColumn = "createdAt",
-    initialSortDirection = "desc",
+    pageSize = 3,
 }: {
     className?: string
     initialData: Coupon[]
     initialTotalPages: number
     pageSize?: number
-    initialSearchQuery?: string
-    initialSearchColumn?: CouponTableKey
-    initialSortColumn?: string
-    initialSortDirection?: "asc" | "desc"
 }) {
     const headers: CouponsTableHeader[] = [
         {
@@ -44,26 +36,8 @@ export default function CouponsTable({
 
     return (
         <div className={clsx(styles.root, className)}>
-            <PaginatedTable<Coupon, CouponTableKey>
+            <PaginatedTable<CouponsTableConfig>
                 headers={headers}
-                initialData={initialData}
-                initialTotalPages={initialTotalPages}
-                pageSize={pageSize}
-                initialSearchQuery={initialSearchQuery}
-                initialSearchColumn={initialSearchColumn as CouponTableKey}
-                initialSortColumn={initialSortColumn as CouponTableKey}
-                initialSortDirection={initialSortDirection}
-                gridTemplate="1.5fr 2fr 1.5fr 1fr 1fr 1fr"
-                fetchData={async (params) => {
-                    return await getCouponsAdmin({
-                        page: params.page,
-                        pageSize: params.pageSize,
-                        query: params.query,
-                        searchColumn: params.searchColumn,
-                        sortColumn: params.sortColumn,
-                        sortDirection: params.sortDirection,
-                    })
-                }}
                 renderItem={(coupon, isPending) => {
                     const isExpired = coupon.endDate && new Date(coupon.endDate) < new Date()
                     const isFull =
@@ -115,6 +89,21 @@ export default function CouponsTable({
                             </p>
                         </div>
                     )
+                }}
+                initialData={initialData}
+                initialTotalPages={initialTotalPages}
+                pageSize={pageSize}
+                // Set the default fallbacks right here!
+                defaultSearchColumn="code"
+                defaultSortColumn="createdAt"
+                defaultSortDirection="desc"
+                gridTemplate="1.5fr 2fr 1.5fr 1fr 1fr 1fr"
+                fetchData={async (params) => {
+                    return await getCoupons({
+                        page: params.page,
+                        pageSize: params.pageSize,
+                        searchParams: params.searchParams,
+                    })
                 }}
             />
         </div>

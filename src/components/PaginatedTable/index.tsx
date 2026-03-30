@@ -6,12 +6,12 @@ import React, { useMemo, useState, useTransition, useLayoutEffect } from "react"
 import SearchBox2 from "../SearchBox2"
 import SelectBox from "../form-elements/SelectBox"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
-import { TableHeader } from "@/types"
+import { PageDataOptions, PageDataResponse, TableConfig } from "@/types"
 import Button from "../Button"
 import { DownArrowSVG } from "@/images"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 
-export default function PaginatedTable<T, V extends string>({
+export default function PaginatedTable<C extends TableConfig>({
     className,
     headers,
     gridTemplate,
@@ -19,33 +19,24 @@ export default function PaginatedTable<T, V extends string>({
     initialData,
     initialTotalPages,
     pageSize = 10,
-    initialSearchQuery = "",
-    initialSearchColumn,
-    initialSortColumn,
-    initialSortDirection = "desc",
+    defaultSearchColumn,
+    defaultSortColumn,
+    defaultSortDirection = "desc",
     fetchData,
     renderItem,
 }: {
     className?: string
-    headers: TableHeader<V>[]
+    headers: C["headers"][]
     gridTemplate?: string
     label?: string
-    initialData: T[]
+    initialData: C["row"][]
     initialTotalPages: number
     pageSize?: number
-    initialSearchQuery?: string
-    initialSearchColumn?: V
-    initialSortColumn?: V
-    initialSortDirection?: "asc" | "desc"
-    fetchData: (params: {
-        page: number
-        pageSize: number
-        query: string
-        searchColumn: V
-        sortColumn: V
-        sortDirection: "asc" | "desc"
-    }) => Promise<{ items: T[]; totalPages: number }>
-    renderItem: (item: T, isPending: boolean) => React.ReactNode
+    defaultSearchColumn?: C["keys"]
+    defaultSortColumn?: C["keys"]
+    defaultSortDirection?: "asc" | "desc"
+    fetchData: (params: PageDataOptions<C["keys"]>) => Promise<PageDataResponse<C["row"]>>
+    renderItem: (item: C["row"], isPending: boolean) => React.ReactNode
 }) {
     useSignals()
 
@@ -53,16 +44,23 @@ export default function PaginatedTable<T, V extends string>({
     const pathname = usePathname()
     const urlSearchParams = useSearchParams()
 
+    // --- Read Initial State directly from URL Fallbacks ---
+    const urlPage = parseInt(urlSearchParams.get("page") || "1") - 1
+    const urlQuery = urlSearchParams.get("q") || ""
+    const urlCol = (urlSearchParams.get("col") as C["keys"]) || defaultSearchColumn
+    const urlSort = (urlSearchParams.get("sort") as C["keys"]) || defaultSortColumn
+    const urlDir = (urlSearchParams.get("dir") as "asc" | "desc") || defaultSortDirection
+
     // --- State ---
-    const [data, setData] = useState<T[]>(initialData)
+    const [data, setData] = useState<C["row"][]>(initialData)
     const [totalPages, setTotalPages] = useState(initialTotalPages)
-    const [currentPage, setCurrentPage] = useState(0)
+    const [currentPage, setCurrentPage] = useState(urlPage)
 
-    const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
-    const [searchColumn, setSearchColumn] = useState<V | undefined>(initialSearchColumn)
+    const [searchQuery, setSearchQuery] = useState(urlQuery)
+    const [searchColumn, setSearchColumn] = useState<C["keys"] | undefined>(urlCol)
 
-    const [sortColumn, setSortColumn] = useState<V | undefined>(initialSortColumn)
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(initialSortDirection)
+    const [sortColumn, setSortColumn] = useState<C["keys"] | undefined>(urlSort)
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">(urlDir)
 
     const [isPending, startTransition] = useTransition()
 
@@ -77,16 +75,17 @@ export default function PaginatedTable<T, V extends string>({
         [headers],
     )
 
-    // 2. Filter out hidden headers for visual rendering
     const visibleHeaders = useMemo(() => headers.filter((h) => !h.hidden), [headers])
 
     // Fallbacks if undefined
-    const effectiveSearchColumn = searchColumn ?? (searchableHeaders[0]?.value as V) ?? ("" as V)
-    const effectiveSortColumn = sortColumn ?? (sortableHeaders[0]?.value as V) ?? ("" as V)
+    const effectiveSearchColumn =
+        searchColumn ?? (searchableHeaders[0]?.value as C["keys"]) ?? ("" as C["keys"])
+    const effectiveSortColumn =
+        sortColumn ?? (sortableHeaders[0]?.value as C["keys"]) ?? ("" as C["keys"])
 
     // Signals solely responsible for UI intermediate states
     const searchQuerySignal = useSignal<string>(searchQuery)
-    const selectedColumnSignal = useSignal<V>(effectiveSearchColumn)
+    const selectedColumnSignal = useSignal<C["keys"]>(effectiveSearchColumn)
 
     // Sync Signals with committed state when navigating pages or re-rendering with new states
     useLayoutEffect(() => {
@@ -95,9 +94,18 @@ export default function PaginatedTable<T, V extends string>({
     }, [effectiveSearchColumn, searchQuery, selectedColumnSignal, searchQuerySignal])
 
     // --- Core Fetch Logic ---
-    const loadData = (pageIndex: number, query: string, col: V, sCol: V, sDir: "asc" | "desc") => {
+    const loadData = (
+        pageIndex: number,
+        query: string,
+        col: C["keys"],
+        sCol: C["keys"],
+        sDir: "asc" | "desc",
+    ) => {
         const newParams = new URLSearchParams(urlSearchParams.toString())
 
+        // Save everything to URL so browser refresh keeps the state intact
+        if (pageIndex > 0) newParams.set("page", (pageIndex + 1).toString())
+        else newParams.delete("page")
         if (query) newParams.set("q", query)
         else newParams.delete("q")
 
@@ -135,15 +143,14 @@ export default function PaginatedTable<T, V extends string>({
 
     // --- Handlers ---
     const handlePageChange = (page: number) => {
-        // use last submitted values for searching to prevent un-submitted typing from affecting pagination
         loadData(page, searchQuery, effectiveSearchColumn, effectiveSortColumn, sortDirection)
     }
 
-    const handleSearchSubmit = (query: string, col: V) => {
+    const handleSearchSubmit = (query: string, col: C["keys"]) => {
         loadData(0, query, col, effectiveSortColumn, sortDirection)
     }
 
-    const handleSortChange = (col: V, dir: "asc" | "desc") => {
+    const handleSortChange = (col: C["keys"], dir: "asc" | "desc") => {
         loadData(0, searchQuery, effectiveSearchColumn, col, dir)
     }
 
@@ -177,8 +184,12 @@ export default function PaginatedTable<T, V extends string>({
                                     value: header.value,
                                 }))}
                                 onChange={(e) => {
-                                    const newCol = e.target.value as V
+                                    const newCol = e.target.value as C["keys"]
                                     selectedColumnSignal.value = newCol
+                                    handleSearchSubmit(
+                                        searchQuerySignal.value,
+                                        selectedColumnSignal.value,
+                                    )
                                 }}
                                 value={selectedColumnSignal.value}
                             />
@@ -193,7 +204,7 @@ export default function PaginatedTable<T, V extends string>({
                                     value: header.value,
                                 }))}
                                 onChange={(e) =>
-                                    handleSortChange(e.target.value as V, sortDirection)
+                                    handleSortChange(e.target.value as C["keys"], sortDirection)
                                 }
                                 value={effectiveSortColumn}
                             />
