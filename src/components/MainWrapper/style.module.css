@@ -1,13 +1,31 @@
+/* Lock the screen so the sidebar never moves */
+.layoutWrapper {
+  display: flex;
+  height: 100vh;
+  /* Force exactly screen height */
+  width: 100vw;
+  overflow: hidden;
+  /* Prevent the "body" from scrolling */
+  direction: rtl;
+}
+
+.dashboardLayout {
+  flex-direction: row;
+}
+
+/* The Main Content Area */
 .container {
+  flex: 1;
+  /* Grow to fill all space left by sidebar */
+  height: 100%;
+  overflow-y: auto;
+  /* ONLY this part scrolls */
   display: flex;
   flex-direction: column;
-  background-color: red !important;
+  background-color: var(--background-color);
 }
 
-.store.container {
-  padding-top: 3rem;
-}
-
-.dashboard.container {
-  padding-right: 13.96rem;
+.arabic.dashboardLayout {
+  flex-direction: row;
+  /* Flex automatically handles RTL if direction is set */
 }

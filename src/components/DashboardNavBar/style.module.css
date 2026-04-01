@@ -1,14 +1,22 @@
 .container {
-  position: fixed;
+  /* No more position: fixed or sticky needed! */
+  height: 100%;
+  /* Fill the 100vh of the parent */
+  width: 14rem;
+  /* Set your width here once */
+  flex-shrink: 0;
+  /* Prevent the content from squishing the sidebar */
+
   display: flex;
   flex-direction: column;
   background-color: var(--primary-3);
   color: white;
   z-index: 10;
-  top: 0;
-  left: 0;
-  height: 100%;
-  gap: 0em;
+}
+
+/* In Arabic, the flex parent handles the side, but we ensure direction */
+.arabic.container {
+  direction: rtl;
 }
 
 .arabic.container {

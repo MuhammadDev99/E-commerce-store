@@ -4,6 +4,8 @@ import { User } from "@/types"
 import { db } from "@/db"
 import { orders, reviews, cartItems } from "@/db/schema"
 import { eq, sql, count } from "drizzle-orm"
+import AnalyticsCard from "../AnalyticsCard"
+import { CartSVG, MoneySVG, OrdersSVG, StarSVG } from "@/images"
 
 export default async function CustomerProfile({
     className,
@@ -44,7 +46,7 @@ export default async function CustomerProfile({
     // قاموس لترجمة الأدوار
     const roleMap: Record<string, string> = {
         admin: "مدير النظام",
-        user: "عميل",
+        user: "زبون",
     }
 
     return (
@@ -71,22 +73,31 @@ export default async function CustomerProfile({
 
             {/* شبكة الإحصائيات */}
             <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                    <span className={styles.statLabel}>إجمالي المدفوعات</span>
-                    <span className={styles.statValue}>{stats.spent.toFixed(2)} ر.س</span>
-                </div>
-                <div className={styles.statCard}>
-                    <span className={styles.statLabel}>إجمالي الطلبات</span>
-                    <span className={styles.statValue}>{stats.orders}</span>
-                </div>
-                <div className={styles.statCard}>
-                    <span className={styles.statLabel}>عناصر السلة النشطة</span>
-                    <span className={styles.statValue}>{stats.cart}</span>
-                </div>
-                <div className={styles.statCard}>
-                    <span className={styles.statLabel}>التقييمات المقدمة</span>
-                    <span className={styles.statValue}>{stats.reviews}</span>
-                </div>
+                <AnalyticsCard
+                    className={styles.totalSpent}
+                    icon={MoneySVG}
+                    label="إجمالي الإنفاق"
+                    value={stats.spent}
+                    unit="ر.س"
+                />
+                <AnalyticsCard
+                    className={styles.ordersCount}
+                    icon={OrdersSVG}
+                    label="إجمالي الطلبات"
+                    value={stats.orders}
+                />
+                <AnalyticsCard
+                    className={styles.cartItemsCount}
+                    icon={CartSVG}
+                    label="محتوى السلة"
+                    value={stats.cart}
+                />
+                <AnalyticsCard
+                    className={styles.reviewsCount}
+                    icon={StarSVG}
+                    label="التقييمات المقدمة"
+                    value={stats.spent}
+                />
             </div>
 
             {/* التفاصيل الشخصية ومعلومات الاتصال */}
