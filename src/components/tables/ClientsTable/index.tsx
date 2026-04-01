@@ -67,10 +67,7 @@ export default function CustomersTable({
                                     <p className={styles.nameShort}>{customer.name[0]}</p>
                                 )}
                             </div>
-                            <Link
-                                href={getClientLinkById(customer.id ?? 1)}
-                                className={styles.name}
-                            >
+                            <Link href={getClientLinkById(customer.id)} className={styles.name}>
                                 {customer.name}
                             </Link>
                         </div>

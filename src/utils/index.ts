@@ -90,8 +90,8 @@ export function getProductLinkById(id: number): string {
     return '/product/' + id
 }
 
-export function getClientLinkById(id: number | string): string {
-    return '/clients/' + id
+export function getClientLinkById(id: string): string {
+    return '/dashboard/customer/' + id
 }
 export function assertNever(x: never): never {
     throw new Error("Unexpected object: " + x);

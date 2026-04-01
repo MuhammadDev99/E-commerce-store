@@ -1,6 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
+  background-color: red !important;
 }
 
 .store.container {
@@ -8,5 +9,5 @@
 }
 
 .dashboard.container {
-  padding-right: 13.95rem;
+  padding-right: 13.96rem;
 }

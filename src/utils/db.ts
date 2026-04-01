@@ -8,8 +8,9 @@ import { CartItem, Coupon, CouponsTableConfig, CustomersTableConfig, NewProduct,
 import { and, asc, count, desc, eq, getTableColumns, ilike, or, SQL, sql } from "drizzle-orm";
 import { getPaginatedTableData, requireAdminAuth } from "./admin-helpers";
 import { AnyPgColumn } from "drizzle-orm/pg-core";
-import { User } from "better-auth";
+import { User } from "@/types/index";
 import { revalidatePath } from "next/cache";
+import { NotFoundError } from "@/errors";
 
 export async function addProductDB(productData: NewProduct) {
   const session = await auth.api.getSession({
@@ -894,4 +895,22 @@ export async function updateReviewVisibility(
   }
 
   return updatedReview;
+}
+
+
+export async function getUserById(userId: string): Promise<User> {
+  // 1. Destructure the first element directly from the array result
+  // 2. Use .limit(1) to tell Postgres to stop searching immediately
+  const [foundUser] = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+
+  // 3. Logic check: If undefined, bubble the specific error
+  if (!foundUser) {
+    throw new NotFoundError("User", userId);
+  }
+
+  return foundUser;
 }
