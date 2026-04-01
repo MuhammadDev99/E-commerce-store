@@ -1,3 +1,5 @@
+"use client"
+import { useState } from "react" // <-- Add this import
 import clsx from "clsx"
 import styles from "./style.module.css"
 import { mockReviews } from "@/MockDataReviews"
@@ -6,56 +8,115 @@ import PaginatedTable from "../../PaginatedTable"
 import Button from "../../Button"
 import SelectBox from "../../form-elements/SelectBox"
 import Link from "next/link"
+import { ReviewsTableConfig } from "@/types"
+import { getReviewsPageData, updateReviewVisibility } from "@/utils/db"
+import { safe } from "@/utils/safe"
+import { showMessage } from "@/utils/showMessage"
 
-export default function ReviewsTable({ className }: { className?: string }) {
-    const headers = ["العميل", "التعليق", "المنتج", "التقييم", "الحالة"]
-    const items = mockReviews.map((review) => {
-        const hue = review.rating * 25
-        return (
-            <div key={review.id} className={styles.item}>
-                <div className={styles.customer}>
-                    <Link href={"/"} className={styles.name}>
-                        {review.customer.name}
-                    </Link>
-                    <p className={styles.email}>{review.customer.email}</p>
-                </div>
-                <Link href={"/"} className={styles.comment}>
-                    {review.comment}
-                </Link>
+// --- EXTRACT ROW INTO A SEPARATE COMPONENT ---
+function ReviewTableRow({ review, productName, user }: ReviewsTableConfig["row"]) {
+    // 1. Create local state initialized with the DB value
+    const [isVisible, setIsVisible] = useState(review.isVisible)
 
-                <Link href={"/"} className={styles.product}>
-                    {review.product.name}
-                </Link>
-                <p
-                    className={styles.rating}
-                    style={
-                        {
-                            "--accent-color": `hsl(${review.rating * 25}, 100%, 35%)`,
-                        } as React.CSSProperties
-                    }
-                >
-                    {review.rating.toFixed(1)}
-                </p>
-                <SelectBox
-                    className={clsx(styles.status)}
-                    options={[
-                        { display: "علني", value: "public" },
-                        { display: "مخفي", value: "private" },
-                    ]}
-                />
-            </div>
-        )
-    })
+    const handleVisibilityChange = async (stringValue: string) => {
+        // FIX: Boolean("false") is true in JS. Use string comparison instead.
+        const newValue = stringValue === "true"
+
+        // 2. Optimistically update the UI so it feels instant
+        setIsVisible(newValue)
+
+        const result = await safe(updateReviewVisibility(review.id, newValue))
+
+        if (result.success) {
+            showMessage({ type: "success", title: "updated successfully" })
+        } else {
+            // 3. Revert back to the old value if the API request fails
+            setIsVisible(!newValue)
+            showMessage({ type: "error", content: result.error.message })
+        }
+    }
+
     return (
-        <PaginatedTable
+        <div className={styles.item}>
+            <div className={styles.customer}>
+                <Link href={"/"} className={styles.name}>
+                    {user.name.repeat(5)}
+                </Link>
+                <p className={styles.email}>{user.email.repeat(5)}</p>
+            </div>
+            <Link href={"/"} className={styles.contentWrapper}>
+                <p className={styles.title}>{review.title.repeat(5)}</p>
+                <p className={styles.content}>{review.content?.repeat(5)}</p>
+            </Link>
+
+            <Link href={"/"} className={styles.product.repeat(5)}>
+                {productName}
+            </Link>
+            <p
+                className={styles.rating}
+                style={
+                    {
+                        "--accent-color": `hsl(${review.rate * 25}, 100%, 35%)`,
+                    } as React.CSSProperties
+                }
+            >
+                {review.rate}
+            </p>
+            <SelectBox
+                className={clsx(styles.status)}
+                value={isVisible.toString()} // <-- Use local state here
+                options={[
+                    { display: "علني", value: "true" },
+                    { display: "مخفي", value: "false" },
+                ]}
+                onChange={(e) => handleVisibilityChange(e.target.value)} // Pass string
+            />
+        </div>
+    )
+}
+
+// --- MAIN COMPONENT ---
+export default function ReviewsTable({
+    className,
+    initialData,
+    initialTotalPages,
+    initialPageSize,
+}: {
+    className?: string
+    initialData: ReviewsTableConfig["row"][]
+    initialTotalPages: number
+    initialPageSize: number
+}) {
+    const headers: ReviewsTableConfig["headers"][] = [
+        {
+            display: "تاريخ التعديل",
+            value: "updatedAt",
+            searchable: false,
+            sortable: true,
+            hidden: true,
+        },
+        { display: "العميل", value: "customer", searchable: true, sortable: true },
+        { display: "التعليق", value: "content", searchable: true, sortable: true },
+        { display: "المنتج", value: "productName", searchable: true, sortable: true },
+        { display: "التقييم", value: "rate", searchable: false, sortable: true },
+        { display: "الحالة", value: "isVisible", searchable: false, sortable: false },
+    ]
+
+    return (
+        <PaginatedTable<ReviewsTableConfig>
             className={clsx(styles.root, className)}
+            initialData={initialData}
+            initialTotalPages={initialTotalPages}
+            defaultSearchColumn="customer"
+            defaultSortColumn="updatedAt"
+            gridTemplate="2fr 3fr 1.2fr 1fr 1fr"
+            fetchData={async (params) => await getReviewsPageData(params)}
             headers={headers}
-            items={items}
-            onPageChange={(pageNumber) => {}}
-            onSearch={(query) => {}}
-            onSearchSubmit={() => {}}
-            pagesCount={10}
-            gridTemplate="2fr 3fr 2fr 1fr 1fr"
-        ></PaginatedTable>
+            pageSize={initialPageSize}
+            // 4. Render the new isolated Row component
+            renderItem={(rowProps, isPending) => (
+                <ReviewTableRow key={rowProps.review.id} {...rowProps} />
+            )}
+        />
     )
 }

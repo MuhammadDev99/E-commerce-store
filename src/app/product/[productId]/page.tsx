@@ -3,9 +3,9 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/external/my-library/utils"
-import { Product } from "@/types"
+import { Product, RatedProduct } from "@/types"
 import FullProductDisplay from "@/components/FullProductDisplay"
-import { getProductById } from "@/utils/db"
+import { getRatedProductById } from "@/utils/db"
 import ErrorDisplay from "@/components/ErrorDisplay"
 import ReviewForm from "@/components/Forms/ReviewForm"
 
@@ -17,7 +17,7 @@ export default async function ProductPage({ params }: { params: Promise<{ produc
     const displayLanguage = getDisplayLanguage()
 
     // Fetching data directly on the server
-    const productResult = await safe<Product>(getProductById(decodedId))
+    const productResult = await safe<RatedProduct>(getRatedProductById(decodedId))
     if (!productResult.success) {
         console.log(productResult.error)
         return <ErrorDisplay error={productResult.error} />
@@ -25,7 +25,6 @@ export default async function ProductPage({ params }: { params: Promise<{ produc
     return (
         <div className={clsx(styles.page, styles[displayLanguage])}>
             <FullProductDisplay product={productResult.data} className={styles.productDisplay} />
-            <ReviewForm />
         </div>
     )
 }

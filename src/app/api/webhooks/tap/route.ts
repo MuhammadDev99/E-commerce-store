@@ -1,7 +1,7 @@
 // app/api/webhooks/tap/route.ts
 import { NextResponse } from 'next/server';
 import { db } from "@/db";
-import { orders, cartItem } from "@/lib/auth-schema";
+import { orders, cartItems } from "@/db/schema";
 import { eq, and, ne } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
             .returning();
 
         if (isSuccess && updated.length > 0) {
-            await db.delete(cartItem).where(eq(cartItem.userId, updated[0].userId));
+            await db.delete(cartItems).where(eq(cartItems.userId, updated[0].userId));
         }
 
         return NextResponse.json({ received: true });

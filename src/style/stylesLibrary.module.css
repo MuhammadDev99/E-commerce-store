@@ -2,3 +2,13 @@
     padding: 1em;
     border-radius: var(--border-radius-3)
 }
+
+.textLink {
+    color: inherit;
+    text-decoration: none;
+}
+
+.textLink:hover {
+    color: red;
+    text-decoration: underline;
+}

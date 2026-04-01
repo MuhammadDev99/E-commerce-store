@@ -19,6 +19,6 @@ export function showMessage(payload: MessageUI | string) {
     (messagesSignal.value = messagesSignal.value.filter(
       (x) => x.id !== message.id,
     )),
-    message.durationMs,
+    message.durationMs ?? 5000,
   );
 }

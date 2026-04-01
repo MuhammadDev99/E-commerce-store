@@ -1,0 +1,59 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  height: 100%;
+  align-items: center;
+  direction: rtl;
+  padding: 1em 1em 4em 1em;
+  gap: 2em;
+
+}
+
+.page .header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2em;
+}
+
+.page .header .headerText {
+  font-size: 1.4em;
+}
+
+.page .header .product {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  font-weight: bold;
+  gap: 0.2em;
+  font-size: 1.3em;
+}
+
+.page .header .product .imageWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 4em;
+  width: 4em;
+  background-color: rebeccapurple;
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--border-radius-1);
+}
+
+
+.page .header .product .imageWrapper .image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.page .header .product .imageWrapper:hover .image {
+  transform: scale(1.2);
+}
+
+.page .form {}

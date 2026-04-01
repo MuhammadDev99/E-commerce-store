@@ -114,3 +114,8 @@
   outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
   border-color: var(--primary-4);
 }
+
+
+/* .root select {
+  font-size: 0.95em !important;
+} */

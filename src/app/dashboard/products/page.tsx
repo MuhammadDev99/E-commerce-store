@@ -131,7 +131,17 @@ export default function ProductsPage() {
                 </div>
                 <ProductDisplay className={styles.productDisplay} product={product.value} />
             </div>
-            <FullProductDisplay product={product.value} className={styles.fullProductDisplay} />
+            <FullProductDisplay
+                product={{
+                    ...product.value,
+                    rate: 0,
+                    id: product.value.id ?? 0,
+                    stockQuantity: product.value.stockQuantity ?? 0,
+                    discount: product.value.discount ?? 0,
+                    createdAt: product.value.createdAt ?? new Date(),
+                }}
+                className={styles.fullProductDisplay}
+            />
         </div>
     )
 }

@@ -11,8 +11,8 @@ export function MessageRenderer() {
         <div className={styles.messages}>
             {messages.map((message) => (
                 <div key={message.id!} className={clsx(styles.message, styles[message.type])}>
-                    <p className={styles.title}>{message.title}</p>
-                    <p className={styles.content}>{message.content}</p>
+                    {message.title && <p className={styles.title}>{message.title}</p>}
+                    {message.content && <p className={styles.content}>{message.content}</p>}
                 </div>
             ))}
         </div>

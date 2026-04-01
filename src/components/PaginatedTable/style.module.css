@@ -102,3 +102,34 @@
   height: 3.7em;
   justify-content: space-between;
 }
+
+/* overflow fix */
+/* 1. Stop columns from pushing each other */
+.root .header>*,
+.root .items>div>* {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* display: block; */
+}
+
+/* 2. Catch any nested text elements inside your renderItem */
+.root .items>div>* * {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* display: block; */
+}
+
+/* overflow fix end */
+
+.root .items a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.root .items a:hover {
+  /* text-decoration: underline !important; */
+  color: var(--primary-4) !important;
+}

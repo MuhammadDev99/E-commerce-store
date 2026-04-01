@@ -23,7 +23,7 @@ import { addedItemSignal, cartCountSignal } from "@/signals";
 import { ADD_TO_CART_NOTIFICATION_DELAY } from "@/config";
 import { addItemToCartDB } from "./db";
 import { db } from "@/db";
-import { cartItem } from "@/lib/auth-schema";
+import { cartItems } from "@/db/schema";
 export async function searchProducts(query: string): Promise<Product[]> {
     return new Promise(resolve => {
         resolve(MOCK_PRODUCTS.filter(product => product.name.toLowerCase().includes(query.toLowerCase())))

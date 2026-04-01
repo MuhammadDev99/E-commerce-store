@@ -3,9 +3,11 @@
   flex-direction: column;
   height: 100%;
   padding: 2em;
-  gap: 1em
+  gap: 1em;
+  background-color: white;
 }
 
 .arabic .productDisplay {
   direction: rtl;
+  padding: 1em;
 }

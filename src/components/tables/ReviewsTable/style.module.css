@@ -1,3 +1,7 @@
+.item {
+  max-height: 5em;
+}
+
 .item .pill {
   --accent-color: aqua;
   padding: 0.25em 0.75em;
@@ -27,6 +31,7 @@
 
 .name {
   font-weight: bold;
+  /* font-size: 1.1em; */
   color: var(--black-3);
 }
 
@@ -83,6 +88,11 @@
   padding: 0.3em 0.4em;
   border-radius: 50%;
   border: 0.1em solid var(--accent-color);
+  width: 1.4em;
+  height: 1.5em;
+  text-align: center;
+  font-size: 1em;
+  /* padding: 0.5em; */
 }
 
 .product {
@@ -90,11 +100,28 @@
   color: var(--black-2)
 }
 
-.item a {
+/* .item a {
+  color: inherit;
   text-decoration: none;
 }
 
 .item a:hover {
   text-decoration: underline;
   color: var(--primary-4);
+} */
+
+.item .contentWrapper {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--black-4);
+}
+
+.item .contentWrapper .title {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.item .contentWrapper .content {
+  font-size: 0.8em;
 }

@@ -1,4 +1,16 @@
-import { product, coupon, orders, orderItems, user } from "../lib/auth-schema";
+import { products, coupons, orders, orderItems, user, reviews } from "@/db/schema";
+/**
+ * 7. UI & FEEDBACK TYPES
+ * Types strictly used for user interface states.
+ */
+export type MessageUI = {
+  id?: number;
+  title?: string;
+  content?: string;
+  type: "error" | "warning" | "info" | "success";
+  durationMs?: number;
+};
+
 
 /**
  * 1. GLOBAL PRIMITIVES & LITERALS
@@ -11,13 +23,18 @@ export type PageDataURLParams = 'searchCol' | 'sortCol' | 'sortDir' | 'pageSize'
  * 2. DATABASE SCHEMA TYPES (Source of Truth)
  * Direct mappings from Drizzle schema for Select and Insert operations.
  */
+
+
+// Users
+export type User = typeof user.$inferSelect;
+
 // Products
-export type Product = typeof product.$inferSelect;
-export type NewProduct = typeof product.$inferInsert;
+export type Product = typeof products.$inferSelect;
+export type NewProduct = typeof products.$inferInsert;
 
 // Coupons
-export type Coupon = typeof coupon.$inferSelect;
-export type NewCoupon = typeof coupon.$inferInsert;
+export type Coupon = typeof coupons.$inferSelect;
+export type NewCoupon = typeof coupons.$inferInsert;
 
 // Orders
 export type Order = typeof orders.$inferSelect;
@@ -27,8 +44,9 @@ export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type NewOrderItem = typeof orderItems.$inferInsert;
 
-// Users
-export type User = typeof user.$inferSelect;
+// Review
+export type Review = typeof reviews.$inferSelect;
+export type NewReview = typeof reviews.$inferInsert;
 
 /**
  * 3. DOMAIN & EXTENDED MODELS
@@ -43,10 +61,7 @@ export type ProductAnalytics = Product & {
   totalRevenue: number;
 };
 
-export type CustomerSummary = User & {
-  totalOrders: number;
-  totalSpent: number
-};
+
 
 /**
  * 4. API & PAGINATION UTILITIES
@@ -108,19 +123,17 @@ export type CouponsTableConfig = TableConfig<
 export type ProductsAnalyticsTableConfig = TableConfig<ProductAnalytics>;
 
 export type CustomersTableConfig = TableConfig<
-  CustomerSummary,
+  User & {
+    totalOrders: number;
+    totalSpent: number
+  },
   keyof User & string | "contact" | "totalSpent" | "totalOrders"
 >;
 
-/**
- * 7. UI & FEEDBACK TYPES
- * Types strictly used for user interface states.
- */
-export type MessageUI = {
-  id?: number;
-  title: string;
-  content: string;
-  type: "error" | "warning" | "info" | "success";
-  durationMs: number;
-};
+export type ReviewsTableConfig = TableConfig<
+  { review: Review, productName: String, user: { name: string, email: string } },
+  keyof Review & string | "customer" | "productName"
+>;
 
+
+export type RatedProduct = Product & Pick<Review, 'rate'>
