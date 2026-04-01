@@ -2,7 +2,7 @@
 import { useState } from "react" // <-- Add this import
 import clsx from "clsx"
 import styles from "./style.module.css"
-import { mockReviews } from "@/MockDataReviews"
+import { mockReviews } from "@/mockData/MockDataReviews"
 import ReviewStars from "../../ReviewStars"
 import PaginatedTable from "../../PaginatedTable"
 import Button from "../../Button"

@@ -72,7 +72,6 @@ export const coupons = pgTable("coupon", {
 });
 
 
-// auth-schema.ts
 export const orderStatusEnum = pgEnum("order_status", ["pending", "paid", "failed"]);
 // 1. The Main Order Table (High level)
 export const orders = pgTable("orders", {
