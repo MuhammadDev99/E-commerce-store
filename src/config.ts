@@ -4,4 +4,3 @@ export const contact = {
   address: "Riyadh, Saudi Arabia",
 };
 export const TAX_PERCENTAGE = 0.15;
-export const ADD_TO_CART_NOTIFICATION_DELAY = 4500

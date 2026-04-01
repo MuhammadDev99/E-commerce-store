@@ -20,7 +20,6 @@ export function debounced<T extends (...args: any[]) => void>(
 
 import { MOCK_PRODUCTS } from "@/mockData";
 import { addedItemSignal, cartCountSignal } from "@/signals";
-import { ADD_TO_CART_NOTIFICATION_DELAY } from "@/config";
 import { addItemToCartDB } from "./db";
 import { db } from "@/db";
 import { cartItems } from "@/db/schema";
@@ -37,7 +36,7 @@ export async function addItemToCart(product: Product, quantity: number = 1): Pro
     if (timeout) clearTimeout(timeout);
 
     addedItemSignal.value = { ...product };
-    timeout = setTimeout(() => addedItemSignal.value = null, ADD_TO_CART_NOTIFICATION_DELAY);
+    timeout = setTimeout(() => addedItemSignal.value = null, 4500);
     await addItemToCartDB(product, quantity);
     cartCountSignal.value++
 

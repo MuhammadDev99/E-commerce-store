@@ -40,16 +40,16 @@ function ReviewTableRow({ review, productName, user }: ReviewsTableConfig["row"]
         <div className={styles.item}>
             <div className={styles.customer}>
                 <Link href={"/"} className={styles.name}>
-                    {user.name.repeat(5)}
+                    {user.name}
                 </Link>
-                <p className={styles.email}>{user.email.repeat(5)}</p>
+                <p className={styles.email}>{user.email}</p>
             </div>
             <Link href={"/"} className={styles.contentWrapper}>
-                <p className={styles.title}>{review.title.repeat(5)}</p>
-                <p className={styles.content}>{review.content?.repeat(5)}</p>
+                <p className={styles.title}>{review.title}</p>
+                <p className={styles.content}>{review.content}</p>
             </Link>
 
-            <Link href={"/"} className={styles.product.repeat(5)}>
+            <Link href={"/"} className={styles.product}>
                 {productName}
             </Link>
             <p
