@@ -7,8 +7,10 @@ import {
     integer,
     pgEnum,
     unique,
+    pgView,
 } from "drizzle-orm/pg-core";
 import { account, session, user, verification } from "./auth";
+import { getTableColumns, sql } from "drizzle-orm";
 export { user, session, verification, account }
 
 export const genderEnum = pgEnum("gender", ["Women", "Men", "Unisex"]);
@@ -56,22 +58,41 @@ export const cartItems = pgTable("cart_item", {
 
 export const couponTypeEnum = pgEnum("coupon_type", ["percentage", "fixed", "free_shipping"]);
 
-export const coupons = pgTable("coupon", {
+export const coupons = pgTable("coupons", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
-    code: text("code").notNull().unique(), // e.g., RAMADAN25
+    code: text("code").notNull().unique(),
     type: couponTypeEnum("type").notNull(),
-    value: integer("value"), // 20 for 20% or 2000 for 20.00 SAR (store in cents/halalas)
+    value: integer("value"),
     minOrder: integer("minOrder").default(0),
     startDate: timestamp("startDate"),
     endDate: timestamp("endDate"),
     globalUsageLimit: integer("globalUsageLimit"),
     customerUsageLimit: integer("customerUsageLimit").default(1),
     usedCount: integer("usedCount").default(0),
+    enabled: boolean("enabled").notNull().default(true),
+    updatedAt: timestamp("updatedAt").defaultNow(),
     createdAt: timestamp("createdAt").defaultNow(),
 });
 
+export const couponsWithStatus = pgView("coupons_with_status").as((qb) => {
+    return qb
+        .select({
+            // This spreads all existing columns from the coupons table
+            ...getTableColumns(coupons),
 
+            // Then you just add your custom dynamic column
+            status: sql<"active" | "disabled" | "expired" | "scheduled">`
+        CASE 
+          WHEN ${coupons.enabled} IS FALSE THEN 'disabled'
+          WHEN ${coupons.endDate} IS NOT NULL AND ${coupons.endDate} < NOW() THEN 'expired'
+          WHEN ${coupons.globalUsageLimit} IS NOT NULL AND ${coupons.usedCount} >= ${coupons.globalUsageLimit} THEN 'expired'
+          WHEN ${coupons.startDate} IS NOT NULL AND ${coupons.startDate} > NOW() THEN 'scheduled'
+          ELSE 'active'
+        END`.as("status"),
+        })
+        .from(coupons);
+});
 export const orderStatusEnum = pgEnum("order_status", ["pending", "paid", "failed"]);
 // 1. The Main Order Table (High level)
 export const orders = pgTable("orders", {

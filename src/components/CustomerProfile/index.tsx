@@ -1,48 +1,24 @@
+"use client"
+
 import clsx from "clsx"
 import styles from "./style.module.css"
-import { User } from "@/types"
-import { db } from "@/db"
-import { orders, reviews, cartItems } from "@/db/schema"
-import { eq, sql, count } from "drizzle-orm"
+import { CustomerStats, User } from "@/types"
 import AnalyticsCard from "../AnalyticsCard"
 import { CartSVG, MoneySVG, OrdersSVG, StarSVG } from "@/images"
+import { useRouter } from "next/navigation"
 
-export default async function CustomerProfile({
+// Create a type for the stats we are passing from the server
+
+export default function CustomerProfile({
     className,
     user,
+    stats, // Accept stats as a prop
 }: {
     className?: string
     user: User
+    stats: CustomerStats
 }) {
-    // جلب الإحصائيات الخاصة بالعميل بشكل متوازٍ (Parallel Fetching)
-    const [orderStats, reviewStats, cartStats] = await Promise.all([
-        db
-            .select({
-                totalOrders: count(orders.id),
-                // نفترض أن المبالغ محفوظة بالهللة/السنت، لذا نجمعها هنا
-                totalSpent: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
-            })
-            .from(orders)
-            .where(eq(orders.userId, user.id)),
-
-        db
-            .select({ totalReviews: count(reviews.id) })
-            .from(reviews)
-            .where(eq(reviews.userId, user.id)),
-
-        db
-            .select({ totalItems: sql<number>`coalesce(sum(${cartItems.quantity}), 0)` })
-            .from(cartItems)
-            .where(eq(cartItems.userId, user.id)),
-    ])
-
-    const stats = {
-        orders: Number(orderStats[0]?.totalOrders || 0),
-        spent: Number(orderStats[0]?.totalSpent || 0) / 100, // القسمة لتحويل الهللة إلى ريال
-        reviews: Number(reviewStats[0]?.totalReviews || 0),
-        cart: Number(cartStats[0]?.totalItems || 0),
-    }
-
+    const router = useRouter()
     // قاموس لترجمة الأدوار
     const roleMap: Record<string, string> = {
         admin: "مدير النظام",
@@ -74,29 +50,32 @@ export default async function CustomerProfile({
             {/* شبكة الإحصائيات */}
             <div className={styles.statsGrid}>
                 <AnalyticsCard
-                    className={styles.totalSpent}
+                    className={clsx(styles.totalSpent, styles.card)}
                     icon={MoneySVG}
                     label="إجمالي الإنفاق"
                     value={stats.spent}
                     unit="ر.س"
                 />
                 <AnalyticsCard
-                    className={styles.ordersCount}
+                    className={clsx(styles.ordersCount, styles.card)}
                     icon={OrdersSVG}
                     label="إجمالي الطلبات"
                     value={stats.orders}
+                    onClick={() => router.push("/dashboard/customer/orders/" + user.id)}
                 />
                 <AnalyticsCard
-                    className={styles.cartItemsCount}
+                    className={clsx(styles.cartItemsCount, styles.card)}
                     icon={CartSVG}
                     label="محتوى السلة"
                     value={stats.cart}
+                    onClick={() => router.push("/dashboard/customer/cart/" + user.id)}
                 />
                 <AnalyticsCard
-                    className={styles.reviewsCount}
+                    className={clsx(styles.reviewsCount, styles.card)}
                     icon={StarSVG}
                     label="التقييمات المقدمة"
-                    value={stats.spent}
+                    value={stats.reviews}
+                    onClick={() => router.push("/dashboard/customer/reviews/" + user.id)}
                 />
             </div>
 
@@ -124,7 +103,6 @@ export default async function CustomerProfile({
                 )}
                 <div className={styles.detailItem}>
                     <strong>تاريخ الانضمام</strong>
-                    {/* استخدام ar-SA يعرض التاريخ بالصيغة العربية المألوفة */}
                     <span>{new Date(user.createdAt).toLocaleDateString("ar-SA")}</span>
                 </div>
             </div>

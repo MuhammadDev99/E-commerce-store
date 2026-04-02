@@ -6,6 +6,7 @@ import AddToCartNotification from "@/components/AddToCartNotification"
 import MainWrapper from "@/components/MainWrapper"
 import Script from "next/script" // Import Next.js Script component
 
+export const dynamic = "force-dynamic"
 export const revalidate = 0
 export const metadata: Metadata = {
     title: "Store",

@@ -6,7 +6,6 @@
   width: 100vw;
   overflow: hidden;
   /* Prevent the "body" from scrolling */
-  direction: rtl;
 }
 
 .dashboardLayout {
@@ -22,10 +21,16 @@
   /* ONLY this part scrolls */
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
+  background-color: var(--white-light-1);
 }
 
 .arabic.dashboardLayout {
   flex-direction: row;
   /* Flex automatically handles RTL if direction is set */
+  direction: rtl;
+
+}
+
+.store.container {
+  padding-top: 3rem;
 }

@@ -8,6 +8,7 @@ import { CustomersTableConfig } from "@/types"
 import { getCustomersPageData } from "@/utils/db"
 import Link from "next/link"
 import { MailSVG, PhoneSVG } from "@/images"
+import AvatarImage from "@/components/AvatarImage"
 
 export default function CustomersTable({
     className,
@@ -52,21 +53,11 @@ export default function CustomersTable({
                 return (
                     <div key={customer.id} className={styles.item}>
                         <div className={styles.customer}>
-                            <div
-                                className={styles.imageWrapper}
-                                style={{
-                                    backgroundColor: `hsl(${hue} 100% 40%)`,
-                                }}
-                            >
-                                {clientImage ? (
-                                    <img
-                                        src="https://images.unsplash.com/photo-1560250097-0b93528c311a"
-                                        className={styles.image}
-                                    />
-                                ) : (
-                                    <p className={styles.nameShort}>{customer.name[0]}</p>
-                                )}
-                            </div>
+                            <AvatarImage
+                                name={customer.name}
+                                userId={customer.id}
+                                src={clientImage}
+                            />
                             <Link href={getClientLinkById(customer.id)} className={styles.name}>
                                 {customer.name}
                             </Link>

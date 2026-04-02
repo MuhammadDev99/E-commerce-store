@@ -11,6 +11,7 @@ interface AnalyticsCardProps {
     timeUnit?: "أسبوع" | "شهر" | "يوم" | "سنة"
     higherBetter?: boolean
     icon: React.ElementType
+    onClick?: () => void
 }
 
 export default function AnalyticsCard({
@@ -22,6 +23,7 @@ export default function AnalyticsCard({
     higherBetter = true,
     className,
     icon: Icon,
+    onClick,
 }: AnalyticsCardProps) {
     let percentDiffernce = 0
     if (previousValue) {
@@ -32,7 +34,10 @@ export default function AnalyticsCard({
     const isSuccess = higherBetter ? isPositive : !isPositive
 
     return (
-        <div className={clsx(styles.container, className)}>
+        <div
+            className={clsx(styles.container, className, onClick && styles.clickable)}
+            onClick={onClick}
+        >
             <div className={styles.header}>
                 <div className={styles.headerMain}>
                     <div className={styles.textGroup}>

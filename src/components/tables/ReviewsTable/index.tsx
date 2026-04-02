@@ -12,9 +12,15 @@ import { ReviewsTableConfig } from "@/types"
 import { getReviewsPageData, updateReviewVisibility } from "@/utils/db"
 import { safe } from "@/utils/safe"
 import { showMessage } from "@/utils/showMessage"
+import { getClientLinkById, getOrderLinkById, getProductLinkById, getReviewLinkById } from "@/utils"
 
 // --- EXTRACT ROW INTO A SEPARATE COMPONENT ---
-function ReviewTableRow({ review, productName, user }: ReviewsTableConfig["row"]) {
+function ReviewTableRow({
+    review,
+    product,
+    user,
+    userId,
+}: ReviewsTableConfig["row"] & { userId: string | undefined }) {
     // 1. Create local state initialized with the DB value
     const [isVisible, setIsVisible] = useState(review.isVisible)
 
@@ -38,19 +44,21 @@ function ReviewTableRow({ review, productName, user }: ReviewsTableConfig["row"]
 
     return (
         <div className={styles.item}>
-            <div className={styles.customer}>
-                <Link href={"/"} className={styles.name}>
-                    {user.name}
-                </Link>
-                <p className={styles.email}>{user.email}</p>
-            </div>
-            <Link href={"/"} className={styles.contentWrapper}>
+            {!userId && (
+                <div className={styles.customer}>
+                    <Link href={getClientLinkById(user.id)} className={styles.name}>
+                        {user.name}
+                    </Link>
+                    <p className={styles.email}>{user.email}</p>
+                </div>
+            )}
+            <Link href={getReviewLinkById(review.id)} className={styles.contentWrapper}>
                 <p className={styles.title}>{review.title}</p>
                 <p className={styles.content}>{review.content}</p>
             </Link>
 
-            <Link href={"/"} className={styles.product}>
-                {productName}
+            <Link href={getProductLinkById(product.id)} className={styles.product}>
+                {product.name}
             </Link>
             <p
                 className={styles.rating}
@@ -81,13 +89,15 @@ export default function ReviewsTable({
     initialData,
     initialTotalPages,
     initialPageSize,
+    userId,
 }: {
     className?: string
     initialData: ReviewsTableConfig["row"][]
     initialTotalPages: number
     initialPageSize: number
+    userId?: string
 }) {
-    const headers: ReviewsTableConfig["headers"][] = [
+    let headers: ReviewsTableConfig["headers"][] = [
         {
             display: "تاريخ التعديل",
             value: "updatedAt",
@@ -101,21 +111,23 @@ export default function ReviewsTable({
         { display: "التقييم", value: "rate", searchable: false, sortable: true },
         { display: "الحالة", value: "isVisible", searchable: false, sortable: false },
     ]
-
+    if (userId) {
+        headers = headers.filter((header) => header.value !== "customer")
+    }
     return (
         <PaginatedTable<ReviewsTableConfig>
             className={clsx(styles.root, className)}
             initialData={initialData}
             initialTotalPages={initialTotalPages}
-            defaultSearchColumn="customer"
+            defaultSearchColumn={userId ? "content" : "customer"}
             defaultSortColumn="updatedAt"
-            gridTemplate="2fr 3fr 1.2fr 1fr 1fr"
+            gridTemplate={userId ? "3fr 1.5fr 1fr 1fr" : "2fr 3fr 1.2fr 1fr 1fr"}
             fetchData={async (params) => await getReviewsPageData(params)}
             headers={headers}
             pageSize={initialPageSize}
             // 4. Render the new isolated Row component
             renderItem={(rowProps, isPending) => (
-                <ReviewTableRow key={rowProps.review.id} {...rowProps} />
+                <ReviewTableRow key={rowProps.review.id} {...rowProps} userId={userId} />
             )}
         />
     )

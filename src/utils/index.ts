@@ -49,11 +49,24 @@ interface FormatOptions {
     useWesternArabicNumerals?: boolean; // Use 1,2,3 instead of ٠,١,٢
 }
 
-export function formatTime(
-    time: Date | string | number,
-    language: 'ar' | 'en',
-    options: FormatOptions = {}
-): string {
+interface FormatOptions {
+    style?: 'full' | 'long' | 'medium' | 'short';
+    showDate?: boolean;
+    showTime?: boolean;
+    useWesternArabicNumerals?: boolean;
+}
+
+
+
+export function formatTime({
+    time,
+    language,
+    options = {} // Default to empty object if not provided
+}: {
+    time: Date | string | number;
+    language: 'ar' | 'en';
+    options?: FormatOptions; // Made optional here
+}): string {
     const {
         style = 'medium',
         showDate = true,
@@ -64,20 +77,13 @@ export function formatTime(
     const date = new Date(time);
     if (isNaN(date.getTime())) return 'Invalid Date';
 
-    // Build the Intl options
     const intlOptions: Intl.DateTimeFormatOptions = {
-        // If showDate is true, apply the style to dateStyle
         ...(showDate && { dateStyle: style }),
-        // If showTime is true, apply the style to timeStyle
         ...(showTime && { timeStyle: style }),
     };
 
-    /**
-     * Locale Logic:
-     * 'ar-EG' uses Eastern Arabic numerals (٠١٢) by default.
-     * 'ar-u-nu-latn' forces Western numerals (123) while keeping Arabic text.
-     */
     let locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
     if (language === 'ar' && useWesternArabicNumerals) {
         locale = 'ar-u-nu-latn';
     }
@@ -92,6 +98,15 @@ export function getProductLinkById(id: number): string {
 
 export function getClientLinkById(id: string): string {
     return '/dashboard/customer/' + id
+}
+export function getReviewLinkById(id: string | number): string {
+    return '/dashboard/review/' + id
+}
+export function getOrderLinkById(id: string | number): string {
+    return '/dashboard/order/' + id
+}
+export function getCpuponLinkById(id: string | number): string {
+    return '/dashboard/coupon/' + id
 }
 export function assertNever(x: never): never {
     throw new Error("Unexpected object: " + x);

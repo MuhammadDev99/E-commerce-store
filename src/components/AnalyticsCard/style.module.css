@@ -10,6 +10,16 @@
   height: fit-content;
 }
 
+.container.clickable {
+  background-color: white;
+  cursor: pointer;
+  transition: var(--transition)
+}
+
+.container.clickable:hover {
+  background-color: color-mix(in srgb, var(--icon-color), white 90%);
+  transform: translateY(-0.2em);
+}
 
 /* Header Section */
 .container .header .headerMain {

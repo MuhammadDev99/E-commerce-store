@@ -1,0 +1,30 @@
+.root {
+  height: 3em;
+  width: 3em;
+  border-radius: 50%;
+  overflow: hidden;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Prevents image from squishing */
+  position: relative;
+  background-color: var(--black-4);
+  /* box-shadow: var(--shadow-4); */
+}
+
+.root .image {
+  width: 100%;
+  object-fit: cover;
+}
+
+.root .nameShort {
+  position: absolute;
+  bottom: 50%;
+  right: 50%;
+  translate: 50% 50%;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}

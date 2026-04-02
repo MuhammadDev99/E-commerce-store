@@ -3,7 +3,7 @@ import clsx from "clsx"
 import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
-import { formatTime } from "@/utils"
+import { formatTime, getClientLinkById, getOrderLinkById } from "@/utils"
 import { OrdersTableConfig } from "@/types"
 import { getOrdersPageData } from "@/utils/db"
 import Link from "next/link"
@@ -13,29 +13,33 @@ export default function OrdersTable({
     initialData,
     initialTotalPages,
     initialPageSize,
+    userId,
 }: {
     className?: string
     initialData: OrdersTableConfig["row"][]
     initialTotalPages: number
     initialPageSize: number
+    userId?: string
 }) {
-    const headers: OrdersTableConfig["headers"][] = [
+    let headers: OrdersTableConfig["headers"][] = [
         { display: "رقم الطلب", value: "orderReference", searchable: true, sortable: true },
         { display: "العميل", value: "customer", searchable: true, sortable: true },
         { display: "الإجمالي", value: "totalAmount", searchable: false, sortable: true },
         { display: "حالة الطلب", value: "status", searchable: false, sortable: true },
         { display: "التاريخ", value: "createdAt", searchable: false, sortable: true },
     ]
-
+    if (userId) {
+        headers = headers.filter((header) => header.value !== "customer")
+    }
     return (
         <PaginatedTable<OrdersTableConfig>
             className={clsx(styles.root, className)}
             initialData={initialData}
             initialTotalPages={initialTotalPages}
-            defaultSearchColumn="customer"
+            defaultSearchColumn={userId ? "orderReference" : "customer"}
             defaultSortColumn="createdAt"
-            gridTemplate="1.2fr 2.5fr 1fr 1fr 1fr"
-            fetchData={async (params) => await getOrdersPageData(params)}
+            gridTemplate={userId ? "1.2fr 1fr 1fr 1fr" : "1.2fr 2.5fr 1fr 1fr 1fr"}
+            fetchData={async (params) => await getOrdersPageData(params, userId)}
             headers={headers}
             pageSize={initialPageSize}
             renderItem={({ order, customer }, isPending) => {
@@ -58,28 +62,39 @@ export default function OrdersTable({
                             isPending && styles.loading,
                         )}
                     >
-                        <Link href={"/"} className={clsx(styles.orderRefrence, styles.link)}>
+                        <Link
+                            href={getOrderLinkById(order.id)}
+                            className={clsx(styles.orderRefrence, styles.link)}
+                        >
                             {order.orderReference}
                         </Link>
 
-                        <div className={styles.customer}>
-                            <Link href={"/"} className={clsx(styles.name, styles.link)}>
-                                {customer.name}
-                            </Link>
-                            <p className={styles.adress}>{customer.email}</p>
-                        </div>
-
+                        {!userId && (
+                            <div className={styles.customer}>
+                                <Link
+                                    href={getClientLinkById(customer.id)}
+                                    className={clsx(styles.name, styles.link)}
+                                >
+                                    {customer.name}
+                                </Link>
+                                <p className={styles.adress}>{customer.email}</p>
+                            </div>
+                        )}
                         <Price className={styles.total} price={order.totalAmount} />
 
                         <p className={clsx(styles.status, styles[order.status])}>
                             {orderStatusText()}
                         </p>
                         <p className={styles.date}>
-                            {formatTime(order.createdAt, "ar", {
-                                showDate: true,
-                                showTime: false,
-                                style: "medium",
-                                useWesternArabicNumerals: true,
+                            {formatTime({
+                                time: order.createdAt,
+                                language: "ar",
+                                options: {
+                                    showDate: true,
+                                    showTime: false,
+                                    style: "medium",
+                                    useWesternArabicNumerals: true,
+                                },
                             })}
                         </p>
                     </div>

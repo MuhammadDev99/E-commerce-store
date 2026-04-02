@@ -1,0 +1,288 @@
+/* Base Container */
+.container {
+  --accent-color: #6b7280;
+  /* Default Gray */
+  --accent-bg: #f3f4f6;
+
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 50em;
+  border-radius: 1.5em;
+  position: relative;
+  padding: 3em;
+  box-sizing: border-box;
+}
+
+/* Dynamic Overrides based on Coupon Type */
+.percentage {
+  --accent-color: #16a34a;
+  /* Green */
+  --accent-bg: #f0fdf4;
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+}
+
+.fixed {
+  --accent-color: #2563eb;
+  /* Blue */
+  --accent-bg: #eff6ff;
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+}
+
+.free_shipping {
+  --accent-color: #7c3aed;
+  /* Purple */
+  --accent-bg: #f5f3ff;
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+}
+
+/* Layout Styles */
+.notchLeft,
+.notchRight {
+  position: absolute;
+  top: 50%;
+  width: 2em;
+  height: 2em;
+  background-color: var(--white-light-1);
+  /* Should match page background */
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.notchLeft {
+  right: -1em;
+}
+
+.notchRight {
+  left: -1em;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 0.15em dashed #e5e7eb;
+  padding-bottom: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+/* Using the Accent Variable */
+.iconCircle {
+  width: 4em;
+  height: 4em;
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1em;
+  transition: all 0.3s ease;
+}
+
+.iconCircle svg {
+  width: 2em;
+  height: 2em;
+}
+
+.title {
+  font-size: 1.75em;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+}
+
+.badge {
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+  padding: 0.25em 1em;
+  border-radius: 2em;
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-top: 0.75em;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.codeContainer {
+  margin-top: 2em;
+  width: 100%;
+  max-width: 18em;
+}
+
+.codeLabel {
+  display: block;
+  font-size: 1em;
+  color: #6b7280;
+  margin-bottom: 0.5em;
+}
+
+.codeBox {
+  background-color: #111827;
+  /* Dark background remains for contrast */
+  color: #ffffff;
+  padding: 0.75em;
+  border-radius: 0.5em;
+  font-size: 1.5em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--accent-color);
+  /* Tinted bottom border */
+}
+
+/* Grid & Items */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14em, 1fr));
+  gap: 2em;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;
+  font-size: 1.3em;
+}
+
+.detailIcon {
+  width: 3em;
+  height: 3em;
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.detailIcon svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.detailTexts {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailLabel {
+  font-size: 0.85em;
+  color: #9ca3af;
+  margin-bottom: 0.25em;
+}
+
+.detailValue {
+  font-size: 1em;
+  font-weight: 600;
+  color: #374151;
+}
+
+@media (max-width: 30em) {
+  .container {
+    padding: 1.5em;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.codeWrapper {
+  margin-top: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.codeInner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-bg);
+  /* Lower the border width slightly for a cleaner look */
+  border: 0.125em dashed var(--accent-color);
+  padding: 1em 2.5em;
+  border-radius: 1em;
+  min-width: 16em;
+  transition: all 0.2s ease;
+}
+
+.codeValue {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 1.75em;
+  font-weight: 800;
+  color: var(--accent-color);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  /* Ensure text is above any decorative elements */
+  z-index: 1;
+}
+
+.scissorsIcon {
+  position: absolute;
+  /* Move it to the side so it doesn't need a background to hide the border */
+  left: 0.5em;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  /* Rotated for better look */
+  color: var(--accent-color);
+  width: 1.5em;
+  height: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  /* Makes it look like a watermark/stamp */
+  pointer-events: none;
+}
+
+.scissorsIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  /* Force no fill */
+  background: transparent;
+  /* Force no background */
+}
+
+/* Add a hover effect to the whole stub */
+.codeInner:hover {
+  background-color: #ffffff;
+  border-style: solid;
+  box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.05);
+}
+
+
+/* Add this to your style.module.css */
+
+.editButton {
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6em 1.2em;
+  background-color: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 0.75em;
+  font-size: 0.9em;
+  font-weight: 600;
+  border: 0.1em solid #e5e7eb;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.editButton svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.editButton:hover {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

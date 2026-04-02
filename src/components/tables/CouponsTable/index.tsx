@@ -6,6 +6,7 @@ import Price from "@/components/Price"
 import Link from "next/link"
 import { Coupon, CouponsTableConfig } from "@/types"
 import { getCoupons } from "@/utils/db"
+import { getCpuponLinkById } from "@/utils"
 
 export default function CouponsTable({
     className,
@@ -56,10 +57,7 @@ export default function CouponsTable({
                             key={coupon.id}
                             className={clsx(styles.item, isPending && styles.loading)}
                         >
-                            <Link
-                                href={`/dashboard/marketing/coupon/${coupon.id}`}
-                                className={styles.code}
-                            >
+                            <Link href={getCpuponLinkById(coupon.id)} className={styles.code}>
                                 {coupon.code}
                             </Link>
                             <p className={styles.name}>{coupon.name}</p>

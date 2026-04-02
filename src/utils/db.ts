@@ -1,16 +1,17 @@
 "use server";
-import { orderItems, orders, reviews, user } from "@/db/schema";
+import { couponsWithStatus, orderItems, orders, reviews, user } from "@/db/schema";
 import { db } from "@/db";
 import { cartItems, coupons, products } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { CartItem, Coupon, CouponsTableConfig, CustomersTableConfig, NewProduct, NewReview, Order, OrdersTableConfig, PageDataOptions, PageDataResponse, PageItems, Product, ProductsAnalyticsTableConfig, RatedProduct, Review, ReviewsTableConfig } from "@/types";
+import { CartItem, Coupon, CouponsTableConfig, CouponWithStatus, CustomersTableConfig, NewProduct, NewReview, Order, OrderItem, OrderItemsTableConfig, OrdersTableConfig, PageDataOptions, PageDataResponse, PageItems, Product, ProductsAnalyticsTableConfig, RatedProduct, Review, ReviewsTableConfig } from "@/types";
 import { and, asc, count, desc, eq, getTableColumns, ilike, or, SQL, sql } from "drizzle-orm";
 import { getPaginatedTableData, requireAdminAuth } from "./admin-helpers";
 import { AnyPgColumn } from "drizzle-orm/pg-core";
 import { User } from "@/types/index";
 import { revalidatePath } from "next/cache";
 import { NotFoundError } from "@/errors";
+import { assertNever } from ".";
 
 export async function addProductDB(productData: NewProduct) {
   const session = await auth.api.getSession({
@@ -425,7 +426,7 @@ export async function getCoupons(options: PageDataOptions): Promise<PageDataResp
 //   };
 // }
 
-export async function getOrdersPageData(options: PageDataOptions): Promise<PageDataResponse<OrdersTableConfig['row']>> {
+export async function getOrdersPageData(options: PageDataOptions, userId?: string): Promise<PageDataResponse<OrdersTableConfig['row']>> {
 
   const query = options['q']
   const sortColumn = options['sortCol']
@@ -437,16 +438,27 @@ export async function getOrdersPageData(options: PageDataOptions): Promise<PageD
   const offset = (validPage - 1) * pageSize;
 
   // 2. Build Filters
-  let filters = undefined;
+  const filterConditions = [];
+
+  // If a userId is provided, restrict results to ONLY this user
+  if (userId) {
+    filterConditions.push(eq(orders.userId, userId));
+  }
+
+  // If a search query is provided, add the search constraints
   if (searchColumn && query && query.trim() !== "") {
     const q = `%${query.trim()}%`;
     if (searchColumn === 'customer') {
-      filters = or(ilike(user.name, q), ilike(user.email, q))
+      filterConditions.push(or(ilike(user.name, q), ilike(user.email, q)));
     }
     else if (Object.keys(orders).includes(searchColumn)) {
-      filters = ilike(orders[searchColumn], q)
+      filterConditions.push(ilike(orders[searchColumn], q));
     }
   }
+
+  // Combine all conditions safely using AND
+  const filters = filterConditions.length > 0 ? and(...filterConditions) : undefined;
+
 
   // 3. Handle Dynamic Sorting (Fixed with AnyPgColumn)
   let orderByCol: AnyPgColumn;
@@ -476,11 +488,11 @@ export async function getOrdersPageData(options: PageDataOptions): Promise<PageD
     db
       .select({
         order: orders,
-        customer: user, // Selects all user columns automatically
+        customer: user,
       })
       .from(orders)
       .innerJoin(user, eq(orders.userId, user.id))
-      .where(filters)
+      .where(filters) // Applies both user filter AND search queries
       .limit(pageSize)
       .offset(offset)
       .orderBy(orderFn(orderByCol)),
@@ -488,9 +500,8 @@ export async function getOrdersPageData(options: PageDataOptions): Promise<PageD
     db
       .select({ value: sql<number>`count(*)` })
       .from(orders)
-      // We join here too so the count reflects the search filters (like user name)
       .innerJoin(user, eq(orders.userId, user.id))
-      .where(filters),
+      .where(filters), // Same filters applied to the count query
   ]);
 
   return {
@@ -800,7 +811,7 @@ export async function addReviewDB(data: NewReview) {
 // }
 
 export async function getReviewsPageData(
-  options: PageDataOptions
+  options: PageDataOptions, userId?: string
 ): Promise<PageDataResponse<ReviewsTableConfig['row']>> {
   // 1. Security Check
   await requireAdminAuth();
@@ -819,7 +830,6 @@ export async function getReviewsPageData(
   const offset = (Math.max(1, Number(page) || 1) - 1) * limit;
 
   // 3. Declarative Filter Configuration
-  // This replaces the nested if/else statements. It's easier to read and extend.
   const searchStrategies: Record<string, (searchTerm: string) => SQL> = {
     customer: (term) => or(ilike(user.name, term), ilike(user.email, term))!,
     productName: (term) => ilike(products.name, term),
@@ -828,12 +838,24 @@ export async function getReviewsPageData(
   };
 
   const safeQuery = query.trim();
-  const filters = safeQuery && searchCol && searchStrategies[searchCol]
-    ? searchStrategies[searchCol](`%${safeQuery}%`)
-    : undefined;
+
+  // Build dynamic filter conditions
+  const filterConditions = [];
+
+  // Filter by userId if provided
+  if (userId) {
+    filterConditions.push(eq(reviews.userId, userId));
+  }
+
+  // Filter by search query if provided
+  if (safeQuery && searchCol && searchStrategies[searchCol]) {
+    filterConditions.push(searchStrategies[searchCol](`%${safeQuery}%`));
+  }
+
+  // Combine all active conditions
+  const filters = filterConditions.length > 0 ? and(...filterConditions) : undefined;
 
   // 4. Declarative Sorting Configuration
-  // Maps the URL string directly to the Drizzle column definition.
   const sortMap: Record<string, AnyPgColumn | SQL> = {
     customer: user.name,
     productName: products.name,
@@ -843,7 +865,6 @@ export async function getReviewsPageData(
     createdAt: reviews.createdAt,
   };
 
-  // Safe fallback to createdAt if an invalid sortCol is provided in the URL
   const orderColumn = sortMap[sortCol] ?? reviews.updatedAt;
   const orderByExpression = sortDir === "asc" ? asc(orderColumn) : desc(orderColumn);
 
@@ -852,13 +873,13 @@ export async function getReviewsPageData(
     db
       .select({
         review: reviews,
-        user: { name: user.name, email: user.email },
-        productName: products.name,
+        user: { name: user.name, email: user.email, id: user.id },
+        product: { name: products.name, id: products.id },
       })
       .from(reviews)
       .innerJoin(user, eq(reviews.userId, user.id))
       .innerJoin(products, eq(reviews.productId, products.id))
-      .where(filters)
+      .where(filters) // Applies the combined AND filters here
       .limit(limit)
       .offset(offset)
       .orderBy(orderByExpression),
@@ -868,7 +889,7 @@ export async function getReviewsPageData(
       .from(reviews)
       .innerJoin(user, eq(reviews.userId, user.id))
       .innerJoin(products, eq(reviews.productId, products.id))
-      .where(filters)
+      .where(filters) // And also to the count query
   ]);
 
   const totalItems = countResult?.count ?? 0;
@@ -913,4 +934,120 @@ export async function getUserById(userId: string): Promise<User> {
   }
 
   return foundUser;
+}
+
+
+export async function getReviewById(reviewId: number): Promise<{ review: Review, user: User }> {
+  const [foundReview] = await db.select({ review: reviews, user: user }).from(reviews).innerJoin(user, eq(user.id, reviews.userId)).where(eq(reviews.id, reviewId)).limit(1)
+  if (!foundReview) {
+    throw new NotFoundError("Review", reviewId);
+  }
+
+  return foundReview;
+}
+export async function getCouponById(couponId: number): Promise<CouponWithStatus> {
+  const [found] = await db.select().from(couponsWithStatus).where(eq(couponsWithStatus.id, couponId)).limit(1)
+  if (!found) {
+    throw new NotFoundError("Coupon", couponId);
+  }
+
+  return found;
+}
+function parsePageDataOptions(options: PageDataOptions) {
+  const query = options['q'];
+  const sortColumn = options['sortCol'];
+  const sortDirection = options['sortDir'] || "desc";
+  const searchColumn = options['searchCol'];
+  const page = Math.max(1, Number(options['page'] || 1));
+  const pageSize = Number(options['pageSize'] || 10);
+  const offset = (page - 1) * pageSize;
+  return { query, sortColumn, sortDirection, searchColumn, page, pageSize, offset }
+}
+export async function getOrderItemsPageData(
+  paginationOptions: PageDataOptions, // More specific than 'options'
+  orderId: string
+): Promise<PageDataResponse<OrderItemsTableConfig['row']>> {
+  await requireAdminAuth();
+
+  const {
+    query,
+    sortColumn,
+    sortDirection,
+    searchColumn,
+    pageSize,
+    offset
+  } = parsePageDataOptions(paginationOptions);
+
+  const targetOrderId = Number(orderId);
+
+  // Renamed to reflect that it builds a SQL 'WHERE' condition
+  const buildWhereClause = () => {
+    const conditions = [eq(orderItems.orderId, targetOrderId)];
+
+    if (query?.trim() && searchColumn) {
+      const searchTerm = `%${query.trim()}%`; // 'searchTerm' is clearer than 'q'
+
+      if (searchColumn === "name") {
+        conditions.push(ilike(products.name, searchTerm));
+      } else if (searchColumn in orderItems) {
+        // Casting numeric columns to text for partial matching
+        conditions.push(sql`CAST(${orderItems[searchColumn as keyof OrderItem]} AS TEXT) ILIKE ${searchTerm}`);
+      }
+    }
+
+    return and(...conditions);
+  };
+
+  // Renamed from orderFunction to buildOrderBy
+  const buildOrderBy = () => {
+    const applyDirection = sortDirection === "asc" ? asc : desc; // 'applyDirection' describes the action
+
+    if (sortColumn) {
+      if (sortColumn in orderItems) {
+        return applyDirection(orderItems[sortColumn as keyof OrderItem]);
+      }
+      if (sortColumn === "name") {
+        return applyDirection(products.name);
+      }
+    }
+    // Default fallback
+    return desc(orderItems.priceAtPurchase);
+  };
+
+  const whereClause = buildWhereClause();
+  const orderByClause = buildOrderBy();
+
+  const [pagedRows, totalCountResult] = await Promise.all([
+    db
+      .select({
+        item: orderItems,
+        product: {
+          id: products.id,
+          name: products.name
+        },
+        orderCreatedAt: orders.createdAt
+      })
+      .from(orderItems)
+      .leftJoin(products, eq(products.id, orderItems.productId))
+      .leftJoin(orders, eq(orders.id, orderItems.orderId))
+      .where(whereClause)
+      .orderBy(orderByClause)
+      .limit(pageSize)
+      .offset(offset),
+
+    db
+      .select({ count: count() })
+      .from(orderItems)
+      .leftJoin(products, eq(products.id, orderItems.productId))
+      .leftJoin(orders, eq(orders.id, orderItems.orderId))
+      .where(whereClause)
+  ]);
+
+  const totalItems = totalCountResult[0]?.count ?? 0;
+
+  return {
+    items: pagedRows as OrderItemsTableConfig['row'][],
+    totalItems: totalItems,
+    totalPages: Math.ceil(totalItems / pageSize),
+  };
 }

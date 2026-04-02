@@ -1,4 +1,4 @@
-import { products, coupons, orders, orderItems, user, reviews } from "@/db/schema";
+import { products, coupons, orders, orderItems, user, reviews, couponsWithStatus } from "@/db/schema";
 /**
  * 7. UI & FEEDBACK TYPES
  * Types strictly used for user interface states.
@@ -35,6 +35,9 @@ export type NewProduct = typeof products.$inferInsert;
 // Coupons
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
+
+// CouponsWithStatus
+export type CouponWithStatus = typeof couponsWithStatus.$inferSelect;
 
 // Orders
 export type Order = typeof orders.$inferSelect;
@@ -121,7 +124,10 @@ export type CouponsTableConfig = TableConfig<
 >;
 
 export type ProductsAnalyticsTableConfig = TableConfig<ProductAnalytics>;
-
+export type OrderItemsTableConfig = TableConfig<
+  { item: OrderItem, product: Pick<Product, 'id' | 'name'>, orderCreatedAt: Date },
+  keyof OrderItem & string | 'name'
+>;
 export type CustomersTableConfig = TableConfig<
   User & {
     totalOrders: number;
@@ -131,9 +137,16 @@ export type CustomersTableConfig = TableConfig<
 >;
 
 export type ReviewsTableConfig = TableConfig<
-  { review: Review, productName: String, user: { name: string, email: string } },
+  { review: Review, product: { name: string, id: number }, user: { id: string, name: string, email: string } },
   keyof Review & string | "customer" | "productName"
 >;
 
 
 export type RatedProduct = Product & Pick<Review, 'rate'>
+
+export type CustomerStats = {
+  orders: number
+  spent: number
+  reviews: number
+  cart: number
+}

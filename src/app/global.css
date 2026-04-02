@@ -107,7 +107,7 @@
   --white-3: rgb(215, 215, 215);
   --white-4: rgb(195, 195, 195);
   --white-5: rgb(175, 175, 175); */
-  --white-light-1: white;
+  --white-light-1: rgb(250, 250, 250);
   --white-light-2: rgb(245, 245, 245);
   --white-light-3: rgb(235, 235, 235);
   --white-light-4: rgb(220, 220, 220);
