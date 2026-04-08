@@ -12,12 +12,14 @@ export default function SearchBox2({
     onSearch,
     onSearchSubmit,
     debounceMs = 0,
+    placeholder = "اكتب شيئاً للبحث",
 }: {
     className?: string
     autoFocus?: boolean
     onSearch: (query: string) => void
     onSearchSubmit: () => void
     debounceMs?: number
+    placeholder?: string
 }) {
     useSignals()
     const searchQuery = useSignal<string>("")
@@ -34,7 +36,7 @@ export default function SearchBox2({
             <SearchSVG className={styles.icon} onClick={onSearchSubmit} />
             <input
                 type="search"
-                placeholder="اكتب شيئاً للبحث"
+                placeholder={placeholder}
                 value={searchQuery.value}
                 onChange={(e) => {
                     handleQueryChange(e.target.value)

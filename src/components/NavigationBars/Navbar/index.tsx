@@ -28,6 +28,7 @@ import SearchOverlay from "@/components/SearchOverlay"
 import { cartCountSignal, searchSignal } from "@/signals"
 import { useEffect } from "react"
 import { getCartCount } from "@/utils/db/user"
+import clsx from "clsx"
 const categories = [
     "الافضل مبيعاً",
     "عروض",
@@ -38,7 +39,7 @@ const categories = [
     "عالم العربية للعود",
 ]
 
-export default function Navbar() {
+export default function Navbar({ className }: { className?: string }) {
     useSignals() // 1. Enable signals reactivity
     const router = useRouter()
     const { data: session } = authClient.useSession()
@@ -55,9 +56,9 @@ export default function Navbar() {
     }, [session])
     const items = ["عود", "بخورات", "مسك", "رجالي"]
     return (
-        <div className={styles.container}>
+        <div className={clsx(styles.container, className)}>
             <div className={styles.buttons}>
-                <Link href={"/login"} className={styles.accountWrapper}>
+                <Link href={"/account/profile"} className={styles.accountWrapper}>
                     <PersonCircleSVG className={styles.account} />
                     {session && <p className={styles.name}>{session.user.name.split(" ")[0]}</p>}
                 </Link>

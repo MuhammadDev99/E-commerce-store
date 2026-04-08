@@ -1,36 +1,22 @@
-/* Lock the screen so the sidebar never moves */
-.layoutWrapper {
-  display: flex;
-  height: 100vh;
-  /* Force exactly screen height */
-  width: 100vw;
-  overflow: hidden;
-  /* Prevent the "body" from scrolling */
-}
-
-.dashboardLayout {
-  flex-direction: row;
-}
-
-/* The Main Content Area */
-.container {
-  flex: 1;
-  /* Grow to fill all space left by sidebar */
-  height: 100%;
-  overflow-y: auto;
-  /* ONLY this part scrolls */
+.root {
   display: flex;
   flex-direction: column;
-  background-color: var(--white-light-1);
-}
-
-.arabic.dashboardLayout {
-  flex-direction: row;
-  /* Flex automatically handles RTL if direction is set */
   direction: rtl;
-
+  height: 100vh;
+  background-color: var(--white-light-2)
 }
 
-.store.container {
-  padding-top: 3rem;
+.root .mainContainer {
+  display: flex;
+  height: inherit;
+  flex-direction: row;
+}
+
+.root .mainContainer .sideBar {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.root .mainContainer .contentBody {
+  flex-grow: 1;
 }

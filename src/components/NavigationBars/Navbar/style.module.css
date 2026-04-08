@@ -4,7 +4,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  position: fixed;
+  /* position: fixed; */
   top: 0;
   left: 0;
   z-index: 5;
@@ -12,6 +12,7 @@
   background-color: rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  direction: ltr;
 }
 
 .container {

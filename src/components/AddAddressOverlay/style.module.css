@@ -1,0 +1,93 @@
+.root {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+
+  .window {
+    margin: auto;
+    width: 50em;
+    height: 90vh;
+    border-radius: var(--border-radius-3);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    /* Shared styles for header and footer */
+    .header,
+    .footer {
+      background-color: white;
+      padding: 1em;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .header {
+      /* Specific header styles can go here */
+    }
+
+    .footer {
+      .button {
+        font-size: 1em;
+        width: 10em;
+      }
+    }
+
+    .map {
+      background-color: antiquewhite;
+      flex-grow: 1;
+
+      .topBar {
+        display: flex;
+        flex-direction: row;
+        gap: 1em;
+        height: 4em;
+        padding: 0.75em;
+        box-sizing: border-box;
+
+        &>* {
+          height: 100%;
+          border-radius: var(--border-radius-2);
+        }
+
+        .search {
+          flex-grow: 1;
+        }
+
+        .button {
+          display: flex;
+          flex-direction: row;
+          gap: 0.5em;
+          background-color: white;
+          border: none;
+          align-items: center;
+          color: var(--color-azure-4);
+          padding: 0 1em;
+          font-size: 1em;
+          cursor: pointer;
+          transition: 180ms ease-out;
+          outline: 0.1em solid transparent;
+
+          &:hover {
+            background-color: var(--color-azure-1);
+            outline: 0.1em solid var(--color-azure-4);
+          }
+
+          .icon {
+            height: 1.1em;
+            width: 1.1em;
+          }
+        }
+      }
+    }
+  }
+}

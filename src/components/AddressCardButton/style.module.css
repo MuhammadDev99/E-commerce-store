@@ -1,0 +1,27 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 9em;
+  border-radius: var(--border-radius-3);
+  border: 0.1em dashed var(--primary-4);
+  color: var(--primary-5);
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
+  font-size: 1em;
+  background-color: transparent;
+}
+
+.root:hover {
+  background-color: var(--primary-11);
+  /* border: 0.1em solid var(--primary-4); */
+}
+
+.root .icon {
+  width: 2em;
+  height: 2em;
+  stroke-width: 0.05em;
+}

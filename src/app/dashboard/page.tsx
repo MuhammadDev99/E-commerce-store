@@ -3,7 +3,7 @@ import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
-import DashboardNavBar from "@/components/DashboardNavBar"
+import DashboardNavBar from "@/components/NavigationBars/DashboardNavBar"
 
 export default function DashboardPage() {
     useSignals()
