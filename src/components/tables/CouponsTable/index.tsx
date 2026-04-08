@@ -4,8 +4,8 @@ import styles from "./style.module.css"
 import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import Link from "next/link"
-import { Coupon, CouponsTableConfig } from "@/types"
-import { getCoupons } from "@/utils/db"
+import { Coupon, CouponsTableConfig, CouponWithStatus } from "@/types"
+import { getCouponsPaged } from "@/utils/db/admin"
 import { getCpuponLinkById } from "@/utils"
 
 export default function CouponsTable({
@@ -15,7 +15,7 @@ export default function CouponsTable({
     initialPageSize,
 }: {
     className?: string
-    initialData: Coupon[]
+    initialData: CouponsTableConfig["row"][]
     initialTotalPages: number
     initialPageSize: number
 }) {
@@ -34,7 +34,12 @@ export default function CouponsTable({
         { display: "الحالة", value: "status", searchable: false, sortable: true },
         { display: "الاستخدام", value: "usedCount", searchable: false, sortable: false },
     ]
-
+    const statusMap: Record<CouponWithStatus["status"], string> = {
+        active: "مفعل",
+        disabled: "معطل",
+        expired: "منتهي",
+        scheduled: "مجدول",
+    }
     return (
         <div className={clsx(styles.root, className)}>
             <PaginatedTable<CouponsTableConfig>
@@ -73,14 +78,9 @@ export default function CouponsTable({
                                     "—"
                                 )}
                             </div>
-                            <p
-                                className={clsx(
-                                    styles.status,
-                                    styles[isActive ? "active" : "expired"],
-                                    styles.pill,
-                                )}
-                            >
-                                {isActive ? "مفعل" : "معطل"}
+                            <p className={clsx(styles.status, styles[coupon.status], styles.pill)}>
+                                {/* {isActive ? "مفعل" : "معطل"} */}
+                                {statusMap[coupon.status]}
                             </p>
                             <p className={styles.usageCount}>
                                 {coupon.usedCount} / {coupon.globalUsageLimit ?? "∞"}
@@ -96,9 +96,7 @@ export default function CouponsTable({
                 defaultSortColumn="createdAt"
                 defaultSortDirection="desc"
                 gridTemplate="1.5fr 2fr 1.5fr 1fr 1fr 1fr"
-                fetchData={async (params) => {
-                    return await getCoupons(params)
-                }}
+                fetchData={async (params) => await getCouponsPaged(params)}
             />
         </div>
     )

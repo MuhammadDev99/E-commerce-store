@@ -7,7 +7,7 @@ export function showMessage(payload: MessageUI | string) {
     typeof payload === "string"
       ? {
         content: payload,
-        durationMs: 3000,
+        durationMs: 5000,
         title: "",
         type: "info" as const,
       }

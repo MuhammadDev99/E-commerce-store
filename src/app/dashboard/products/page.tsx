@@ -1,7 +1,6 @@
 "use client"
 import { useSignals, useSignal } from "@preact/signals-react/runtime"
 import styles from "./style.module.css"
-import { addProductDB } from "@/utils/db"
 import { showMessage } from "@/utils/showMessage"
 import { NewProduct, Product } from "../../../types"
 import { NumberInput, RadioInput, Textbox } from "@/external/my-library/components"
@@ -15,6 +14,7 @@ import FullProductDisplay from "@/components/FullProductDisplay"
 import Button from "@/components/Button"
 import { getDisplayLanguage, getEmptyProduct } from "@/utils"
 import clsx from "clsx"
+import { upsertProduct } from "@/utils/db/admin"
 
 export default function ProductsPage() {
     useSignals()
@@ -50,7 +50,7 @@ export default function ProductsPage() {
         //     showMessage("Please fill all information")
         //     return
         // }
-        const result = await safe(addProductDB(product.value))
+        const result = await safe(upsertProduct(product.value))
         if (result.success) {
             showMessage({
                 title: "Success",

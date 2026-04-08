@@ -1,0 +1,28 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  direction: rtl;
+}
+
+.root .row {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.root .row>* {
+  flex-grow: 1;
+}
+
+.root .title {
+  text-align: center;
+}
+
+/* .root .switch {
+  width: fit-content;
+} */
+
+.root .switch:hover {
+  background-color: var(--white-light-2);
+}

@@ -4,7 +4,7 @@ import Card from "@/components/Card"
 import CouponsTable from "@/components/Tables/CouponsTable"
 import Button from "@/components/Button"
 import { TicketSVG } from "@/images"
-import { getCoupons } from "@/utils/db"
+import { getCouponsPaged } from "@/utils/db/admin"
 
 export default async function MarketingPage({
     searchParams,
@@ -13,7 +13,7 @@ export default async function MarketingPage({
 }) {
     const params = await searchParams
     const PAGE_SIZE = 3
-    const { items, totalPages } = await getCoupons({
+    const { items, totalPages } = await getCouponsPaged({
         ...params,
         pageSize: params["pageSize"] ?? PAGE_SIZE.toString(),
     })
@@ -21,7 +21,7 @@ export default async function MarketingPage({
     return (
         <div className={clsx(styles.page)}>
             <Card className={styles.header} title="الكوبونات" icon={TicketSVG}>
-                <Button href="/dashboard/marketing/generate-coupon" type="primary">
+                <Button href="/dashboard/coupon/generate" type="primary">
                     إصنع كوبون
                 </Button>
             </Card>

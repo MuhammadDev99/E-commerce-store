@@ -2,14 +2,14 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/utils/safe"
-import { getUserById } from "@/utils/db"
+import { getUserById } from "@/utils/db/admin"
 import ErrorDisplay from "@/components/ErrorDisplay"
 import CustomerProfile from "@/components/CustomerProfile" // Adjust path if needed
 import { User } from "@/types"
 
 // Move Database imports here
 import { db } from "@/db"
-import { orders, reviews, cartItems } from "@/db/schema"
+import { orders, reviews, cartItems } from "@/schemas/drizzle"
 import { eq, sql, count } from "drizzle-orm"
 
 export default async function CustomerPage({

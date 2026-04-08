@@ -1,4 +1,4 @@
-import { products, coupons, orders, orderItems, user, reviews, couponsWithStatus } from "@/db/schema";
+import { products, coupons, orders, orderItems, user, reviews, couponsWithStatus, cartItems, addresses, userPreferences } from "@/schemas/drizzle";
 /**
  * 7. UI & FEEDBACK TYPES
  * Types strictly used for user interface states.
@@ -38,7 +38,6 @@ export type NewCoupon = typeof coupons.$inferInsert;
 
 // CouponsWithStatus
 export type CouponWithStatus = typeof couponsWithStatus.$inferSelect;
-
 // Orders
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
@@ -55,10 +54,8 @@ export type NewReview = typeof reviews.$inferInsert;
  * 3. DOMAIN & EXTENDED MODELS
  * Types that extend the base database schemas for specific business logic.
  */
-export type CartItem = Product & {
-  quantity: number
-};
-
+export type CartItem = typeof cartItems.$inferSelect;
+export type CartItemWithProduct = { cartItem: CartItem, product: Product };
 export type ProductAnalytics = Product & {
   totalOrdered: number;
   totalRevenue: number;
@@ -117,10 +114,12 @@ export type OrdersTableConfig = TableConfig<
   { order: Order; customer: User },
   keyof Order & string | 'customer'
 >;
-
+export type CartItemsTableConfig = TableConfig<
+  { cartItem: CartItem, product: Product },
+  keyof CartItem & string | 'name' | 'price'
+>;
 export type CouponsTableConfig = TableConfig<
-  Coupon,
-  keyof Coupon & string | 'status'
+  CouponWithStatus
 >;
 
 export type ProductsAnalyticsTableConfig = TableConfig<ProductAnalytics>;
@@ -150,3 +149,9 @@ export type CustomerStats = {
   reviews: number
   cart: number
 }
+
+
+export type Address = typeof addresses.$inferSelect
+export type NewAddress = typeof addresses.$inferInsert
+
+export type UserPreferences = typeof userPreferences.$inferSelect

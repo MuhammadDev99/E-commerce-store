@@ -15,7 +15,6 @@ export default function AvatarImage({
 }) {
     const initial = name?.charAt(0).toUpperCase() || "?"
     const hue = stringToRandom(userId, 0, 360)
-    console.log(hue)
     return (
         <div
             className={clsx(styles.root, className)}

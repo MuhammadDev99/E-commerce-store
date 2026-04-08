@@ -1,17 +1,17 @@
 // hooks/use-payment.ts
-import { CartItem } from "@/types"; // Use CartItem since it has quantity
+import { CartItem, CartItemWithProduct } from "@/types"; // Use CartItem since it has quantity
 import { useState } from "react";
 
 export function usePayment() {
     const [loading, setLoading] = useState(false);
 
-    const startCheckout = async (items: CartItem[]) => {
+    const startCheckout = async (items: CartItemWithProduct[]) => {
         setLoading(true);
         try {
             // MAP THE DATA HERE: Clean the payload before sending
             const sanitizedItems = items.map(item => ({
-                id: item.id,
-                quantity: item.quantity
+                id: item.cartItem.id,
+                quantity: item.cartItem.quantity
             }));
 
             const response = await fetch("/api/pay", {

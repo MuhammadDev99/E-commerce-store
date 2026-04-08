@@ -2,11 +2,13 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/utils/safe"
-import { getOrdersPageData, getUserById } from "@/utils/db"
+import { getCartItemsPageData, getUserById } from "@/utils/db/admin"
+import { getOrdersPageData } from "@/utils/db/admin"
 import ErrorDisplay from "@/components/ErrorDisplay"
-import CustomerProfile from "@/components/UserDisplay"
 import { User } from "@/types"
 import OrdersTable from "@/components/Tables/OrdersTable"
+import OrderItemsTable from "@/components/Tables/OrderItemsTable"
+import CartItemsTable from "@/components/Tables/CartItemsTable"
 
 export default async function CustomerCartPage({
     params,
@@ -24,7 +26,7 @@ export default async function CustomerCartPage({
         return <ErrorDisplay error={new Error("no customer id provided")} />
     }
 
-    const { items, totalPages } = await getOrdersPageData(
+    const { items, totalPages } = await getCartItemsPageData(
         {
             ...search,
             pageSize: search["pageSize"] ?? PAGE_SIZE.toString(),
@@ -40,7 +42,7 @@ export default async function CustomerCartPage({
     return (
         <div className={clsx(styles.page, styles[displayLanguage])}>
             <p>{userResult.data.name}</p>
-            <OrdersTable
+            <CartItemsTable
                 initialTotalPages={totalPages}
                 initialData={items}
                 initialPageSize={PAGE_SIZE}

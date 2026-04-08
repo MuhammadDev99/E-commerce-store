@@ -20,9 +20,9 @@ export function debounced<T extends (...args: any[]) => void>(
 
 import { MOCK_PRODUCTS } from "@/mockData";
 import { addedItemSignal, cartCountSignal } from "@/signals";
-import { addItemToCartDB } from "./db";
+import { addItemToCartDB } from "./db/user";
 import { db } from "@/db";
-import { cartItems } from "@/db/schema";
+import { cartItems } from "@/schemas/drizzle";
 export async function searchProducts(query: string): Promise<Product[]> {
     return new Promise(resolve => {
         resolve(MOCK_PRODUCTS.filter(product => product.name.toLowerCase().includes(query.toLowerCase())))
@@ -106,7 +106,10 @@ export function getOrderLinkById(id: string | number): string {
     return '/dashboard/order/' + id
 }
 export function getCpuponLinkById(id: string | number): string {
-    return '/dashboard/coupon/' + id
+    return '/dashboard/coupon/view/' + id
+}
+export function getCouponEditLink(id: number): string {
+    return '/dashboard/coupon/edit/' + id
 }
 export function assertNever(x: never): never {
     throw new Error("Unexpected object: " + x);

@@ -1,0 +1,5 @@
+.page {
+  display: flex;
+  flex-direction: row;
+  padding: 2em 2em 4em 2em;
+}

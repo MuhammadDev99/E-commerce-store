@@ -5,7 +5,7 @@ import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import { getClientLinkById, stringToRandom } from "@/utils"
 import { CustomersTableConfig } from "@/types"
-import { getCustomersPageData } from "@/utils/db"
+import { getCustomersPaged } from "@/utils/db/admin"
 import Link from "next/link"
 import { MailSVG, PhoneSVG } from "@/images"
 import AvatarImage from "@/components/AvatarImage"
@@ -43,7 +43,7 @@ export default function CustomersTable({
             defaultSearchColumn="name"
             defaultSortColumn="createdAt"
             gridTemplate="2fr 2fr 1fr 1fr"
-            fetchData={async (params) => await getCustomersPageData(params)}
+            fetchData={async (params) => await getCustomersPaged(params)}
             headers={headers}
             pageSize={initialPageSize}
             renderItem={(customer, isPending) => {

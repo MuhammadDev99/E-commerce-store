@@ -7,7 +7,7 @@ import { useSignals, useSignal } from "@preact/signals-react/runtime"
 import TextBox from "@/components/form-elements/TextBox"
 import Button from "@/components/Button"
 import { NewReview, Review } from "@/types"
-import { addReviewDB } from "@/utils/db"
+import { addReviewDB } from "@/utils/db/admin"
 import { safe } from "@/utils/safe"
 import { showMessage } from "@/utils/showMessage"
 

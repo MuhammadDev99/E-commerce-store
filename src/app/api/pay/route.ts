@@ -1,7 +1,7 @@
 // app/api/pay/route.ts
 import { NextResponse } from 'next/server';
 import { db } from "@/db";
-import { orders, orderItems, products as productTable } from "@/db/schema";
+import { orders, orderItems, products as productTable } from "@/schemas/drizzle";
 import { generateUniqueRef } from "@/utils/id-generator";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";

@@ -3,7 +3,7 @@ import clsx from "clsx"
 import AnalyticsCard from "@/components/AnalyticsCard"
 import { ClockSVG, CorrectSVG, DownArrowSVG, OrdersSVG, WrongSVG } from "@/images"
 import OrdersTable from "@/components/Tables/OrdersTable"
-import { getOrdersPageData } from "@/utils/db"
+import { getOrdersPageData } from "@/utils/db/admin"
 
 export default async function OrdersPage({
     searchParams,

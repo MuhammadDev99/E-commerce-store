@@ -296,6 +296,8 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: var(--transition);
+  user-select: none;
+  width: fit-content;
 }
 
 .switchItem .label {

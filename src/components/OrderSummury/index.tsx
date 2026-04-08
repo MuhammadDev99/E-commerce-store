@@ -4,22 +4,26 @@ import { Button } from "@/external/my-library/components"
 import Price from "../Price"
 import styles from "./style.module.css"
 import clsx from "clsx"
-import { CartItem } from "@/types"
+import { CartItem, CartItemWithProduct } from "@/types"
 import { TAX_PERCENTAGE } from "@/config"
 import { usePayment } from "@/hooks/use-payment"
 
 export default function OrderSummary({
     className,
-    products,
+    cartItems,
 }: {
-    products: CartItem[]
+    cartItems: CartItemWithProduct[]
     className?: string
 }) {
     const { startCheckout, loading } = usePayment()
     const { subtotal, discount, tax, total } = useMemo(() => {
-        const sub = products.reduce((acc, item) => acc + item.price * item.quantity, 0)
-        const disc = products.reduce(
-            (acc, item) => acc + item.price * item.quantity * (item.discount / 100),
+        const sub = cartItems.reduce(
+            (acc, item) => acc + item.product.price * item.cartItem.quantity,
+            0,
+        )
+        const disc = cartItems.reduce(
+            (acc, item) =>
+                acc + item.product.price * item.cartItem.quantity * (item.product.discount / 100),
             0,
         )
         const t = (sub - disc) * TAX_PERCENTAGE
@@ -29,7 +33,7 @@ export default function OrderSummary({
             tax: t,
             total: sub - disc + t,
         }
-    }, [products])
+    }, [cartItems])
 
     return (
         <div className={clsx(styles.root, className)}>
@@ -74,7 +78,7 @@ export default function OrderSummary({
                     className={styles.checkout}
                     styleType="primary"
                     disabled={loading}
-                    onClick={() => startCheckout(products)}
+                    onClick={() => startCheckout(cartItems)}
                 >
                     {loading ? "جاري التحميل..." : "إتمام الطلب"}
                 </Button>

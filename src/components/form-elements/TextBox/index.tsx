@@ -7,6 +7,7 @@ interface TextInputProps extends ComponentPropsWithoutRef<"input"> {
     label?: string
     message?: string
     negative?: boolean
+    icon?: React.ElementType
 }
 
 export default function TextBox({
@@ -14,8 +15,9 @@ export default function TextBox({
     message,
     negative = false,
     className,
-    required, // destructured so we can use it for the wrapper's CSS logic
-    ...rest // this contains type, value, onChange, placeholder, etc.
+    required,
+    icon: Icon,
+    ...rest
 }: TextInputProps) {
     return (
         <div
@@ -26,7 +28,12 @@ export default function TextBox({
                 negative && styles.negative,
             )}
         >
-            {label && <p className={styles.label}>{label}</p>}
+            {label && (
+                <div className={styles.labelWrapper}>
+                    <p className={styles.label}>{label}</p>
+                    {Icon && <Icon className={styles.icon} />}
+                </div>
+            )}
 
             <input
                 className={styles.input}

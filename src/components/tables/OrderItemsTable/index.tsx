@@ -6,7 +6,7 @@ import Link from "next/link"
 import { getProductLinkById } from "@/utils"
 import PaginatedTable from "../../PaginatedTable"
 import { OrderItemsTableConfig } from "@/types"
-import { getOrderItemsPageData } from "@/utils/db"
+import { getOrderItemsPaged } from "@/utils/db/admin"
 export default function OrderItemsTable({
     className,
     initialData,
@@ -36,7 +36,7 @@ export default function OrderItemsTable({
             defaultSortColumn="priceAtPurchase"
             gridTemplate="2fr 1fr 1fr"
             pageSize={initialPageSize}
-            fetchData={async (params) => await getOrderItemsPageData(params, orderId)}
+            fetchData={async (params) => await getOrderItemsPaged(params, orderId)}
             renderItem={({ item, product }, isPending) => {
                 return (
                     <div key={item.id} className={clsx(styles.item, isPending && styles.loading)}>

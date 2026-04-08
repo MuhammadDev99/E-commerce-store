@@ -2,11 +2,9 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/utils/safe"
-import { getReviewsPageData, getUserById } from "@/utils/db"
+import { getReviewsPaged, getUserById } from "@/utils/db/admin"
 import ErrorDisplay from "@/components/ErrorDisplay"
-import CustomerProfile from "@/components/UserDisplay"
 import { User } from "@/types"
-import OrdersTable from "@/components/Tables/OrdersTable"
 import ReviewsTable from "@/components/Tables/ReviewsTable"
 
 export default async function CustomerReviewsPage({
@@ -25,7 +23,7 @@ export default async function CustomerReviewsPage({
         return <ErrorDisplay error={new Error("no customer id provided")} />
     }
 
-    const { items, totalPages } = await getReviewsPageData(
+    const { items, totalPages } = await getReviewsPaged(
         {
             ...search,
             pageSize: search["pageSize"] ?? PAGE_SIZE.toString(),

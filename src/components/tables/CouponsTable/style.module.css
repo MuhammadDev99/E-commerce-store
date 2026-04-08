@@ -23,6 +23,20 @@
   --accent-color: var(--color-red-4)
 }
 
+.item .pill.scheduled {
+  --accent-color: var(--color-orange-4)
+}
+
+.item .pill.disabled {
+  --accent-color: var(--color-gray-2);
+  background-color: var(--white-3);
+}
+
+.item .pill.expired {
+  --accent-color: var(--color-red-4)
+}
+
+
 .item .pill.fixed {
   --accent-color: var(--color-flamingo-4)
 }

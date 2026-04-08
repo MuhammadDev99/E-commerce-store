@@ -2,7 +2,7 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/utils/safe"
-import { getCouponById } from "@/utils/db"
+import { getCouponById } from "@/utils/db/admin"
 import ErrorDisplay from "@/components/ErrorDisplay"
 import CouponDisplay from "@/components/CouponDisplay"
 

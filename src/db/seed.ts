@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { coupons } from "./schema";
+import { coupons } from "../schemas/drizzle";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 

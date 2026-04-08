@@ -6,7 +6,7 @@ import Link from "next/link"
 import { getProductLinkById } from "@/utils"
 import PaginatedTable from "../../PaginatedTable"
 import { ProductsAnalyticsTableConfig } from "@/types"
-import { getProductsAnalyticsAdmin } from "@/utils/db"
+import { getProductsAnalticsPaged } from "@/utils/db/admin"
 export default function TopProductsTable({
     className,
     initialData,
@@ -40,7 +40,7 @@ export default function TopProductsTable({
             defaultSearchColumn="name"
             defaultSortColumn="createdAt"
             gridTemplate="2fr 1fr 1fr 1fr 1fr"
-            fetchData={async (params) => await getProductsAnalyticsAdmin(params)}
+            fetchData={async (params) => await getProductsAnalticsPaged(params)}
             renderItem={(product, isPending) => {
                 return (
                     <div

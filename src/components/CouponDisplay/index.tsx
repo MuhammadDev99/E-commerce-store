@@ -1,8 +1,9 @@
 import React from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
-import { Coupon, CouponWithStatus } from "@/types"
+import { CouponWithStatus } from "@/types" // Ensure this path matches yours
 import Link from "next/link"
+import { getCouponEditLink } from "@/utils"
 
 // Helper for Arabic Dates
 const formatDate = (date: Date | string | null) => {
@@ -43,7 +44,7 @@ const Icons = {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ background: "transparent" }} // Extra insurance
+            style={{ background: "transparent" }}
         >
             <circle cx="6" cy="6" r="3" />
             <circle cx="6" cy="18" r="3" />
@@ -134,18 +135,6 @@ const Icons = {
             <circle cx="12" cy="7" r="4" />
         </svg>
     ),
-    Pencil: () => (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-        </svg>
-    ),
     Edit: () => (
         <svg
             viewBox="0 0 24 24"
@@ -157,6 +146,19 @@ const Icons = {
         >
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+    ),
+    Refresh: () => (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
         </svg>
     ),
 }
@@ -174,9 +176,23 @@ export default function CouponDisplay({
         return coupon.type === "percentage" ? `${val}٪ خصم` : `${val} ر.س خصم نقدي`
     }
 
+    const getStatusText = (status: CouponWithStatus["status"]) => {
+        switch (status) {
+            case "active":
+                return "نشط"
+            case "disabled":
+                return "معطل"
+            case "expired":
+                return "منتهي"
+            case "scheduled":
+                return "مجدول"
+            default:
+                return "غير محدد"
+        }
+    }
+
     return (
         <div className={clsx(styles.container, className, styles[coupon.type])}>
-            <h1>{coupon.status}</h1>
             <div className={styles.notchLeft} />
             <div className={styles.notchRight} />
 
@@ -185,7 +201,14 @@ export default function CouponDisplay({
                     <Icons.Tag />
                 </div>
                 <h1 className={styles.title}>{coupon.name}</h1>
-                <div className={styles.badge}>{getTypeAndValue()}</div>
+
+                {/* Updated Badges Area with Status */}
+                <div className={styles.badgesContainer}>
+                    <div className={clsx(styles.badge, styles.typeBadge)}>{getTypeAndValue()}</div>
+                    <div className={clsx(styles.badge, styles[`status_${coupon.status}`])}>
+                        {getStatusText(coupon.status)}
+                    </div>
+                </div>
 
                 <div className={styles.codeWrapper}>
                     <div className={styles.codeInner} dir="ltr">
@@ -196,7 +219,7 @@ export default function CouponDisplay({
                     </div>
                     <span className={styles.codeLabel}>استخدم هذا الكود عند إتمام الطلب</span>
                 </div>
-                <Link href={`/dashboard/coupon/edit/${coupon.id}`} className={styles.editButton}>
+                <Link href={getCouponEditLink(coupon.id)} className={styles.editButton}>
                     <Icons.Edit />
                     <span>تعديل الكوبون</span>
                 </Link>
@@ -233,11 +256,16 @@ export default function CouponDisplay({
                     label="سقف استخدام العميل"
                     value={formatNumber(coupon.customerUsageLimit, true)}
                 />
-
                 <DetailItem
                     icon={<Icons.Clock />}
                     label="تاريخ الإنشاء"
                     value={formatDate(coupon.createdAt)}
+                />
+                {/* NEW: Updated At Detail */}
+                <DetailItem
+                    icon={<Icons.Refresh />}
+                    label="تاريخ آخر تحديث"
+                    value={formatDate(coupon.updatedAt)}
                 />
             </div>
         </div>

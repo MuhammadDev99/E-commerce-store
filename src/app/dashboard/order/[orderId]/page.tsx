@@ -2,7 +2,7 @@ import styles from "./style.module.css"
 import clsx from "clsx"
 import { getDisplayLanguage } from "@/utils"
 import { safe } from "@/utils/safe"
-import { getOrderItemsPageData, getReviewById } from "@/utils/db"
+import { getOrderItemsPaged, getReviewById } from "@/utils/db/admin"
 import ErrorDisplay from "@/components/ErrorDisplay"
 import { Review } from "@/types"
 import CustomerReview from "@/components/CustomerReview"
@@ -30,7 +30,7 @@ export default async function CustomerOrderPage({
 
     const search = await searchParams
     const PAGE_SIZE = 3
-    const { items, totalPages } = await getOrderItemsPageData(
+    const { items, totalPages } = await getOrderItemsPaged(
         {
             ...params,
             pageSize: search["pageSize"] ?? PAGE_SIZE.toString(),

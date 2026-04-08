@@ -1,15 +1,35 @@
 .root {
   display: flex;
   flex-direction: column;
-  width: fit-content;
   gap: 0.2em;
+  min-width: 0;
 }
 
+.root .labelWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 0.15em;
+  align-items: end;
+  color: var(--black-3);
+  transition: var(--transition);
+}
+
+.root.negative .labelWrapper {
+  color: var(--color-red-4);
+}
+
+.root.negative:has(.input:focus) .labelWrapper {
+  color: var(--color-red-4);
+}
+
+.root .icon {
+  height: 1.2em;
+  margin-bottom: 0.2em;
+}
 
 .root .label {
   font-size: 1.1em;
-  color: var(--black-3);
-  transition: var(--transition);
+  color: inherit;
 }
 
 
@@ -42,7 +62,7 @@
   background-color: white;
 }
 
-.root:has(.input:focus) .label {
+.root:has(.input:focus) .labelWrapper {
   color: var(--primary-2);
 }
 

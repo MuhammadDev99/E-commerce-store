@@ -1,23 +1,27 @@
 "use client"
 
-import { CartItem } from "@/types"
+import { CartItem, Product } from "@/types"
 import styles from "./style.module.css"
 import Price from "../Price"
 import { CloseSVG } from "@/images"
 // import { NumberInput } from "@/external/my-library/components"
 import { useSignals, useSignal } from "@preact/signals-react/runtime"
-import { updateCartItemQuantityDB, removeItemFromCartDB, getCartCount } from "@/utils/db"
+import { removeItemFromCartDB } from "@/utils/db/user"
+import { updateCartItemQuantityDB } from "@/utils/db/user"
+import { getCartCount } from "@/utils/db/user"
 import { cartCountSignal } from "@/signals"
 import { useRouter } from "next/navigation"
 import { startTransition } from "react" // 1. Import startTransition
 import NumberInput from "../form-elements/NumberInput"
 
-export default function CartItemDisplay({ item }: { item: CartItem }) {
+export default function CartItemDisplay({ item, product }: { item: CartItem; product: Product }) {
     useSignals()
     const router = useRouter()
     const quantity = useSignal<number>(item.quantity)
-    const isDiscounted = item.discount > 0
-    const unitPrice = isDiscounted ? item.price - item.price * (item.discount / 100) : item.price
+    const isDiscounted = product.discount > 0
+    const unitPrice = isDiscounted
+        ? product.price - product.price * (product.discount / 100)
+        : product.price
     const onQuantityChange = (newQuantity: number) => {
         startTransition(async () => {
             const oldQuantity = quantity.value
@@ -55,17 +59,17 @@ export default function CartItemDisplay({ item }: { item: CartItem }) {
             <CloseSVG className={styles.removeButton} onClick={onRemoveItem} />
 
             <div className={styles.imageWrapper}>
-                <img src={item.images[0]} className={styles.image} alt={item.name} />
+                <img src={product.images[0]} className={styles.image} alt={product.name} />
             </div>
 
             <div className={styles.info}>
                 <div className={styles.header}>
-                    <div className={styles.title}>{item.name}</div>
+                    <div className={styles.title}>{product.name}</div>
                     <div className={styles.priceContainer}>
                         <Price price={unitPrice} className={styles.price} />
                         {isDiscounted && (
                             <Price
-                                price={item.price}
+                                price={product.price}
                                 className={styles.oldPrice}
                                 lineThrough={true}
                             />

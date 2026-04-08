@@ -15,10 +15,9 @@ type LoginFrom = {
 }
 
 const loginSuccessMessage: MessageUI = {
+    title: "Login Successful",
+    content: "You have successfully logged in!",
     type: "success",
-    title: "Success",
-    content: "Login successful!",
-    durationMs: 3000,
 }
 
 export default function LoginPage() {
@@ -48,12 +47,7 @@ export default function LoginPage() {
         if (result.success) {
             showMessage(loginSuccessMessage)
         } else {
-            showMessage({
-                type: "error",
-                title: "Login Failed",
-                content: result.error.message,
-                durationMs: 3000,
-            })
+            showMessage({ content: result.error.message, type: "error" })
         }
     }
 

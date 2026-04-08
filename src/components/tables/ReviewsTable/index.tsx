@@ -9,7 +9,7 @@ import Button from "../../Button"
 import SelectBox from "../../form-elements/SelectBox"
 import Link from "next/link"
 import { ReviewsTableConfig } from "@/types"
-import { getReviewsPageData, updateReviewVisibility } from "@/utils/db"
+import { getReviewsPaged, updateReviewVisibility } from "@/utils/db/admin"
 import { safe } from "@/utils/safe"
 import { showMessage } from "@/utils/showMessage"
 import { getClientLinkById, getOrderLinkById, getProductLinkById, getReviewLinkById } from "@/utils"
@@ -122,7 +122,7 @@ export default function ReviewsTable({
             defaultSearchColumn={userId ? "content" : "customer"}
             defaultSortColumn="updatedAt"
             gridTemplate={userId ? "3fr 1.5fr 1fr 1fr" : "2fr 3fr 1.2fr 1fr 1fr"}
-            fetchData={async (params) => await getReviewsPageData(params)}
+            fetchData={async (params) => await getReviewsPaged(params)}
             headers={headers}
             pageSize={initialPageSize}
             // 4. Render the new isolated Row component

@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation"
 import SearchOverlay from "@/components/SearchOverlay"
 import { cartCountSignal, searchSignal } from "@/signals"
 import { useEffect } from "react"
-import { getCartCount } from "@/utils/db"
+import { getCartCount } from "@/utils/db/user"
 const categories = [
     "الافضل مبيعاً",
     "عروض",

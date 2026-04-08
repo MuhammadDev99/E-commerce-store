@@ -3,7 +3,7 @@ import { MOCK_PRODUCTS } from "@/mockData"
 import ProductsDisplay from "@/components/ProductsDisplay"
 import { safe } from "@/external/my-library/utils"
 import { Product } from "@/types"
-import { getProducts } from "@/utils/db"
+import { getProducts } from "@/utils/db/user"
 
 export default async function Home() {
     const productsResult = await safe<Product[]>(getProducts())

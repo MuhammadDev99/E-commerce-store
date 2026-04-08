@@ -1,7 +1,7 @@
 // app/api/webhooks/tap/route.ts
 import { NextResponse } from 'next/server';
 import { db } from "@/db";
-import { orders, cartItems } from "@/db/schema";
+import { orders, cartItems } from "@/schemas/drizzle";
 import { eq, and, ne } from "drizzle-orm";
 
 export async function POST(req: Request) {

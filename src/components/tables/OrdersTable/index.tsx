@@ -5,7 +5,7 @@ import PaginatedTable from "@/components/PaginatedTable"
 import Price from "@/components/Price"
 import { formatTime, getClientLinkById, getOrderLinkById } from "@/utils"
 import { OrdersTableConfig } from "@/types"
-import { getOrdersPageData } from "@/utils/db"
+import { getOrdersPageData } from "@/utils/db/admin"
 import Link from "next/link"
 
 export default function OrdersTable({

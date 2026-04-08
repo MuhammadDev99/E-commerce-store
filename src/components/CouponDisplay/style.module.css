@@ -1,9 +1,7 @@
 /* Base Container */
 .container {
   --accent-color: #6b7280;
-  /* Default Gray */
   --accent-bg: #f3f4f6;
-
   background-color: #ffffff;
   width: 100%;
   max-width: 50em;
@@ -16,23 +14,17 @@
 /* Dynamic Overrides based on Coupon Type */
 .percentage {
   --accent-color: #16a34a;
-  /* Green */
-  --accent-bg: #f0fdf4;
-  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%);
 }
 
 .fixed {
   --accent-color: #2563eb;
-  /* Blue */
-  --accent-bg: #eff6ff;
-  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%);
 }
 
 .free_shipping {
   --accent-color: #7c3aed;
-  /* Purple */
-  --accent-bg: #f5f3ff;
-  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%)
+  --accent-bg: color-mix(in srgb, var(--accent-color), white 88%);
 }
 
 /* Layout Styles */
@@ -42,8 +34,7 @@
   top: 50%;
   width: 2em;
   height: 2em;
-  background-color: var(--white-light-1);
-  /* Should match page background */
+  background-color: var(--white-light-1, #f9fafb);
   border-radius: 50%;
   transform: translateY(-50%);
 }
@@ -66,7 +57,6 @@
   margin-bottom: 2.5em;
 }
 
-/* Using the Accent Variable */
 .iconCircle {
   width: 4em;
   height: 4em;
@@ -92,21 +82,60 @@
   margin: 0;
 }
 
+/* Badges Wrapper */
+.badgesContainer {
+  display: flex;
+  gap: 0.75em;
+  margin-top: 0.75em;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Base Badge Style */
 .badge {
-  background-color: var(--accent-bg);
-  color: var(--accent-color);
   padding: 0.25em 1em;
   border-radius: 2em;
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-weight: 700;
-  margin-top: 0.75em;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.codeContainer {
-  margin-top: 2em;
-  width: 100%;
-  max-width: 18em;
+/* Specific Badge Modifiers */
+.typeBadge {
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+}
+
+/* New Status Badges Styling */
+.status_active {
+  background-color: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.status_disabled {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-color: #e5e7eb;
+}
+
+.status_expired {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.status_scheduled {
+  background-color: #fef9c3;
+  color: #854d0e;
+  border-color: #fef08a;
+}
+
+.codeWrapper {
+  margin-top: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 
 .codeLabel {
@@ -116,18 +145,84 @@
   margin-bottom: 0.5em;
 }
 
-.codeBox {
-  background-color: #111827;
-  /* Dark background remains for contrast */
-  color: #ffffff;
-  padding: 0.75em;
-  border-radius: 0.5em;
-  font-size: 1.5em;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+.codeInner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-bg);
+  border: 0.125em dashed var(--accent-color);
+  padding: 1em 2.5em;
+  border-radius: 1em;
+  min-width: 16em;
+  transition: all 0.2s ease;
+}
+
+.codeInner:hover {
+  background-color: #ffffff;
+  border-style: solid;
+  box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.05);
+}
+
+.codeValue {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 1.75em;
+  font-weight: 800;
+  color: var(--accent-color);
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  border-bottom: 3px solid var(--accent-color);
-  /* Tinted bottom border */
+  z-index: 1;
+}
+
+.scissorsIcon {
+  position: absolute;
+  left: 0.5em;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  color: var(--accent-color);
+  width: 1.5em;
+  height: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.scissorsIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  background: transparent;
+}
+
+.editButton {
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6em 1.2em;
+  background-color: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 0.75em;
+  font-size: 0.9em;
+  font-weight: 600;
+  border: 0.1em solid #e5e7eb;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.editButton svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.editButton:hover {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Grid & Items */
@@ -187,102 +282,4 @@
   .grid {
     grid-template-columns: 1fr;
   }
-}
-
-.codeWrapper {
-  margin-top: 1.2em;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-}
-
-.codeInner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--accent-bg);
-  /* Lower the border width slightly for a cleaner look */
-  border: 0.125em dashed var(--accent-color);
-  padding: 1em 2.5em;
-  border-radius: 1em;
-  min-width: 16em;
-  transition: all 0.2s ease;
-}
-
-.codeValue {
-  font-family: 'Monaco', 'Consolas', monospace;
-  font-size: 1.75em;
-  font-weight: 800;
-  color: var(--accent-color);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  /* Ensure text is above any decorative elements */
-  z-index: 1;
-}
-
-.scissorsIcon {
-  position: absolute;
-  /* Move it to the side so it doesn't need a background to hide the border */
-  left: 0.5em;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
-  /* Rotated for better look */
-  color: var(--accent-color);
-  width: 1.5em;
-  height: 1.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.6;
-  /* Makes it look like a watermark/stamp */
-  pointer-events: none;
-}
-
-.scissorsIcon svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  /* Force no fill */
-  background: transparent;
-  /* Force no background */
-}
-
-/* Add a hover effect to the whole stub */
-.codeInner:hover {
-  background-color: #ffffff;
-  border-style: solid;
-  box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.05);
-}
-
-
-/* Add this to your style.module.css */
-
-.editButton {
-  margin-top: 1em;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.6em 1.2em;
-  background-color: #f3f4f6;
-  color: #374151;
-  text-decoration: none;
-  border-radius: 0.75em;
-  font-size: 0.9em;
-  font-weight: 600;
-  border: 0.1em solid #e5e7eb;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.editButton svg {
-  width: 1.2em;
-  height: 1.2em;
-}
-
-.editButton:hover {
-  background-color: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
