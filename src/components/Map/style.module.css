@@ -3,3 +3,28 @@
   flex-direction: column;
   background-color: aqua;
 }
+
+/* Target the tooltip container specifically when it is on top */
+.customTooltip {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+  /* These properties ensure it stays centered */
+  transform: translateX(-50%);
+  /* Centering trick */
+  left: 50%;
+}
+
+/* Remove the default arrow or style it to match */
+.customTooltip::before {
+  border-top-color: white !important;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -10px;
+}

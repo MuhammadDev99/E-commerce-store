@@ -36,7 +36,7 @@
     }
 
     .footer {
-      .button {
+      .submitBtn {
         font-size: 1em;
         width: 10em;
       }
@@ -74,7 +74,7 @@
           flex-grow: 1;
         }
 
-        .button {
+        .locationBtn {
           display: flex;
           flex-direction: row;
           gap: 0.5em;
@@ -107,5 +107,40 @@
         z-index: 1;
       }
     }
+  }
+}
+
+.loader {
+  height: 100%;
+  width: 100%;
+  min-height: 400px;
+  /* Matches your map height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 1rem;
+  gap: 15px;
+  border-radius: 12px;
+}
+
+/* The Spinner Ring */
+.loader::after {
+  content: "";
+  width: 30px;
+  height: 30px;
+  border: 3px solid #d1d5db;
+  border-top-color: #2563eb;
+  /* Change this color to match your theme */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Keyframe for the spinning animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

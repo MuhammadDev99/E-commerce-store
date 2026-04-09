@@ -1,4 +1,4 @@
-import { DisplayLanguage, NewProduct, Product } from "@/types";
+import { DisplayLanguage, NewProduct, OSMPlace, Product } from "@/types";
 
 export function getDisplayLanguage(): DisplayLanguage {
     return 'arabic'
@@ -148,3 +148,12 @@ export const getEmptyProduct = (): NewProduct => ({
     discount: 0,
     userId: ""
 });
+
+
+export async function getAdressByCordinates(lat: number, lng: number, language: string = "ar"): Promise<OSMPlace> {
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=${language}`,
+    )
+    const data = await response.json() as OSMPlace
+    return data
+}

@@ -155,3 +155,65 @@ export type Address = typeof addresses.$inferSelect
 export type NewAddress = typeof addresses.$inferInsert
 
 export type UserPreferences = typeof userPreferences.$inferSelect
+
+
+// export const deliveryAddresses = pgTable("delivery_addresses", {
+//     id: serial("id").primaryKey(),
+//     lat: numeric("lat", { precision: 10, scale: 7 }).notNull(),
+//     lon: numeric("lon", { precision: 10, scale: 7 }).notNull(),
+//     road: text("road").notNull(),
+//     houseNumber: text("house_number"),
+//     suburb: text("suburb"),
+//     city: text("city").notNull(),
+//     state: text("state"),
+//     postcode: text("postcode"),
+//     countryCode: varchar("country_code", { length: 2 }).notNull(),
+//     createdAt: timestamp("created_at").defaultNow(),
+// });
+// export type deliveryAddresses = pgTable("delivery_addresses", {
+//     id: serial("id").primaryKey(),
+//     lat: numeric("lat", { precision: 10, scale: 7 }).notNull(),
+//     lon: numeric("lon", { precision: 10, scale: 7 }).notNull(),
+//     road: text("road").notNull(),
+//     houseNumber: text("house_number"),
+//     suburb: text("suburb"),
+//     city: text("city").notNull(),
+//     state: text("state"),
+//     postcode: text("postcode"),
+//     countryCode: varchar("country_code", { length: 2 }).notNull(),
+//     createdAt: timestamp("created_at").defaultNow(),
+// });
+
+export interface OSMAddress {
+  // Common fields from your examples
+  road?: string;
+  village?: string;     // Added from your new example
+  suburb?: string;
+  city?: string;
+  town?: string;
+  neighbourhood?: string;
+  province?: string;
+  state?: string;
+  "ISO3166-2-lvl4"?: string;
+  postcode?: string;
+  country?: string;
+  country_code?: string;
+}
+
+export interface OSMPlace {
+  place_id: number;
+  licence: string;
+  osm_type: string;
+  osm_id: number;
+  lat: string;
+  lon: string;
+  category: string;
+  type: string;
+  place_rank: number;
+  importance: number;
+  addresstype: string;
+  name: string;
+  display_name: string;
+  address: OSMAddress;
+  boundingbox: [string, string, string, string]; // Fixed-length array (tuple)
+}

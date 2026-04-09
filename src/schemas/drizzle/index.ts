@@ -9,6 +9,8 @@ import {
     unique,
     pgView,
     doublePrecision,
+    numeric,
+    varchar,
 } from "drizzle-orm/pg-core";
 import { account, session, user, verification } from "./auth";
 import { getTableColumns, sql } from "drizzle-orm";
@@ -170,4 +172,18 @@ export const userPreferences = pgTable("user_preferences", {
         .references(() => user.id, { onDelete: "cascade" }),
     defaultAdressId: integer("default_address_id")
         .references(() => addresses.id, { onDelete: "set null" }),
+});
+
+export const deliveryAddresses = pgTable("delivery_addresses", {
+    id: serial("id").primaryKey(),
+    lat: numeric("lat", { precision: 10, scale: 7 }).notNull(),
+    lon: numeric("lon", { precision: 10, scale: 7 }).notNull(),
+    road: text("road").notNull(),
+    houseNumber: text("house_number"),
+    suburb: text("suburb"),
+    city: text("city").notNull(),
+    state: text("state"),
+    postcode: text("postcode"),
+    countryCode: varchar("country_code", { length: 2 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
 });
