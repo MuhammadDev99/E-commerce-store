@@ -114,23 +114,29 @@ export default function AddAddressOverlay({
     className,
     ...rest
 }: AddAddressOverlayProps) {
+    useSignals()
     return (
         <div className={clsx(styles.root, className)} {...rest}>
-            {currentViewSignal.value === "geoLocation" &&
-                geoLocationWindow({ onAddressChange, onAddressSubmit })}
-            {currentViewSignal.value === "deliverTo" &&
-                deliverTo({ onAddressChange, onAddressSubmit })}
+            {currentViewSignal.value === "geoLocation" ? (
+                <GeoLocationWindow
+                    onAddressChange={onAddressChange}
+                    onAddressSubmit={onAddressSubmit}
+                />
+            ) : (
+                <DeliverTo onAddressChange={onAddressChange} onAddressSubmit={onAddressSubmit} />
+            )}
         </div>
     )
 }
 
-function geoLocationWindow({
+function GeoLocationWindow({
     onAddressChange,
     onAddressSubmit,
 }: {
     onAddressChange?: (place: OSMPlace) => void
     onAddressSubmit?: (place: OSMPlace) => void
 }) {
+    useSignals()
     const debouncedFetchAddress = useDebouncedCallback(async (coords: [number, number]) => {
         const result = await safe(getAdressByCordinates(coords[0], coords[1]))
 
@@ -318,13 +324,14 @@ function geoLocationWindow({
     )
 }
 
-function deliverTo({
+function DeliverTo({
     onAddressChange,
     onAddressSubmit,
 }: {
     onAddressChange?: (place: OSMPlace) => void
     onAddressSubmit?: (place: OSMPlace) => void
 }) {
+    useSignals()
     return (
         <div className={clsx(styles.window, styles.delivery)}>
             <div className={styles.header}>
@@ -341,7 +348,13 @@ function deliverTo({
             <div className={styles.main}>
                 <div className={styles.geoAdressCard}>
                     <div className={styles.adressWindowWrapper}>
-                        <div className={styles.adressWindow}></div>
+                        <div className={styles.adressWindow}>
+                            <MapComponent
+                                selectedCoords={selectedCoords.value}
+                                interactive={false}
+                                zoom={18}
+                            />
+                        </div>
                         <div className={styles.details}>{renderAddressDisplay()}</div>
                     </div>
                     <Button

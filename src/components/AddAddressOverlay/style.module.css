@@ -20,6 +20,7 @@
     overflow: hidden;
     background-color: var(--white-light-2);
     box-shadow: var(--shadow-1);
+    overflow: hidden;
 
     .main {
       display: flex;
@@ -29,13 +30,13 @@
       flex-grow: 1;
       gap: 0.5em;
       min-height: 0;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
 
       .form {
         display: flex;
         flex-direction: column;
-        overflow-x: hidden;
-        overflow-y: auto;
+
         gap: 3em;
         padding: 0.5em 2em 0em 2em;
 
@@ -88,7 +89,8 @@
             background-color: #2563eb;
             gap: 1em;
             flex-shrink: 0;
-            border-radius: var(--border-radius-1)
+            border-radius: var(--border-radius-1);
+            overflow: hidden;
           }
 
           .details {
