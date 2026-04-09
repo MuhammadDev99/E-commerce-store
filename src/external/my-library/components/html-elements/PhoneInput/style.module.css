@@ -1,165 +1,151 @@
-:root {
-  font-size: 3vh;
-}
-
 .container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 500px;
+  font-family: inherit;
+}
+
+.labelWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3em;
+  color: #374151;
+}
+
+.labelWrapper .icon {
+  height: 1em;
+  width: 1em;
+  color: inherit;
 }
 
 .label {
   font-weight: 600;
-  font-size: 0.8rem;
-  /* Scaled relative to 3vh */
-  margin-bottom: 0.5rem;
-  color: #374151;
+  /* font-size: 0.85em; */
+  margin-bottom: 0.4em;
 }
 
-/* 1. Ensure the library container takes full width */
-.container :global(.iti) {
+/* --- THE MAIN WRAPPER --- */
+.inputWrapper {
+  background-color: #ffffff;
+  border: 0.0625em solid #d1d5db;
+  /* 1px equivalent */
+  border-radius: 0.5em;
+  /* 8px equivalent */
+  box-shadow: 0 0.0625em 0.125em 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+/* Beautiful modern focus ring */
+.inputWrapper:focus-within {
+  border-color: #3b82f6;
+  /* 3px equivalent ring */
+  box-shadow: 0 0 0 0.1875em rgba(59, 130, 246, 0.2);
+}
+
+/* Error State Ring */
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+.inputError:focus-within {
+  box-shadow: 0 0 0 0.1875em rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Success State Ring */
+.inputSuccess {
+  border-color: #10b981 !important;
+}
+
+.inputSuccess:focus-within {
+  box-shadow: 0 0 0 0.1875em rgba(16, 185, 129, 0.2) !important;
+}
+
+/* --- THE LIBRARY OVERRIDES --- */
+.phoneInput {
+  display: flex;
+  align-items: center;
+  direction: ltr;
   width: 100%;
-  display: block;
-  font-size: 1rem;
-  /* Inherit the 3vh */
-
 }
 
-/* 2. Style the input itself */
-.inputField {
-  width: 100%;
-  /* Increased padding to accommodate larger dial code/flag */
-  padding: 0.6rem 0.6rem 0.6rem 4.8rem !important;
-  font-size: 1rem;
-  border: 2px solid #d1d5db;
-  border-radius: var(--border-radius);
-  outline: none;
-  transition: var(--transition);
-  caret-color: var(--primary-5);
-  color: var(--black-1);
-  background-color: var(--primary-10);
-  border: 0.05rem solid var(--primary-8);
-}
-
-.inputField:focus {
-  border-color: var(--primary-3);
-  box-shadow: var(--focus-ring-shadow);
-}
-
-/* 3. FIX THE FLAG SIZE & POSITIONING */
-/* The library uses 'em' which can break with 3vh. We force a readable scale. */
-
-.container :global(.iti__flag-container) {
-  padding: 0.2rem;
-
-
-}
-
-.container :global(.iti__country-container) {
-  padding-left: 0.5rem;
-}
-
-.container :global(.iti__selected-flag) {
-  /* Scale the flag container to match the height of your 3vh input */
-  padding: 0 0.8rem;
+/* The Country Picker Area (Flag + Arrow) */
+.phoneInput :global(.PhoneInputCountry) {
+  display: flex;
+  align-items: center;
+  padding: 0.6em 0.8em;
   background-color: #f9fafb;
-  border-radius: var(--border-radius);
+  border-right: 0.0625em solid #e5e7eb;
+  margin-right: 0.5em;
 }
 
-.container :global(.iti__flag) {
-  /* Upscale the flag icon slightly so it isn't lost in the 3vh text */
-  transform: scale(1.5);
+/* Removes the default ugly outline from the library's select element */
+.phoneInput :global(.PhoneInputCountrySelect:focus) {
+  outline: none;
 }
 
-/* 4. Adjust the Dropdown List */
-.container :global(.iti__country-list) {
-  font-size: 0.8rem;
-  /* Slightly smaller than the input text for readability */
-  max-width: 90vw;
-  /* Prevent it from going off-screen on mobile */
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-
+/* The Input Field */
+.phoneInput :global(.PhoneInputInput) {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.6em 0.8em 0.6em 0;
+  font-size: 1em;
+  color: #111827;
+  letter-spacing: 0.0625em;
+  /* 1px equivalent */
 }
 
-.container :global(.iti__country) {
-  padding: 0.5rem 0.8rem;
-
+/* Placeholder styling */
+.phoneInput :global(.PhoneInputInput::placeholder) {
+  color: #9ca3af;
+  letter-spacing: normal;
 }
 
-.container :global(.iti__search-input-wrapper) input {
-  font-size: 1rem;
-
+/* --- STATUS MESSAGES --- */
+.statusContainer {
+  min-height: 1.5em;
+  margin-top: 0.4em;
+  display: flex;
+  align-items: flex-start;
 }
 
-.statusMessage {
-  min-height: 1.2rem;
-  margin-top: 0.5rem;
+.icon {
+  width: 0.875em;
+  /* 14px equivalent */
+  height: 0.875em;
+  margin-left: 0.25em;
+  /* 4px equivalent */
+}
+
+.errorText,
+.successText {
+  display: flex;
+  align-items: center;
+  font-size: 0.75em;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
 }
 
 .errorText {
   color: #ef4444;
-  font-size: 0.7rem;
 }
 
 .successText {
   color: #10b981;
-  font-size: 0.7rem;
 }
 
-/* ... existing code ... */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25em);
+    /* 4px equivalent */
+  }
 
-/* 1. Ensure the library container is the reference point */
-.container :global(.iti) {
-  width: 100%;
-  display: block;
-  font-size: 1rem;
-  position: relative;
-  /* Crucial for absolute positioning of list */
-}
-
-/* 4. Adjust the Dropdown List */
-.container :global(.iti__country-list) {
-  /* Match the width of the input field exactly */
-  width: 100% !important;
-  max-width: 100%;
-
-  /* Reset library defaults that might cause horizontal overflow */
-  min-width: unset !important;
-  left: 0;
-
-  /* Font size management */
-  font-size: 0.8rem;
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-
-  /* Prevent horizontal scroll inside the dropdown */
-  overflow-x: hidden;
-  z-index: 100;
-}
-
-/* Ensure individual country items don't force a width wider than the container */
-.container :global(.iti__country) {
-  padding: 0.5rem 0.8rem;
-  display: flex;
-  align-items: center;
-  white-space: normal;
-  /* Allow country names to wrap if they are too long */
-}
-
-/* Ensure the country name doesn't push the dial code out of view */
-.container :global(.iti__country-name) {
-  margin-right: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Adjust the search input inside the dropdown so it doesn't overflow */
-.container :global(.iti__search-input) {
-  width: 100% !important;
-  box-sizing: border-box;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

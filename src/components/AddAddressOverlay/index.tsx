@@ -3,7 +3,19 @@
 import { useState, useEffect, useRef, ComponentPropsWithoutRef } from "react"
 import dynamic from "next/dynamic"
 import clsx from "clsx"
-import { House, LocateFixed, X, Tag } from "lucide-react"
+import {
+    House,
+    LocateFixed,
+    X,
+    Tag,
+    Home,
+    Building,
+    MapPin,
+    Info,
+    User,
+    Road,
+    ArrowBigRight,
+} from "lucide-react"
 
 // Components
 import Button from "../Button"
@@ -314,10 +326,13 @@ function deliverTo({
     onAddressSubmit?: (place: OSMPlace) => void
 }) {
     return (
-        <div className={styles.window}>
+        <div className={clsx(styles.window, styles.delivery)}>
             <div className={styles.header}>
                 <div className={styles.labelWrapper}>
-                    <House className={styles.labelIcon} />
+                    <ArrowBigRight
+                        className={styles.labelIcon}
+                        onClick={() => (currentViewSignal.value = "geoLocation")}
+                    />
                     <h3 className={styles.label}>تسليم إلى</h3>
                 </div>
                 <X onClick={handleCloseOverlay} className={styles.closeIcon} />
@@ -325,37 +340,31 @@ function deliverTo({
 
             <div className={styles.main}>
                 <div className={styles.geoAdressCard}>
-                    {/* <div className={styles.details}>{renderAddressDisplay()}</div> */}
                     <div className={styles.adressWindowWrapper}>
                         <div className={styles.adressWindow}></div>
-                        <div className={styles.details}>
-                            <div>
-                                <p>
-                                    شارع أبي عبدالله الحسينيرع أبي عبدالله الحسينيرع أبي عبدالله
-                                    الحسينيرع أبي عبدالله الحسيني
-                                </p>
-                                <p>
-                                    أبي عبدالله الحسيني, السليمانية, الرياض, محافظة الرياض, منطقة
-                                    الرياض, 12245, السعودية أبي عبدالله الحسيني, السليمانية, الرياض,
-                                    محافظة الرياض, منطقة الرياض, 12245, السعودية أبي عبدالله
-                                    الحسيني, السليمانية, الرياض, محافظة الرياض, منطقة الرياض, 12245,
-                                    السعودية أبي عبدالله الحسيني, السليمانية, الرياض, محافظة الرياض,
-                                    منطقة الرياض, 12245, السعودية
-                                </p>
-                            </div>
-                        </div>
+                        <div className={styles.details}>{renderAddressDisplay()}</div>
                     </div>
-                    <Button className={styles.changeBtn}>تغيير</Button>
+                    <Button
+                        onClick={() => (currentViewSignal.value = "geoLocation")}
+                        className={styles.changeBtn}
+                    >
+                        تغيير
+                    </Button>
                 </div>
                 <div className={styles.form}>
                     <div className={styles.section}>
                         <h4 className={styles.title}>تفاصيل العنوان</h4>
                         <div className={styles.row}>
-                            <TextBox label="رقم الشقة والطابق / رقم الفيلا" required />
-                            <TextBox label="اسم المبنى / المجمّع" required />
+                            {/* Passing the icon reference */}
+                            <TextBox label="رقم الشقة والطابق / رقم الفيلا" required icon={Home} />
+                            <TextBox label="اسم المبنى / المجمّع" required icon={Building} />
                         </div>
-                        <TextBox label="اسم مستعار للعنوان" />
-                        <TextBox label="الاتجاهات للوصول لعنوانك" />
+                        <TextBox label="اسم مستعار للعنوان" icon={MapPin} placeholder="اختياري" />
+                        <TextBox
+                            placeholder="اختياري"
+                            label="الاتجاهات للوصول لعنوانك"
+                            icon={Road}
+                        />
                     </div>
                     <div className={styles.section}>
                         <h4 className={styles.title}>تفاصيل المستلم</h4>
@@ -372,7 +381,7 @@ function deliverTo({
                 <Button
                     type="primary"
                     className={styles.submitBtn}
-                    disabled={!selectedCoords.value || loadingAddress.value}
+                    disabled={false}
                     onClick={() => {
                         if (place.value) {
                             onAddressSubmit?.(place.value)

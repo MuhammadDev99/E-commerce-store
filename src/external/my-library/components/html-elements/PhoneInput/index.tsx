@@ -1,129 +1,92 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import clsx from "clsx"
-import intlTelInput from "intl-tel-input"
-import "intl-tel-input/build/css/intlTelInput.css"
+import React, { useState } from "react"
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input"
+import "react-phone-number-input/style.css"
 import styles from "./style.module.css"
-import { Iti } from "intl-tel-input"
+import clsx from "clsx"
+import { Phone } from "lucide-react"
 
 type Props = {
     value?: string
-    className?: string
-    label?: string
-    placeholder?: string // Added placeholder prop
     onChange?: (value: string) => void
-    children?: React.ReactNode
+    label?: string
+    className?: string
 }
 
-export default function PhoneInput({
-    value,
+export default function ModernPhoneInput({
     className,
-    label = "رقم الجوال", // Default Arabic Label
-    placeholder = "05X XXX XXXX", // Example Arabic format placeholder
-    children,
+    value,
     onChange,
+    label = "رقم الجوال",
 }: Props) {
-    const inputRef = useRef<HTMLInputElement>(null)
-    const itiRef = useRef<Iti | null>(null)
-
+    const [isTouched, setIsTouched] = useState(false)
     const [isValid, setIsValid] = useState<boolean | null>(null)
 
-    useEffect(() => {
-        const inputElement = inputRef.current
-        if (!inputElement) return
+    const handleChange = (val?: string) => {
+        const phone = val || ""
+        onChange?.(phone)
 
-        let isMounted = true
-
-        itiRef.current = intlTelInput(inputElement, {
-            initialCountry: "auto",
-            strictMode: true,
-            separateDialCode: true,
-            // Optimization: Use localized country names if needed
-            // i18n: { sa: "المملكة العربية السعودية", ... }
-            geoIpLookup: (success: (iso2: any) => void, failure: () => void) => {
-                fetch("https://ipapi.co/json")
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (isMounted) {
-                            success(data.country_code.toLowerCase())
-                        }
-                    })
-                    .catch(() => {
-                        if (isMounted && typeof failure === "function") failure()
-                    })
-            },
-            loadUtils: () => import("intl-tel-input/utils"),
-        })
-
-        if (value) {
-            itiRef.current.setNumber(value)
-        }
-
-        return () => {
-            isMounted = false
-            itiRef.current?.destroy()
-            itiRef.current = null
-        }
-    }, [])
-
-    useEffect(() => {
-        if (itiRef.current && value !== undefined && value !== itiRef.current.getNumber()) {
-            itiRef.current.setNumber(value)
-        }
-    }, [value])
-
-    const handleChange = () => {
-        const instance = itiRef.current
-        if (instance) {
-            const isNumberValid = instance.isValidNumber()
-            setIsValid(isNumberValid)
-            const fullNumber = instance.getNumber()
-            const cleanNumber = fullNumber.replace(/[\s\(\)\-\.]/g, "")
-            onChange?.(cleanNumber)
-        }
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const isNumber = /^[0-9]$/.test(e.key)
-        const isControlKey = [
-            "Backspace",
-            "Delete",
-            "ArrowLeft",
-            "ArrowRight",
-            "Tab",
-            "Enter",
-        ].includes(e.key)
-        if (!isNumber && !isControlKey && !(e.ctrlKey || e.metaKey)) {
-            e.preventDefault()
+        if (phone) {
+            setIsValid(isValidPhoneNumber(phone))
+            setIsTouched(true)
+        } else {
+            setIsValid(null)
+            setIsTouched(false)
         }
     }
 
     return (
         <div className={clsx(styles.container, className)} dir="rtl">
-            <label htmlFor="phone" className={styles.label}>
-                {label ?? children}
-            </label>
+            <div className={styles.labelWrapper}>
+                <label className={styles.label}>{label}</label>
+                <Phone className={styles.icon} />
+            </div>
 
-            <div className={styles.inputWrapper} dir="ltr">
-                {/* 
-                   Note: We wrap the input in LTR because phone numbers 
-                   and the plugin UI (flags/codes) are standard LTR 
-                */}
-                <input
-                    type="tel"
-                    id="phone"
-                    ref={inputRef}
-                    onKeyDown={handleKeyDown}
-                    onInput={handleChange}
-                    className={clsx(styles.inputField)}
-                    placeholder={placeholder}
+            {/* The wrapper changes style based on validity */}
+            <div
+                className={clsx(
+                    styles.inputWrapper,
+                    isTouched && isValid === false && styles.inputError,
+                    isTouched && isValid === true && styles.inputSuccess,
+                )}
+            >
+                <PhoneInput
+                    international
+                    defaultCountry="SA"
+                    value={value}
+                    onChange={handleChange}
+                    className={styles.phoneInput}
+                    placeholder="05X XXX XXXX"
                 />
             </div>
 
-            <div className={styles.statusMessage}>
-                {isValid === true && <span className={styles.successText}>✓ رقم صحيح</span>}
-                {isValid === false && <span className={styles.errorText}>رقم غير صحيح</span>}
+            {/* Status Messages */}
+            <div className={styles.statusContainer}>
+                {isTouched && isValid === false && (
+                    <span className={styles.errorText}>
+                        <svg viewBox="0 0 20 20" fill="currentColor" className={styles.icon}>
+                            <path
+                                fillRule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                            />
+                        </svg>
+                        رقم غير صحيح
+                    </span>
+                )}
+                {isTouched && isValid === true && (
+                    <span className={styles.successText}>
+                        <svg viewBox="0 0 20 20" fill="currentColor" className={styles.icon}>
+                            <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                            />
+                        </svg>
+                        رقم صحيح
+                    </span>
+                )}
             </div>
         </div>
     )

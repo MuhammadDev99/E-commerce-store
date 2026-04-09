@@ -27,17 +27,17 @@
       padding: 1em;
       box-sizing: border-box;
       flex-grow: 1;
-      height: 100%;
+      gap: 0.5em;
+      min-height: 0;
+      overflow: hidden;
 
       .form {
         display: flex;
         flex-direction: column;
-        /* overflow-x: hidden;
-        overflow-y: auto; */
-        overflow: scroll;
+        overflow-x: hidden;
+        overflow-y: auto;
         gap: 3em;
-        height: 50em;
-        padding: 1em 2em 2em 2em;
+        padding: 0.5em 2em 0em 2em;
 
         .section {
           display: flex;
@@ -52,7 +52,9 @@
             gap: 1em;
           }
 
-          .phoneInput {}
+          .phoneInput {
+            width: 100%;
+          }
         }
       }
 
@@ -396,6 +398,64 @@
         width: 10em;
         flex-shrink: 0;
       }
+    }
+  }
+}
+
+
+.delivery.window {
+  .addressDetails {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    gap: 0.2em;
+
+    .primaryAddress {
+      font-weight: 600;
+      font-size: 1.05em;
+      color: var(--black-5) !important;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .secondaryAddress {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin: 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .labelWrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75em;
+    align-items: center;
+
+    .labelIcon {
+      width: 1.5em;
+      height: 1.5em;
+      color: inherit;
+      padding: 0.15em;
+      border-radius: 50%;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--white-light-2);
+      }
+    }
+
+    .label {
+      color: inherit;
+
     }
   }
 }
