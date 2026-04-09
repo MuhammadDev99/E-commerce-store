@@ -157,3 +157,12 @@ export async function getAdressByCordinates(lat: number, lng: number, language: 
     const data = await response.json() as OSMPlace
     return data
 }
+
+export async function searchForAddresses(query: string): Promise<OSMPlace[]> {
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&countrycodes=sa`,
+        { headers: { "Accept-Language": "ar,en" } },
+    )
+    const data = await response.json() as OSMPlace[]
+    return data
+}

@@ -13,6 +13,7 @@
    align-items: center;
    border: var(--border-line-2);
    background-color: white;
+   position: relative;
  }
 
  .root:focus-within {
@@ -79,4 +80,12 @@
 
  .results .noResults {
    align-self: center;
+ }
+
+ .loader {
+   position: absolute;
+   left: 1em;
+   top: 50%;
+   transform: translate(0, -50%);
+   --spinner-size: 1.5em;
  }

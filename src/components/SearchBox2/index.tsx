@@ -3,9 +3,19 @@ import clsx from "clsx"
 import styles from "./style.module.css"
 import { SearchSVG } from "@/images"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
-import { useMemo } from "react"
+import { ComponentPropsWithoutRef, useMemo } from "react"
 import { debounced } from "@/utils"
-
+import Loader from "../Loader"
+type Props = {
+    className?: string
+    autoFocus?: boolean
+    onSearch?: (query: string) => void
+    onSearchSubmit?: (query: string) => void
+    debounceMs?: number
+    placeholder?: string
+    isLoading?: boolean
+    submitOnBlur?: boolean
+} & ComponentPropsWithoutRef<"input">
 export default function SearchBox2({
     className,
     autoFocus = false,
@@ -13,14 +23,10 @@ export default function SearchBox2({
     onSearchSubmit,
     debounceMs = 0,
     placeholder = "اكتب شيئاً للبحث",
-}: {
-    className?: string
-    autoFocus?: boolean
-    onSearch: (query: string) => void
-    onSearchSubmit: () => void
-    debounceMs?: number
-    placeholder?: string
-}) {
+    isLoading = false,
+    submitOnBlur = true,
+    ...rest
+}: Props) {
     useSignals()
     const searchQuery = useSignal<string>("")
 
@@ -33,8 +39,13 @@ export default function SearchBox2({
 
     return (
         <div className={clsx(styles.root, className)}>
-            <SearchSVG className={styles.icon} onClick={onSearchSubmit} />
+            {isLoading && <Loader className={styles.loader} />}
+            <SearchSVG
+                className={styles.icon}
+                onClick={() => onSearchSubmit?.(searchQuery.value)}
+            />
             <input
+                {...rest}
                 type="search"
                 placeholder={placeholder}
                 value={searchQuery.value}
@@ -44,15 +55,17 @@ export default function SearchBox2({
                 }}
                 onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                        onSearchSubmit()
+                        onSearchSubmit?.(searchQuery.value)
                     }
                 }}
                 // Added onBlur handler here
                 onBlur={() => {
                     // if (searchQuery.value.trim() === "") {
-                    //     onSearchSubmit()
+                    //     onSearchSubmit?.()
                     // }
-                    onSearchSubmit()
+                    if (submitOnBlur) {
+                        onSearchSubmit?.(searchQuery.value)
+                    }
                 }}
                 autoFocus={autoFocus}
             />

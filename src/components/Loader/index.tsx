@@ -6,7 +6,7 @@ type Props = {
     label?: string
 } & ComponentPropsWithoutRef<"div">
 
-export default function Loader({ label = "جاري التحميل...", className, ...rest }: Props) {
+export default function Loader({ label = "", className, ...rest }: Props) {
     return (
         <div className={clsx(styles.root, className)} {...rest}>
             <div className={styles.spinner}></div>

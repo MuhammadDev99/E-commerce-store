@@ -19,26 +19,47 @@
     flex-direction: column;
     overflow: hidden;
 
-    /* Shared styles for header and footer */
-    .header,
-    .footer {
+    box-shadow: var(--shadow-1);
+
+    .header {
       background-color: white;
-      padding: 1em;
+      padding: 0.5em 1em;
       box-sizing: border-box;
       flex-shrink: 0;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-    }
+      color: var(--black-5);
+      align-items: center;
 
-    .header {
-      /* Specific header styles can go here */
-    }
+      .closeIcon {
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 50%;
+        padding: 0.2em;
+        cursor: pointer;
+      }
 
-    .footer {
-      .submitBtn {
-        font-size: 1em;
-        width: 10em;
+      .closeIcon:hover {
+        background-color: var(--white-3);
+      }
+
+      .labelWrapper {
+        display: flex;
+        flex-direction: row;
+        gap: 1em;
+        align-items: center;
+
+        .labelIcon {
+          width: 1.5em;
+          height: 1.5em;
+          color: inherit;
+        }
+
+        .label {
+          color: inherit;
+
+        }
       }
     }
 
@@ -48,14 +69,12 @@
       flex-direction: column;
       position: relative;
 
-
       .topBar {
         display: flex;
         flex-direction: row;
         gap: 1em;
         height: 4em;
         padding: 0.75em;
-        /* padding-left: 2.5em; */
         box-sizing: border-box;
         position: absolute;
         top: 0;
@@ -70,8 +89,73 @@
           pointer-events: auto;
         }
 
-        .search {
+        /* Search input container */
+        .searchWrapper {
+          position: relative;
           flex-grow: 1;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+
+          .search {
+            flex-grow: 1;
+          }
+
+          /* Search Results Dropdown */
+          .dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            background: white;
+            border-radius: var(--border-radius-2);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 10;
+
+            .dropdownItem {
+              display: flex;
+              align-items: flex-start;
+              gap: 0.5em;
+              padding: 0.65em 1em;
+              cursor: pointer;
+              font-size: 0.875em;
+              line-height: 1.4;
+              border-bottom: 1px solid #f0f0f0;
+              transition: background 120ms;
+              direction: rtl;
+
+              &:last-child {
+                border-bottom: none;
+              }
+
+              &:hover {
+                background-color: var(--color-azure-1, #eff6ff);
+              }
+
+              .dropdownIcon {
+                flex-shrink: 0;
+                margin-top: 1px;
+              }
+
+              .dropdownText {
+                flex-grow: 1;
+                word-break: break-word;
+              }
+            }
+
+            .dropdownEmpty {
+              padding: 0.75em 1em;
+              font-size: 0.875em;
+              color: #9ca3af;
+              text-align: center;
+              direction: rtl;
+            }
+          }
         }
 
         .locationBtn {
@@ -94,8 +178,8 @@
           }
 
           .icon {
-            height: 1.1em;
-            width: 1.1em;
+            height: 1em;
+            width: 1em;
           }
         }
       }
@@ -105,42 +189,123 @@
         width: 100%;
         position: relative;
         z-index: 1;
+
+        .loader {
+          height: 100%;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #f3f4f6;
+          color: #6b7280;
+          font-size: 1rem;
+          gap: 15px;
+
+          &::after {
+            content: "";
+            width: 30px;
+            height: 30px;
+            border: 3px solid #d1d5db;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+          }
+        }
       }
     }
-  }
-}
 
-.loader {
-  height: 100%;
-  width: 100%;
-  min-height: 400px;
-  /* Matches your map height */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f3f4f6;
-  color: #6b7280;
-  font-size: 1rem;
-  gap: 15px;
-  border-radius: 12px;
-}
+    .footer {
+      background-color: white;
+      padding: 0.5em 1em 1em 1.5em;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5em;
+      width: 100%;
+      height: 5em;
 
-/* The Spinner Ring */
-.loader::after {
-  content: "";
-  width: 30px;
-  height: 30px;
-  border: 3px solid #d1d5db;
-  border-top-color: #2563eb;
-  /* Change this color to match your theme */
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+      .addressInfoWrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1em;
 
-/* Keyframe for the spinning animation */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+        .icon {
+          width: 2em;
+          height: 2em;
+          background-color: var(--white-2);
+          padding: 0.3em;
+          border-radius: var(--border-radius-2);
+        }
+
+        .addressInfo {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.2em;
+
+          .loader {
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
+            align-items: center;
+
+            .text {
+              font-weight: bold;
+            }
+
+            .spinner {
+              --spinner-size: 2em;
+            }
+          }
+
+          .label {
+            font-size: 0.7em;
+            color: #6b7280;
+          }
+
+          .addressDetails {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: hidden;
+            gap: 0.2em;
+
+            .primaryAddress {
+              font-weight: 600;
+              font-size: 1.05em;
+              color: var(--black-3);
+              margin: 0;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .secondaryAddress {
+              font-size: 0.85em;
+              color: #6b7280;
+              margin: 0;
+              line-height: 1.4;
+              display: -webkit-box;
+              -webkit-line-clamp: 1;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+      }
+
+      .submitBtn {
+        font-size: 1em;
+        width: 10em;
+        flex-shrink: 0;
+      }
+    }
   }
 }

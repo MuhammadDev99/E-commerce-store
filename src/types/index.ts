@@ -185,29 +185,32 @@ export type UserPreferences = typeof userPreferences.$inferSelect
 // });
 
 export interface OSMAddress {
-  // Common fields from your examples
+  amenity?: string; // Found in your JSON
   road?: string;
-  village?: string;     // Added from your new example
+  neighbourhood?: string;
   suburb?: string;
   city?: string;
   town?: string;
-  neighbourhood?: string;
-  province?: string;
+  village?: string;
   state?: string;
-  "ISO3166-2-lvl4"?: string;
+  province?: string;
   postcode?: string;
   country?: string;
   country_code?: string;
+  "ISO3166-2-lvl4"?: string;
+  // OSM adds many dynamic keys (e.g., 'state_district', 'house_number')
+  // This index signature prevents crashes when new keys appear
+  [key: string]: string | undefined;
 }
 
 export interface OSMPlace {
   place_id: number;
   licence: string;
-  osm_type: string;
+  osm_type: "node" | "way" | "relation"; // More specific than just 'string'
   osm_id: number;
   lat: string;
   lon: string;
-  category: string;
+  class: string; // Changed from 'category' to 'class' to match your JSON
   type: string;
   place_rank: number;
   importance: number;
@@ -215,5 +218,5 @@ export interface OSMPlace {
   name: string;
   display_name: string;
   address: OSMAddress;
-  boundingbox: [string, string, string, string]; // Fixed-length array (tuple)
+  boundingbox: [string, string, string, string]; // Correctly typed as a 4-item tuple
 }
