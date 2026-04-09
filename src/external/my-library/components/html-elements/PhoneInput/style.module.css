@@ -1,5 +1,4 @@
 :root {
-  /* This is your base scale */
   font-size: 3vh;
 }
 
@@ -12,7 +11,8 @@
 
 .label {
   font-weight: 600;
-  font-size: 0.8rem; /* Scaled relative to 3vh */
+  font-size: 0.8rem;
+  /* Scaled relative to 3vh */
   margin-bottom: 0.5rem;
   color: #374151;
 }
@@ -21,7 +21,9 @@
 .container :global(.iti) {
   width: 100%;
   display: block;
-  font-size: 1rem; /* Inherit the 3vh */
+  font-size: 1rem;
+  /* Inherit the 3vh */
+
 }
 
 /* 2. Style the input itself */
@@ -39,16 +41,21 @@
   background-color: var(--primary-10);
   border: 0.05rem solid var(--primary-8);
 }
+
 .inputField:focus {
   border-color: var(--primary-3);
   box-shadow: var(--focus-ring-shadow);
 }
+
 /* 3. FIX THE FLAG SIZE & POSITIONING */
 /* The library uses 'em' which can break with 3vh. We force a readable scale. */
 
 .container :global(.iti__flag-container) {
   padding: 0.2rem;
+
+
 }
+
 .container :global(.iti__country-container) {
   padding-left: 0.5rem;
 }
@@ -67,20 +74,26 @@
 
 /* 4. Adjust the Dropdown List */
 .container :global(.iti__country-list) {
-  font-size: 0.8rem; /* Slightly smaller than the input text for readability */
-  max-width: 90vw; /* Prevent it from going off-screen on mobile */
+  font-size: 0.8rem;
+  /* Slightly smaller than the input text for readability */
+  max-width: 90vw;
+  /* Prevent it from going off-screen on mobile */
   background-color: white;
   border: 1px solid #ddd;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
 }
 
 .container :global(.iti__country) {
   padding: 0.5rem 0.8rem;
+
 }
 
 .container :global(.iti__search-input-wrapper) input {
   font-size: 1rem;
+
 }
+
 .statusMessage {
   min-height: 1.2rem;
   margin-top: 0.5rem;
@@ -90,7 +103,63 @@
   color: #ef4444;
   font-size: 0.7rem;
 }
+
 .successText {
   color: #10b981;
   font-size: 0.7rem;
+}
+
+/* ... existing code ... */
+
+/* 1. Ensure the library container is the reference point */
+.container :global(.iti) {
+  width: 100%;
+  display: block;
+  font-size: 1rem;
+  position: relative;
+  /* Crucial for absolute positioning of list */
+}
+
+/* 4. Adjust the Dropdown List */
+.container :global(.iti__country-list) {
+  /* Match the width of the input field exactly */
+  width: 100% !important;
+  max-width: 100%;
+
+  /* Reset library defaults that might cause horizontal overflow */
+  min-width: unset !important;
+  left: 0;
+
+  /* Font size management */
+  font-size: 0.8rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Prevent horizontal scroll inside the dropdown */
+  overflow-x: hidden;
+  z-index: 100;
+}
+
+/* Ensure individual country items don't force a width wider than the container */
+.container :global(.iti__country) {
+  padding: 0.5rem 0.8rem;
+  display: flex;
+  align-items: center;
+  white-space: normal;
+  /* Allow country names to wrap if they are too long */
+}
+
+/* Ensure the country name doesn't push the dial code out of view */
+.container :global(.iti__country-name) {
+  margin-right: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Adjust the search input inside the dropdown so it doesn't overflow */
+.container :global(.iti__search-input) {
+  width: 100% !important;
+  box-sizing: border-box;
 }

@@ -18,6 +18,9 @@ import { OSMPlace } from "@/types"
 import styles from "./style.module.css"
 import { useDebouncedCallback } from "@/hooks"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
+import { signal } from "@preact/signals-react"
+import TextBox from "../form-elements/TextBox"
+import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
 
 interface AddAddressOverlayProps extends ComponentPropsWithoutRef<"div"> {
     onAddressChange?: (place: OSMPlace) => void
@@ -29,6 +32,69 @@ const MapComponent = dynamic(() => import("../Map"), {
     ssr: false,
     loading: () => <Loader label="جاري تحميل الخريطة..." />,
 })
+const currentViewSignal = signal<"geoLocation" | "deliverTo">("deliverTo")
+// 1. Location Signals
+const selectedCoords = signal<[number, number] | null>(null)
+const place = signal<OSMPlace | null>(null)
+const address = signal<string>("")
+const loadingAddress = signal(false)
+
+// 2. Search Signals
+const searchQuery = signal("")
+const searchResults = signal<OSMPlace[]>([])
+const searchLoading = signal(false)
+const dropdownOpen = signal(false)
+const searchContainerSignal = signal<HTMLDivElement | null>(null)
+const searchContainerRef = {
+    get current() {
+        return searchContainerSignal.value
+    },
+    set current(el) {
+        searchContainerSignal.value = el
+    },
+}
+const handleCloseOverlay = () => {
+    console.log("close")
+}
+const getAddressTitle = (place: OSMPlace) => {
+    const addr = place.address
+    const road = addr?.road ? (/(شارع|طريق)/.test(addr.road) ? addr.road : `شارع ${addr.road}`) : ""
+
+    const nhBase = addr?.neighbourhood || addr?.suburb || ""
+    const neighborhood = nhBase && !nhBase.includes("حي") ? `حي ${nhBase}` : nhBase
+
+    const isUniqueName =
+        place.name && place.name !== addr?.road && place.name !== addr?.neighbourhood
+
+    return (isUniqueName ? place.name : road || neighborhood) || "موقع محدد"
+}
+
+const renderAddressDisplay = () => {
+    if (!selectedCoords.value) {
+        return (
+            <p className={styles.addressText}>{address.value || "يرجى تحديد موقع على الخريطة"}</p>
+        )
+    }
+    if (loadingAddress.value) {
+        // return <span className={styles.loadingText}>جاري التحقق من العنوان...</span>
+        return (
+            <div className={styles.loader}>
+                <span className={styles.text}>جاري التحقق من العنوان...</span>
+                <Loader className={styles.spinner} />
+            </div>
+        )
+    }
+
+    if (place.value?.address) {
+        const title = getAddressTitle(place.value)
+        return (
+            <div className={styles.addressDetails}>
+                <p className={styles.primaryAddress}>{title}</p>
+                <p className={styles.secondaryAddress}>{place.value.display_name}</p>
+            </div>
+        )
+    }
+}
 
 export default function AddAddressOverlay({
     onAddressChange,
@@ -36,28 +102,29 @@ export default function AddAddressOverlay({
     className,
     ...rest
 }: AddAddressOverlayProps) {
-    // 1. Location State
-    useSignals()
-    const currentView = useSignal<"geoLocation" | "addressAndContact">("geoLocation")
-    const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null)
-    const [place, setPlace] = useState<OSMPlace | null>(null)
-    const [address, setAddress] = useState<string>("")
-    const [loadingAddress, setLoadingAddress] = useState(false)
+    return (
+        <div className={clsx(styles.root, className)} {...rest}>
+            {currentViewSignal.value === "geoLocation" &&
+                geoLocationWindow({ onAddressChange, onAddressSubmit })}
+            {currentViewSignal.value === "deliverTo" &&
+                deliverTo({ onAddressChange, onAddressSubmit })}
+        </div>
+    )
+}
 
-    // 2. Search State
-    const [searchQuery, setSearchQuery] = useState("")
-    const [searchResults, setSearchResults] = useState<OSMPlace[]>([])
-    const [searchLoading, setSearchLoading] = useState(false)
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-
-    // 3. Refs
-    const searchContainerRef = useRef<HTMLDivElement>(null)
+function geoLocationWindow({
+    onAddressChange,
+    onAddressSubmit,
+}: {
+    onAddressChange?: (place: OSMPlace) => void
+    onAddressSubmit?: (place: OSMPlace) => void
+}) {
     const debouncedFetchAddress = useDebouncedCallback(async (coords: [number, number]) => {
         const result = await safe(getAdressByCordinates(coords[0], coords[1]))
 
         if (!result.success) {
-            setLoadingAddress(false)
-            setAddress("حدث خطأ")
+            loadingAddress.value = false
+            address.value = "حدث خطأ"
             showMessage({
                 content: "حدث خطأ أثناء جلب العنوان: " + result.error.message,
                 type: "error",
@@ -65,43 +132,28 @@ export default function AddAddressOverlay({
             return
         }
 
-        setAddress(result.data.display_name || "عنوان غير معروف")
-        setPlace(result.data)
+        address.value = result.data.display_name || "عنوان غير معروف"
+        place.value = result.data
         onAddressChange?.(result.data)
-        setLoadingAddress(false) // Turn off loading when done
+        loadingAddress.value = false
     }, 800) // Wait 800ms after the last call before executing
 
     // 2. Trigger it via useEffect
     useEffect(() => {
-        if (!selectedCoords) return
+        if (!selectedCoords.value) return
 
         // Immediately show loading state when coordinates change
-        setLoadingAddress(true)
-
+        loadingAddress.value = true
         // Pass the latest coordinates to the debounced function
-        debouncedFetchAddress(selectedCoords)
-    }, [selectedCoords, debouncedFetchAddress])
+        if (selectedCoords.value) {
+            debouncedFetchAddress(selectedCoords.value)
+        }
+    }, [selectedCoords.value, debouncedFetchAddress])
     // --- Helpers ---
 
     /**
      * Formats the address object into a readable Title and Subtitle
      */
-    const getAddressTitle = (place: OSMPlace) => {
-        const addr = place.address
-        const road = addr?.road
-            ? /(شارع|طريق)/.test(addr.road)
-                ? addr.road
-                : `شارع ${addr.road}`
-            : ""
-
-        const nhBase = addr?.neighbourhood || addr?.suburb || ""
-        const neighborhood = nhBase && !nhBase.includes("حي") ? `حي ${nhBase}` : nhBase
-
-        const isUniqueName =
-            place.name && place.name !== addr?.road && place.name !== addr?.neighbourhood
-
-        return (isUniqueName ? place.name : road || neighborhood) || "موقع محدد"
-    }
 
     // --- Side Effects ---
 
@@ -112,7 +164,7 @@ export default function AddAddressOverlay({
                 searchContainerRef.current &&
                 !searchContainerRef.current.contains(e.target as Node)
             ) {
-                setDropdownOpen(false)
+                dropdownOpen.value = false
             }
         }
         document.addEventListener("mousedown", handleClickOutside)
@@ -121,41 +173,40 @@ export default function AddAddressOverlay({
 
     // Fetch address details when coordinates change
     useEffect(() => {
-        if (!selectedCoords) return
-
-        debouncedFetchAddress(selectedCoords)
-    }, [selectedCoords, onAddressChange])
+        if (!selectedCoords.value) return
+        debouncedFetchAddress(selectedCoords.value)
+    }, [selectedCoords.value, onAddressChange])
 
     // --- Handlers ---
 
     const handleSearch = useDebouncedCallback(async (q: string) => {
         if (!q.trim()) return
-        setSearchLoading(true)
+        searchLoading.value = true
         const result = await safe<OSMPlace[]>(searchForAddresses(q))
         if (!result.success) {
             showMessage({ content: "Failed to fetch addresses", type: "error" })
-            setSearchResults([])
-            setSearchLoading(false)
+            searchResults.value = []
+            searchLoading.value = false
             return
         }
-        setSearchResults(result.data || [])
-        setDropdownOpen(true)
-        setSearchLoading(false)
+        searchResults.value = result.data || []
+        dropdownOpen.value = true
+        searchLoading.value = false
     }, 600)
 
     const handleSelectResult = (result: OSMPlace) => {
         const coords: [number, number] = [parseFloat(result.lat), parseFloat(result.lon)]
-        setSelectedCoords(coords)
-        setSearchQuery(result.display_name)
-        setDropdownOpen(false)
-        setSearchResults([])
+        selectedCoords.value = coords
+        searchQuery.value = result.display_name
+        dropdownOpen.value = false
+        searchResults.value = []
     }
 
     const handleUseCurrentLocation = () => {
         if (!navigator.geolocation) return
         navigator.geolocation.getCurrentPosition(
             ({ coords: { latitude, longitude } }) => {
-                setSelectedCoords([latitude, longitude])
+                selectedCoords.value = [latitude, longitude]
             },
             () => alert("يرجى تفعيل صلاحيات الموقع الجغرافي"),
         )
@@ -163,120 +214,174 @@ export default function AddAddressOverlay({
 
     // --- Render Helpers ---
 
-    const renderAddressDisplay = () => {
-        if (loadingAddress) {
-            // return <span className={styles.loadingText}>جاري التحقق من العنوان...</span>
-            return (
-                <div className={styles.loader}>
-                    <span className={styles.text}>جاري التحقق من العنوان...</span>
-                    <Loader className={styles.spinner} />
-                </div>
-            )
-        }
-
-        if (place?.address) {
-            const title = getAddressTitle(place)
-            return (
-                <div className={styles.addressDetails}>
-                    <p className={styles.primaryAddress}>{title}</p>
-                    <p className={styles.secondaryAddress}>{place.display_name}</p>
-                </div>
-            )
-        }
-
-        return <p className={styles.addressText}>{address || "يرجى تحديد موقع على الخريطة"}</p>
-    }
-    const handleCloseOverlay = () => {
-        console.log("close")
-    }
     return (
-        <div className={clsx(styles.root, className)} {...rest}>
-            <div className={styles.window}>
-                <div className={styles.header}>
-                    <div className={styles.labelWrapper}>
-                        <House className={styles.labelIcon} />
-                        <h3 className={styles.label}>إضافة عنوان جديد</h3>
+        <div className={styles.window}>
+            <div className={styles.header}>
+                <div className={styles.labelWrapper}>
+                    <House className={styles.labelIcon} />
+                    <h3 className={styles.label}>إضافة عنوان جديد</h3>
+                </div>
+                <X onClick={handleCloseOverlay} className={styles.closeIcon} />
+            </div>
+
+            <div className={styles.mapSection}>
+                <div className={styles.topBar}>
+                    <div ref={searchContainerRef} className={styles.searchWrapper}>
+                        <SearchBox2
+                            className={styles.search}
+                            placeholder="ابحث عن موقع..."
+                            onSearch={(query) => {
+                                searchQuery.value = query
+                                handleSearch(query)
+                            }}
+                            onSearchSubmit={handleSearch}
+                            isLoading={searchLoading.value}
+                            submitOnBlur={false}
+                            // debounceMs={600}
+                        />
+
+                        {dropdownOpen.value && (
+                            <ul className={styles.dropdown}>
+                                {searchResults.value.length > 0
+                                    ? searchResults.value.map((r) => (
+                                          <li
+                                              key={r.place_id}
+                                              className={styles.dropdownItem}
+                                              onMouseDown={() => handleSelectResult(r)}
+                                          >
+                                              <span className={styles.dropdownIcon}>📍</span>
+                                              <span className={styles.dropdownText}>
+                                                  {r.display_name}
+                                              </span>
+                                          </li>
+                                      ))
+                                    : !searchLoading.value && (
+                                          <li className={styles.dropdownEmpty}>لا توجد نتائج</li>
+                                      )}
+                            </ul>
+                        )}
                     </div>
-                    <X onClick={handleCloseOverlay} className={styles.closeIcon} />
+
+                    <button className={styles.locationBtn} onClick={handleUseCurrentLocation}>
+                        <LocateFixed className={styles.icon} />
+                        استخدم موقعك الحالي
+                    </button>
                 </div>
 
-                <div className={styles.mapSection}>
-                    <div className={styles.topBar}>
-                        <div ref={searchContainerRef} className={styles.searchWrapper}>
-                            <SearchBox2
-                                className={styles.search}
-                                placeholder="ابحث عن موقع..."
-                                onSearch={(query) => {
-                                    setSearchQuery(query)
-                                    handleSearch(query)
-                                }}
-                                onSearchSubmit={handleSearch}
-                                isLoading={searchLoading}
-                                submitOnBlur={false}
-                                // debounceMs={600}
-                            />
-
-                            {dropdownOpen && (
-                                <ul className={styles.dropdown}>
-                                    {searchResults.length > 0
-                                        ? searchResults.map((r) => (
-                                              <li
-                                                  key={r.place_id}
-                                                  className={styles.dropdownItem}
-                                                  onMouseDown={() => handleSelectResult(r)}
-                                              >
-                                                  <span className={styles.dropdownIcon}>📍</span>
-                                                  <span className={styles.dropdownText}>
-                                                      {r.display_name}
-                                                  </span>
-                                              </li>
-                                          ))
-                                        : !searchLoading && (
-                                              <li className={styles.dropdownEmpty}>
-                                                  لا توجد نتائج
-                                              </li>
-                                          )}
-                                </ul>
-                            )}
-                        </div>
-
-                        <button className={styles.locationBtn} onClick={handleUseCurrentLocation}>
-                            <LocateFixed className={styles.icon} />
-                            استخدم موقعك الحالي
-                        </button>
-                    </div>
-
-                    <div className={styles.mapContainer}>
-                        <MapComponent
-                            selectedCoords={selectedCoords}
-                            onLocationSelect={setSelectedCoords}
-                        />
-                    </div>
-                </div>
-
-                <div className={styles.footer}>
-                    <div className={styles.addressInfoWrapper}>
-                        {/* <Tag className={styles.icon}/> */}
-                        <img
-                            className={styles.icon}
-                            src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png"
-                        />
-                        <div className={styles.addressInfo}>{renderAddressDisplay()}</div>
-                    </div>
-
-                    <Button
-                        type="primary"
-                        className={styles.submitBtn}
-                        disabled={!selectedCoords || loadingAddress}
-                        onClick={() => {
-                            if (place) {
-                                onAddressSubmit?.(place)
-                            }
+                <div className={styles.mapContainer}>
+                    <MapComponent
+                        selectedCoords={selectedCoords.value}
+                        onLocationSelect={(coords: [number, number]) => {
+                            selectedCoords.value = coords
                         }}
-                    >
-                        تأكيد العنوان
-                    </Button>
+                    />
                 </div>
+            </div>
+
+            <div className={styles.footer}>
+                <div className={styles.addressInfoWrapper}>
+                    {/* <Tag className={styles.icon}/> */}
+                    <img
+                        className={styles.icon}
+                        src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png"
+                    />
+                    <div className={styles.addressInfo}>{renderAddressDisplay()}</div>
+                </div>
+
+                <Button
+                    type="primary"
+                    className={styles.submitBtn}
+                    disabled={!selectedCoords.value || loadingAddress.value}
+                    onClick={() => {
+                        if (place.value) {
+                            onAddressSubmit?.(place.value)
+                            currentViewSignal.value = "deliverTo"
+                        }
+                    }}
+                >
+                    تأكيد العنوان
+                </Button>
+            </div>
+        </div>
+    )
+}
+
+function deliverTo({
+    onAddressChange,
+    onAddressSubmit,
+}: {
+    onAddressChange?: (place: OSMPlace) => void
+    onAddressSubmit?: (place: OSMPlace) => void
+}) {
+    return (
+        <div className={styles.window}>
+            <div className={styles.header}>
+                <div className={styles.labelWrapper}>
+                    <House className={styles.labelIcon} />
+                    <h3 className={styles.label}>تسليم إلى</h3>
+                </div>
+                <X onClick={handleCloseOverlay} className={styles.closeIcon} />
+            </div>
+
+            <div className={styles.main}>
+                <div className={styles.geoAdressCard}>
+                    {/* <div className={styles.details}>{renderAddressDisplay()}</div> */}
+                    <div className={styles.adressWindowWrapper}>
+                        <div className={styles.adressWindow}></div>
+                        <div className={styles.details}>
+                            <div>
+                                <p>
+                                    شارع أبي عبدالله الحسينيرع أبي عبدالله الحسينيرع أبي عبدالله
+                                    الحسينيرع أبي عبدالله الحسيني
+                                </p>
+                                <p>
+                                    أبي عبدالله الحسيني, السليمانية, الرياض, محافظة الرياض, منطقة
+                                    الرياض, 12245, السعودية أبي عبدالله الحسيني, السليمانية, الرياض,
+                                    محافظة الرياض, منطقة الرياض, 12245, السعودية أبي عبدالله
+                                    الحسيني, السليمانية, الرياض, محافظة الرياض, منطقة الرياض, 12245,
+                                    السعودية أبي عبدالله الحسيني, السليمانية, الرياض, محافظة الرياض,
+                                    منطقة الرياض, 12245, السعودية
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <Button className={styles.changeBtn}>تغيير</Button>
+                </div>
+                <div className={styles.form}>
+                    <div className={styles.section}>
+                        <h4 className={styles.title}>تفاصيل العنوان</h4>
+                        <div className={styles.row}>
+                            <TextBox label="رقم الشقة والطابق / رقم الفيلا" required />
+                            <TextBox label="اسم المبنى / المجمّع" required />
+                        </div>
+                        <TextBox label="اسم مستعار للعنوان" />
+                        <TextBox label="الاتجاهات للوصول لعنوانك" />
+                    </div>
+                    <div className={styles.section}>
+                        <h4 className={styles.title}>تفاصيل المستلم</h4>
+                        <div className={styles.row}>
+                            <TextBox label="الاسم الأول" required />
+                            <TextBox label="اسم العائلة" required />
+                        </div>
+                        <PhoneInput className={styles.phoneInput} />
+                    </div>
+                </div>
+            </div>
+
+            <div className={styles.footer}>
+                <Button
+                    type="primary"
+                    className={styles.submitBtn}
+                    disabled={!selectedCoords.value || loadingAddress.value}
+                    onClick={() => {
+                        if (place.value) {
+                            onAddressSubmit?.(place.value)
+                            currentViewSignal.value = "deliverTo"
+                        }
+                    }}
+                >
+                    حفظ العنوان
+                </Button>
             </div>
         </div>
     )
