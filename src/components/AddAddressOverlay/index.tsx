@@ -90,7 +90,8 @@ const formSignal = signal<NewAddress>({
     postalCode: "",
     addressType: "home",
 })
-const fieldErrors = signal<Record<string, string>>({})
+type FormErrors = Partial<Record<keyof NewAddress, string>>
+const formErrorsSignal = signal<FormErrors>({})
 
 const handleCloseOverlay = () => {
     console.log("close")
@@ -356,29 +357,40 @@ function GeoLocationWindow() {
     )
 }
 
-const validateForm = () => {
-    const errors: Record<string, string> = {}
-    const { buildingNumber, recipientName, phoneNumber } = formSignal.value
+// 1. Add this near your other signals at the top of the file
+const hasSubmittedSignal = signal(false)
 
-    if (!buildingNumber || buildingNumber.trim().length === 0) {
-        errors.buildingNumber = "يرجى إدخال رقم المبنى"
-    } else if (buildingNumber.length !== 4) {
-        errors.buildingNumber = "يجب أن يكون رقم المبنى 4 أرقام"
+// 2. Add a pure validation function (No state management inside it!)
+const validateForm = (): boolean => {
+    const data = formSignal.value
+    const errors: FormErrors = {}
+    if (!data.recipientName?.trim()) {
+        errors.recipientName = "الاسم بالكامل مطلوب"
     }
 
-    if (!recipientName || recipientName.trim().length === 0) {
-        errors.recipientName = "يرجى إدخال اسم المستلم"
+    if (!data.buildingNumber || data.buildingNumber.length !== 4) {
+        errors.buildingNumber = "رقم المبنى يجب أن يكون 4 أرقام"
     }
 
-    if (!phoneNumber || phoneNumber.trim().length < 7) {
-        errors.phoneNumber = "يرجى إدخال رقم جوال صحيح"
+    if (!data.phoneNumber || data.phoneNumber.length < 9) {
+        errors.phoneNumber = "رقم الجوال مطلوب"
     }
 
-    fieldErrors.value = errors
+    formErrorsSignal.value = errors
     return Object.keys(errors).length === 0
 }
+
 function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) => void }) {
     useSignals()
+    // 1. Define Refs for the fields that have validation
+    const recipientNameRef = useRef<HTMLDivElement>(null)
+    const buildingNumberRef = useRef<HTMLDivElement>(null)
+    const phoneNumberRef = useRef<HTMLDivElement>(null)
+    const fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>> = {
+        recipientName: recipientNameRef,
+        buildingNumber: buildingNumberRef,
+        phoneNumber: phoneNumberRef,
+    }
     // 4. Move the "Redirect" logic to an effect, not the render body
     useEffect(() => {
         if (!place.value) {
@@ -389,8 +401,22 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
     // If we are in the middle of redirecting, render nothing
     if (!place.value) return null
     const handleSaveAddress = () => {
-        if (validateForm()) {
+        // Run validation
+        const isValid = validateForm()
+
+        if (isValid) {
             onAddressSubmit?.(formSignal.value)
+        } else {
+            // 3. Find the first key in the error object
+            const firstErrorKey = Object.keys(formErrorsSignal.value)[0]
+
+            if (firstErrorKey && fieldRefs[firstErrorKey]) {
+                // 4. Scroll to the element
+                fieldRefs[firstErrorKey].current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center", // Puts the input in the middle of the screen
+                })
+            }
         }
     }
     const foundPostalCode = place.value?.address.postcode
@@ -512,26 +538,20 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 icon={Building}
                             /> */}
                             <TextBox
+                                ref={buildingNumberRef}
                                 label="رقم المبنى (4 أرقام)"
                                 placeholder="مثال: 7422"
                                 required
                                 icon={Building}
                                 maxLength={4}
-                                // --- ERROR PROPS ---
-                                negative={!!fieldErrors.value.buildingNumber}
-                                message={fieldErrors.value.buildingNumber}
+                                error={formErrorsSignal.value.buildingNumber}
                                 value={formSignal.value.buildingNumber}
                                 onChange={(e) => {
                                     formSignal.value = {
                                         ...formSignal.value,
                                         buildingNumber: e.target.value,
                                     }
-                                    // Clear error when user types
-                                    if (fieldErrors.value.buildingNumber) {
-                                        const newErrors = { ...fieldErrors.value }
-                                        delete newErrors.buildingNumber
-                                        fieldErrors.value = newErrors
-                                    }
+                                    validateForm()
                                 }}
                             />
                             <TextBox
@@ -587,18 +607,21 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                         <div className={styles.row}>
                             {/* Combined First & Last Name */}
                             <TextBox
+                                ref={recipientNameRef}
                                 label="الاسم بالكامل"
                                 placeholder="مثال: محمد الحربي"
                                 required
                                 icon={User}
                                 tooltip="الاسم الكامل للشخص الذي سيستلم الطلب"
+                                error={formErrorsSignal.value.recipientName}
                                 value={formSignal.value.recipientName}
-                                onChange={(e) =>
-                                    (formSignal.value = {
+                                onChange={(e) => {
+                                    formSignal.value = {
                                         ...formSignal.value,
                                         recipientName: e.target.value,
-                                    })
-                                }
+                                    }
+                                    validateForm()
+                                }}
                             />
                         </div>
                         <PhoneInput
