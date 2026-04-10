@@ -29,7 +29,7 @@ import SearchBox2 from "../SearchBox2"
 import { safe } from "@/utils/safe"
 import { getAdressByCordinates, searchForAddresses } from "@/utils"
 import { showMessage } from "@/utils/showMessage"
-import { OSMPlace } from "@/types"
+import { NewAddress, OSMPlace } from "@/types"
 import styles from "./style.module.css"
 import { useDebouncedCallback } from "@/hooks"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
@@ -69,6 +69,19 @@ const searchContainerRef = {
         searchContainerSignal.value = el
     },
 }
+const formSignal = signal<NewAddress>({
+    phoneNumber: "",
+    userId: "",
+    region: "",
+    city: "",
+    district: "",
+    street: "",
+    latitude: "",
+    longitude: "",
+    buildingNumber: "",
+    recipientName: "",
+    addressNickname: "",
+})
 const handleCloseOverlay = () => {
     console.log("close")
 }
@@ -375,26 +388,24 @@ function DeliverTo({
                         <div className={styles.row}>
                             <TextBox
                                 label="المدينة"
-                                value="الرياض" // Replace with state
+                                value="الرياض"
                                 readOnly
                                 icon={MapPin}
                                 tooltip="تم التحديد تلقائياً من الخريطة"
                             />
                             <TextBox
                                 label="الحي"
-                                value="حي الملقا" // Replace with state
+                                value="حي الملقا"
                                 readOnly
                                 tooltip="تم التحديد تلقائياً من الخريطة"
                             />
-                            {/* Moved Postal Code Here */}
                             <TextBox
                                 label="الرمز البريدي"
-                                placeholder="11391"
+                                placeholder="مثال: 12271"
                                 tooltip="الرمز البريدي المكون من 5 أرقام (اختياري)"
                                 type="text"
                                 inputMode="numeric"
                                 maxLength={5}
-                                // If Nominatim finds a postcode, you can pass it to 'value' here
                             />
                         </div>
                     </div>
@@ -417,7 +428,7 @@ function DeliverTo({
                             />
                             <TextBox
                                 label="العنوان المختصر"
-                                placeholder="مثال: RHOA3894"
+                                placeholder="مثال: RHOA3894 (اختياري)"
                                 icon={Tag}
                                 tooltip="رمز العنوان الوطني المكون من 8 أحرف وأرقام (اختياري)"
                                 maxLength={8}
@@ -432,41 +443,32 @@ function DeliverTo({
                                 label="رقم الشقة / الطابق"
                                 placeholder="مثال: شقة 12، الدور 3"
                                 icon={Home}
-                                tooltip="رقم الشقة أو الطابق (اتركه فارغاً إذا كان العنوان فيلا)"
+                                tooltip="رقم الشقة و الطابق (اتركه فارغاً إذا كان العنوان فيلا)"
                             />
                             <TextBox
                                 label="اسم المبنى / المجمّع"
                                 icon={Building}
-                                placeholder="مثال: برج الراجحي / مجمع نجد"
+                                placeholder="مثال: برج الراجحي / مجمع نجد (اختياري)"
                                 tooltip="يساعد المندوب في التعرف على موقعك أسرع (اختياري)"
-                            />
-                        </div>
-
-                        <div className={styles.shortcutWrapper}>
-                            {/* <label className={styles.subLabel}>نوع العنوان</label>
-                            <div className={styles.chips}>
-                                {["المنزل", "العمل", "اخرى"].map((type) => (
-                                    <button key={type} className={clsx(styles.chip)}>
-                                        {type}
-                                    </button>
-                                ))}
-                            </div> */}
-                            <MultiSelect
-                                title="نوع العنوان"
-                                value="home"
-                                items={[
-                                    { label: "المنزل", icon: Home, value: "home" },
-                                    { label: "العمل", icon: Building, value: "work" },
-                                    { label: "اخرى", icon: MoreHorizontal, value: "other" },
-                                ]}
                             />
                         </div>
 
                         <TextBox
                             label="وصف إضافي للموقع"
-                            placeholder="مثال: الباب الجانبي، أو بجوار صيدلية النهدي"
+                            placeholder="مثال: الباب الجانبي، أو بجوار صيدلية النهدي (اختياري)"
                             icon={Road}
                             tooltip="أي معالم قريبة أو تعليمات إضافية تساعدنا في الوصول إليك بسهولة"
+                        />
+
+                        <MultiSelect
+                            className={styles.shortcutWrapper}
+                            title="نوع العنوان"
+                            value="home"
+                            items={[
+                                { label: "المنزل", icon: Home, value: "home" },
+                                { label: "العمل", icon: Building, value: "work" },
+                                { label: "اخرى", icon: MoreHorizontal, value: "other" },
+                            ]}
                         />
                     </div>
 

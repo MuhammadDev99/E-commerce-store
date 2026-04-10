@@ -3,136 +3,122 @@
   flex-direction: column;
   gap: 0.2em;
   min-width: 0;
+
+  &.readOnly {
+    .input {
+      cursor: not-allowed;
+      background-color: var(--white-2) !important;
+    }
+  }
+
+  &.negative {
+    .labelWrapper {
+      color: var(--color-red-4);
+    }
+
+    &:has(.input:focus) .labelWrapper {
+      color: var(--color-red-4);
+    }
+
+    .input {
+      border-color: var(--color-red-4);
+
+      &:focus {
+        border-color: var(--color-red-4);
+        outline-color: var(--color-red-1);
+      }
+    }
+
+    .message {
+      color: var(--color-red-4);
+    }
+  }
+
+  &.required {
+    .label::after {
+      content: '*';
+      margin-left: 0.2em;
+      color: var(--color-red-3);
+    }
+
+    .input::after {
+      content: "*";
+    }
+  }
+
+
+  &:has(.input:focus) .labelWrapper {
+    color: var(--primary-2);
+  }
+
+  .labelWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4em;
+    color: var(--black-3);
+    transition: var(--transition);
+    margin-bottom: 0.1em;
+  }
+
+  .icon {
+    height: 1.1em;
+    width: 1.1em;
+    margin: 0;
+  }
+
+  .label {
+    font-size: 1.1em;
+    color: inherit;
+  }
+
+  .input {
+    box-sizing: border-box;
+    min-width: 0;
+    width: inherit;
+    height: 2.3em;
+    padding: 0.3em 0.4em;
+    font-size: 1em;
+
+    background-color: var(--cold-white-2);
+    border: 0.1em solid var(--white-4);
+    border-radius: var(--border-radius-1);
+    outline: 0.2em solid transparent;
+
+    resize: none;
+    caret-color: var(--primary-3);
+    transition: var(--transition);
+
+    &:not(:placeholder-shown) {
+      background-color: white;
+    }
+
+    &:focus,
+    &:focus-within {
+      background-color: white;
+      border-color: var(--primary-4);
+      outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+    }
+  }
+
+  .message {
+    margin-top: 0.2em;
+    font-size: 0.75em;
+  }
 }
 
-.root .labelWrapper {
-  display: flex;
-  flex-direction: row;
-  gap: 0.15em;
-  align-items: end;
-  color: var(--black-3);
-  transition: var(--transition);
-}
-
-.root.negative .labelWrapper {
-  color: var(--color-red-4);
-}
-
-.root.negative:has(.input:focus) .labelWrapper {
-  color: var(--color-red-4);
-}
-
-.root .icon {
-  height: 1.2em;
-  margin-bottom: 0.2em;
-}
-
-.root .label {
-  font-size: 1.1em;
-  color: inherit;
-}
-
-
-.root .input {
-  outline: none;
-  resize: none;
-  min-width: none;
-  box-sizing: border-box;
-  font-size: 1em;
-  padding: 0.3em 0.4em;
-  height: 2.3em;
-  width: inherit;
-
-  border-radius: var(--border-radius-1);
-  border: 0.1em solid var(--white-4);
-  caret-color: var(--primary-3);
-  transition: var(--transition);
-  background-color: var(--cold-white-2);
-  border-color: var(--white-4);
-  outline: 0.2em solid transparent;
-}
-
-.root .input:not(:placeholder-shown) {
-  background-color: white;
-}
-
-.root .input:focus {
-  outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
-  border-color: var(--primary-4);
-  background-color: white;
-}
-
-.root:has(.input:focus) .labelWrapper {
-  color: var(--primary-2);
-}
-
-.root.required .label::after {
-  content: '*';
-  margin-left: 0.2em;
-  color: var(--color-red-3);
-}
-
-.root.negative .input {
-  border-color: var(--color-red-4);
-}
-
-.root.negative .input:focus {
-  border-color: var(--color-red-4);
-  outline-color: var(--color-red-1)
-}
-
-.root .message {
-  margin-top: 0.2em;
-  font-size: 0.75em;
-}
-
-.root.negative .message {
-  color: var(--color-red-4);
-}
-
-.root.required .input::after {
-  content: "*";
-}
-
-
-.root .input {
-  border: 0.1em solid var(--white-4);
-  background-color: var(--cold-white-2);
-  outline: 0.2em solid transparent;
-}
-
-.root .input:focus-within {
-  outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
-  border: 0.1em solid var(--primary-4);
-}
-
-.root .input:not(:placeholder-shown) {
-  background-color: white
-}
-
-
-
-/* ... existing .root styles ... */
-
-.root .labelWrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  /* Changed from 'end' to 'center' for better vertical alignment with tooltip */
-  gap: 0.4em;
-  /* Space between Label, Tooltip, and Icon */
-  color: var(--black-3);
-  transition: var(--transition);
-  margin-bottom: 0.1em;
-}
-
-/* Tooltip specific styles */
 .tooltipContainer {
   position: relative;
   display: inline-flex;
   cursor: help;
-  /* Adjust vertical alignment if needed to match font baseline */
   margin-bottom: -0.05em;
+
+  &:hover .tooltipBox,
+  &:focus-within .tooltipBox {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .tooltipTrigger {
@@ -142,7 +128,6 @@
   width: 1.3em;
   height: 1.3em;
   font-size: 0.65em;
-  /* Smaller trigger */
   font-weight: bold;
   background-color: var(--white-3);
   color: var(--black-3);
@@ -150,7 +135,6 @@
   transition: var(--transition);
 }
 
-/* Tooltip Box (Floating Bubble) */
 .tooltipBox {
   position: absolute;
   bottom: 140%;
@@ -160,42 +144,28 @@
   width: max-content;
   max-width: 16em;
   padding: 0.6em 0.8em;
+
   background-color: #222;
   color: #fff;
   font-size: 0.75rem;
   line-height: 1.4;
   border-radius: var(--border-radius-2);
-  z-index: 100;
+  box-shadow: var(--shadow-1);
 
   visibility: hidden;
   opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
   pointer-events: none;
-  box-shadow: var(--shadow-1);
-}
+  z-index: 100;
+  transition: opacity 0.2s, transform 0.2s;
 
-/* The Triangle Arrow */
-.tooltipBox::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -0.3em;
-  border-width: 0.3em;
-  border-style: solid;
-  border-color: #222 transparent transparent transparent;
-}
-
-.tooltipContainer:hover .tooltipBox,
-.tooltipContainer:focus-within .tooltipBox {
-  visibility: visible;
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Make sure the custom icon doesn't have extra margins that break centering */
-.root .icon {
-  height: 1.1em;
-  width: 1.1em;
-  margin: 0;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -0.3em;
+    border-width: 0.3em;
+    border-style: solid;
+    border-color: #222 transparent transparent transparent;
+  }
 }
