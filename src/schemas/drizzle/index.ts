@@ -11,6 +11,8 @@ import {
     doublePrecision,
     numeric,
     varchar,
+    decimal,
+    uuid,
 } from "drizzle-orm/pg-core";
 import { account, session, user, verification } from "./auth";
 import { getTableColumns, sql } from "drizzle-orm";
@@ -144,27 +146,6 @@ export const reviews = pgTable("reviews", {
 ]);
 
 
-export const addresses = pgTable("addresses", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-
-    countryCode: text("country_code").notNull().default("SA"),
-    city: text("city").notNull(),
-    district: text("district").notNull(),
-    street: text("street").notNull(),
-    buildingNumber: text("building_number"),
-    apartment: text("apartment"),
-    postalCode: text("postal_code"),
-
-    lat: doublePrecision("lat"),
-    lon: doublePrecision("lon"),
-    label: text("label"),
-
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
 
 export const userPreferences = pgTable("user_preferences", {
     userId: text("user_id")
@@ -174,16 +155,42 @@ export const userPreferences = pgTable("user_preferences", {
         .references(() => addresses.id, { onDelete: "set null" }),
 });
 
-export const deliveryAddresses = pgTable("delivery_addresses", {
-    id: serial("id").primaryKey(),
-    lat: numeric("lat", { precision: 10, scale: 7 }).notNull(),
-    lon: numeric("lon", { precision: 10, scale: 7 }).notNull(),
-    road: text("road").notNull(),
-    houseNumber: text("house_number"),
-    suburb: text("suburb"),
+// 1. Define the Enum for Address Types (Home, Work, Other)
+export const addressTypeEnum = pgEnum("address_type", ["home", "work", "other"]);
+
+export const addresses = pgTable("addresses", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id),
+
+    // --- Data from Map (Auto-filled) ---
+    region: text("region").notNull(),
     city: text("city").notNull(),
-    state: text("state"),
-    postcode: text("postcode"),
-    countryCode: varchar("country_code", { length: 2 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow(),
+    district: text("district").notNull(),
+    street: text("street").notNull(),
+
+    // New Fields
+    postalCode: varchar("postal_code", { length: 10 }), // KSA Postcodes are 5 digits (e.g., 11391)
+    countryCode: varchar("country_code", { length: 2 }).default("SA").notNull(), // ISO-2 (e.g., "SA")
+
+    // Accuracy: 10,8 is standard for sub-meter GPS precision
+    latitude: decimal("latitude", { precision: 10, scale: 8 }).notNull(),
+    longitude: decimal("longitude", { precision: 11, scale: 8 }).notNull(),
+
+    // --- Data from User (Manual Input) ---
+    buildingNumber: varchar("building_number", { length: 10 }).notNull(),
+    unitNumber: varchar("unit_number", { length: 50 }),
+    buildingName: varchar("building_name", { length: 255 }),
+    shortCode: varchar("short_code", { length: 10 }),
+    landmark: text("landmark"),
+
+    // --- Classification & UX ---
+    addressType: addressTypeEnum("address_type").default("home").notNull(),
+    addressNickname: varchar("address_nickname", { length: 100 }),
+    recipientName: text("recipient_name").notNull(),
+    phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -16,6 +16,7 @@
   --border-color: rgb(199, 199, 199);
   --border-line-1: 0.05rem solid var(--white-2);
   --border-line-2: 0.05rem solid var(--white-3);
+  --border-line-3: 0.1rem solid var(--white-2);
   --focus-ring-shadow: 0 0 0 0.12em rgba(99, 102, 241, 0.15);
   --transition: all 200ms ease-in-out;
   --transition-2: all 175ms ease-in-out;

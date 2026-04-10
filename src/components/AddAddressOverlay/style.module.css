@@ -48,9 +48,14 @@
           .title {}
 
           .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: row;
             gap: 1em;
+
+            &>* {
+              flex: 1;
+              min-width: 0;
+            }
           }
 
           .phoneInput {

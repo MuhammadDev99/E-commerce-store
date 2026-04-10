@@ -109,3 +109,93 @@
 .root .input:not(:placeholder-shown) {
   background-color: white
 }
+
+
+
+/* ... existing .root styles ... */
+
+.root .labelWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* Changed from 'end' to 'center' for better vertical alignment with tooltip */
+  gap: 0.4em;
+  /* Space between Label, Tooltip, and Icon */
+  color: var(--black-3);
+  transition: var(--transition);
+  margin-bottom: 0.1em;
+}
+
+/* Tooltip specific styles */
+.tooltipContainer {
+  position: relative;
+  display: inline-flex;
+  cursor: help;
+  /* Adjust vertical alignment if needed to match font baseline */
+  margin-bottom: -0.05em;
+}
+
+.tooltipTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3em;
+  height: 1.3em;
+  font-size: 0.65em;
+  /* Smaller trigger */
+  font-weight: bold;
+  background-color: var(--white-3);
+  color: var(--black-3);
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+/* Tooltip Box (Floating Bubble) */
+.tooltipBox {
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%) translateY(1em);
+
+  width: max-content;
+  max-width: 16em;
+  padding: 0.6em 0.8em;
+  background-color: #222;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  border-radius: var(--border-radius-2);
+  z-index: 100;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+  box-shadow: var(--shadow-1);
+}
+
+/* The Triangle Arrow */
+.tooltipBox::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -0.3em;
+  border-width: 0.3em;
+  border-style: solid;
+  border-color: #222 transparent transparent transparent;
+}
+
+.tooltipContainer:hover .tooltipBox,
+.tooltipContainer:focus-within .tooltipBox {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Make sure the custom icon doesn't have extra margins that break centering */
+.root .icon {
+  height: 1.1em;
+  width: 1.1em;
+  margin: 0;
+}

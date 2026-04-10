@@ -15,6 +15,9 @@ import {
     User,
     Road,
     ArrowBigRight,
+    Hash,
+    Earth,
+    MoreHorizontal,
 } from "lucide-react"
 
 // Components
@@ -33,6 +36,7 @@ import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import { signal } from "@preact/signals-react"
 import TextBox from "../form-elements/TextBox"
 import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
+import MultiSelect from "../MultiSelect"
 
 interface AddAddressOverlayProps extends ComponentPropsWithoutRef<"div"> {
     onAddressChange?: (place: OSMPlace) => void
@@ -149,7 +153,7 @@ function GeoLocationWindow({
             })
             return
         }
-
+        console.log(result.data)
         address.value = result.data.display_name || "عنوان غير معروف"
         place.value = result.data
         onAddressChange?.(result.data)
@@ -365,25 +369,119 @@ function DeliverTo({
                     </Button>
                 </div>
                 <div className={styles.form}>
+                    {/* 1. Delivery Location (Auto-filled + Postal Code) */}
+                    <div className={styles.section}>
+                        <h4 className={styles.title}>موقع التوصيل</h4>
+                        <div className={styles.row}>
+                            <TextBox
+                                label="المدينة"
+                                value="الرياض" // Replace with state
+                                readOnly
+                                icon={MapPin}
+                                tooltip="تم التحديد تلقائياً من الخريطة"
+                            />
+                            <TextBox
+                                label="الحي"
+                                value="حي الملقا" // Replace with state
+                                readOnly
+                                tooltip="تم التحديد تلقائياً من الخريطة"
+                            />
+                            {/* Moved Postal Code Here */}
+                            <TextBox
+                                label="الرمز البريدي"
+                                placeholder="11391"
+                                tooltip="الرمز البريدي المكون من 5 أرقام (اختياري)"
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={5}
+                                // If Nominatim finds a postcode, you can pass it to 'value' here
+                            />
+                        </div>
+                    </div>
+
+                    {/* 2. Address Details (Manual Input) */}
                     <div className={styles.section}>
                         <h4 className={styles.title}>تفاصيل العنوان</h4>
+
+                        {/* Row 1: Building Number & Short Code */}
                         <div className={styles.row}>
-                            {/* Passing the icon reference */}
-                            <TextBox label="رقم الشقة والطابق / رقم الفيلا" required icon={Home} />
-                            <TextBox label="اسم المبنى / المجمّع" required icon={Building} />
+                            <TextBox
+                                label="رقم المبنى (4 أرقام)"
+                                placeholder="مثال: 7422"
+                                required
+                                icon={Hash}
+                                tooltip="الرقم المكون من 4 أرقام (موجود على اللوحة الخضراء)"
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={4}
+                            />
+                            <TextBox
+                                label="العنوان المختصر"
+                                placeholder="مثال: RHOA3894"
+                                icon={Tag}
+                                tooltip="رمز العنوان الوطني المكون من 8 أحرف وأرقام (اختياري)"
+                                maxLength={8}
+                                style={{ textTransform: "uppercase" }}
+                            />
                         </div>
-                        <TextBox label="اسم مستعار للعنوان" icon={MapPin} placeholder="اختياري" />
+
+                        {/* Row 2: Combined Unit & Building Name */}
+                        <div className={styles.row}>
+                            {/* Combined Apartment / Floor */}
+                            <TextBox
+                                label="رقم الشقة / الطابق"
+                                placeholder="مثال: شقة 12، الدور 3"
+                                icon={Home}
+                                tooltip="رقم الشقة أو الطابق (اتركه فارغاً إذا كان العنوان فيلا)"
+                            />
+                            <TextBox
+                                label="اسم المبنى / المجمّع"
+                                icon={Building}
+                                placeholder="مثال: برج الراجحي / مجمع نجد"
+                                tooltip="يساعد المندوب في التعرف على موقعك أسرع (اختياري)"
+                            />
+                        </div>
+
+                        <div className={styles.shortcutWrapper}>
+                            {/* <label className={styles.subLabel}>نوع العنوان</label>
+                            <div className={styles.chips}>
+                                {["المنزل", "العمل", "اخرى"].map((type) => (
+                                    <button key={type} className={clsx(styles.chip)}>
+                                        {type}
+                                    </button>
+                                ))}
+                            </div> */}
+                            <MultiSelect
+                                title="نوع العنوان"
+                                value="home"
+                                items={[
+                                    { label: "المنزل", icon: Home, value: "home" },
+                                    { label: "العمل", icon: Building, value: "work" },
+                                    { label: "اخرى", icon: MoreHorizontal, value: "other" },
+                                ]}
+                            />
+                        </div>
+
                         <TextBox
-                            placeholder="اختياري"
-                            label="الاتجاهات للوصول لعنوانك"
+                            label="وصف إضافي للموقع"
+                            placeholder="مثال: الباب الجانبي، أو بجوار صيدلية النهدي"
                             icon={Road}
+                            tooltip="أي معالم قريبة أو تعليمات إضافية تساعدنا في الوصول إليك بسهولة"
                         />
                     </div>
+
+                    {/* 3. Recipient Details */}
                     <div className={styles.section}>
                         <h4 className={styles.title}>تفاصيل المستلم</h4>
                         <div className={styles.row}>
-                            <TextBox label="الاسم الأول" required />
-                            <TextBox label="اسم العائلة" required />
+                            {/* Combined First & Last Name */}
+                            <TextBox
+                                label="الاسم بالكامل"
+                                placeholder="مثال: محمد الحربي"
+                                required
+                                icon={User}
+                                tooltip="الاسم الكامل للشخص الذي سيستلم الطلب"
+                            />
                         </div>
                         <PhoneInput className={styles.phoneInput} />
                     </div>

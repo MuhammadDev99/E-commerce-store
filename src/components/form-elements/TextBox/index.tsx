@@ -8,8 +8,8 @@ interface TextInputProps extends ComponentPropsWithoutRef<"input"> {
     message?: string
     negative?: boolean
     icon?: React.ElementType
+    tooltip?: string // New prop
 }
-
 export default function TextBox({
     label,
     message,
@@ -17,6 +17,8 @@ export default function TextBox({
     className,
     required,
     icon: Icon,
+    tooltip,
+    readOnly,
     ...rest
 }: TextInputProps) {
     return (
@@ -26,21 +28,26 @@ export default function TextBox({
                 className,
                 required && styles.required,
                 negative && styles.negative,
+                readOnly ? styles.readOnly : "",
             )}
         >
             {label && (
                 <div className={styles.labelWrapper}>
-                    <p className={styles.label}>{label}</p>
+                    <p className={styles.label}>
+                        {label} {/*  {required ? "" : "(اختياري)"} */}
+                    </p>
+
                     {Icon && <Icon className={styles.icon} />}
+                    {tooltip && (
+                        <div className={styles.tooltipContainer} tabIndex={0}>
+                            <span className={styles.tooltipTrigger}>?</span>
+                            <div className={styles.tooltipBox}>{tooltip}</div>
+                        </div>
+                    )}
                 </div>
             )}
 
-            <input
-                className={styles.input}
-                required={required}
-                {...rest} // Spreads all standard input props automatically
-            />
-
+            <input className={styles.input} required={required} readOnly={readOnly} {...rest} />
             {message && <p className={styles.message}>{message}</p>}
         </div>
     )

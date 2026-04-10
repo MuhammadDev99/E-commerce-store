@@ -184,7 +184,7 @@ export type UserPreferences = typeof userPreferences.$inferSelect
 //     createdAt: timestamp("created_at").defaultNow(),
 // });
 
-export interface OSMAddress {
+export type OSMAddress = {
   amenity?: string; // Found in your JSON
   road?: string;
   neighbourhood?: string;
@@ -203,7 +203,7 @@ export interface OSMAddress {
   [key: string]: string | undefined;
 }
 
-export interface OSMPlace {
+export type OSMPlace = {
   place_id: number;
   licence: string;
   osm_type: "node" | "way" | "relation"; // More specific than just 'string'
@@ -219,4 +219,29 @@ export interface OSMPlace {
   display_name: string;
   address: OSMAddress;
   boundingbox: [string, string, string, string]; // Correctly typed as a 4-item tuple
+}
+
+export interface AddressForm {
+  // --- Data from Map (Auto-filled) ---
+  region: string;
+  city: string;
+  district: string;
+  street: string;
+  latitude: number;     // CRITICAL: Used for driver GPS
+  longitude: number;    // CRITICAL: Used for driver GPS
+
+  // --- Data from User (Manual Input) ---
+  buildingNumber: string;    // Changed to string for flexibility
+  unitNumber?: string;
+  buildingName?: string;
+  shortCode?: string;        // The RGRA6900 style code
+  landmark?: string;         // Essential for local drivers
+
+  // --- Classification ---
+  addressType: 'home' | 'work' | 'other';
+  addressNickname?: string;
+
+  // --- Recipient ---
+  recipientName: string;
+  phoneNumber: string;       // Must be a valid Saudi mobile (05xxxxxxxx)
 }
