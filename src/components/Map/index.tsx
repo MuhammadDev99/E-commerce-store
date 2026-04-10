@@ -34,7 +34,7 @@ function MapController({ coords, setCoords, interactive, zoom }: any) {
             ${
                 interactive
                     ? `
-            <div style="background:white; padding:0.2em 0.5em; border-radius:0.25em; border:0.125em solid #2563eb; font-weight:bold; margin-bottom:0.25em; white-space:nowrap; font-size:1em; color:#000; box-shadow: 0 0.125em 0.25em rgba(0,0,0,0.2);">
+            <div style="background:rgba(255,255,255,1); padding:0.2em 0.5em; border-radius:0.5em; border:0.125em solid var(--primary-3); font-weight:bold; margin-bottom:0.25em; white-space:nowrap; font-size:1em; color:#000; box-shadow: 0 0.125em 0.25em rgba(0,0,0,0.2);">
                 عنوان استلام الطلب
             </div>`
                     : ""

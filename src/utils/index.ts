@@ -1,4 +1,4 @@
-import { DisplayLanguage, NewProduct, OSMPlace, Product } from "@/types";
+import { DisplayLanguage, NewAddress, NewProduct, OSMPlace, Product, User } from "@/types";
 
 export function getDisplayLanguage(): DisplayLanguage {
     return 'arabic'
@@ -166,3 +166,44 @@ export async function searchForAddresses(query: string): Promise<OSMPlace[]> {
     const data = await response.json() as OSMPlace[]
     return data
 }
+
+
+export function mapOSMToFormValue(
+    osm: OSMPlace,
+    currentForm: NewAddress
+): NewAddress {
+    const { address: addr } = osm;
+
+    return {
+        ...currentForm, // Preserve fields like userId, phoneNumber, recipientName
+        latitude: osm.lat,
+        longitude: osm.lon,
+
+        // Mapping Logic:
+        // 1. Region: Usually 'state' or 'province'
+        region: addr.state || addr.province || "",
+
+        // 2. City: OSM uses a hierarchy based on size
+        city: addr.city || addr.town || addr.village || addr.municipality || "",
+
+        // 3. District: 'suburb' is usually the best match for 'حي' (District)
+        district: addr.suburb || addr.neighbourhood || addr.city_district || "",
+
+        // 4. Street: 'road' is the standard OSM key for streets
+        street: addr.road || "",
+
+        // 5. Building Number: Handled via the index signature in your OSMAddress type
+        buildingNumber: (addr["house_number"] as string) || "",
+
+        // 6. Building Name: 'amenity' (like "Mall of Arabia") or 'building'
+        buildingName: addr.amenity || (addr["building"] as string) || null,
+
+        // 7. Metadata
+        postalCode: addr.postcode || null,
+        countryCode: addr.country_code?.toUpperCase() || "",
+
+        // 8. Landmark: Use amenity or the most specific location name available
+        landmark: addr.amenity || addr.neighbourhood || null,
+    };
+};
+

@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: false,
-
+  experimental: {
+    optimizePackageImports: ['@phosphor-icons/react'],
+  },
   // 1. Configuration for Turbopack (Used for 'npm run dev' in Next.js 16)
   turbopack: {
     rules: {

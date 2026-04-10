@@ -136,11 +136,12 @@
         border-radius: 50%;
         padding: 0.2em;
         cursor: pointer;
+
+        &:hover {
+          background-color: var(--white-light-2);
+        }
       }
 
-      .closeIcon:hover {
-        background-color: var(--white-3);
-      }
 
       .labelWrapper {
         display: flex;
@@ -184,7 +185,6 @@
         &>* {
           height: 100%;
           border-radius: var(--border-radius-2);
-          overflow: hidden;
           pointer-events: auto;
         }
 
@@ -198,6 +198,7 @@
 
           .search {
             flex-grow: 1;
+            border-radius: var(--border-radius-2);
           }
 
           /* Search Results Dropdown */
@@ -264,7 +265,8 @@
           background-color: white;
           border: none;
           align-items: center;
-          color: var(--color-azure-4);
+          /* color: var(--color-azure-4); */
+          color: var(--primary-4);
           padding: 0 1em;
           font-size: 1em;
           cursor: pointer;
@@ -272,8 +274,11 @@
           outline: 0.1em solid transparent;
 
           &:hover {
-            background-color: var(--color-azure-1);
-            outline: 0.1em solid var(--color-azure-4);
+            /* background-color: var(--color-azure-1);
+            outline: 0.1em solid var(--color-azure-4); */
+            background-color: var(--primary-11);
+            outline: 0.1em solid var(--primary-4);
+
           }
 
           .icon {
@@ -376,8 +381,7 @@
             gap: 0.2em;
 
             .primaryAddress {
-              font-weight: 600;
-              font-size: 1.05em;
+              font-weight: bold;
               color: var(--black-3);
               margin: 0;
               white-space: nowrap;
@@ -420,7 +424,7 @@
 
     .primaryAddress {
       font-weight: 600;
-      font-size: 1.05em;
+      font-size: 1.1em !important;
       color: var(--black-5) !important;
       margin: 0;
       white-space: nowrap;

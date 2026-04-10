@@ -10,6 +10,7 @@
         "push": "git add . & git commit -m \"Update\" & git push origin main"
     },
     "dependencies": {
+        "@phosphor-icons/react": "^2.1.10",
         "@preact/signals-react": "^3.9.0",
         "@tap-payments/card-sdk": "^1.0.2",
         "better-auth": "^1.5.4",
