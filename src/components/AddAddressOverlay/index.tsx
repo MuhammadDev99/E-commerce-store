@@ -47,6 +47,7 @@ import { useSignals } from "@preact/signals-react/runtime"
 
 interface AddAddressOverlayProps extends ComponentPropsWithoutRef<"div"> {
     onAddressSubmit?: (place: NewAddress) => void
+    onClose?: () => void
 }
 
 // --- Dynamic Imports ---
@@ -60,6 +61,7 @@ const selectedCoords = signal<[number, number] | null>(null)
 const place = signal<OSMPlace | null>(null)
 const address = signal<string>("")
 const loadingAddress = signal(false)
+const isSupportedSignal = signal(true) // Add this line
 
 // 2. Search Signals
 const searchQuery = signal("")
@@ -89,6 +91,7 @@ const formSignal = signal<NewAddress>({
     addressNickname: "",
     postalCode: "",
     addressType: "home",
+    displayAddress: "",
 })
 type FormErrors = Partial<Record<keyof NewAddress, string>>
 const formErrorsSignal = signal<FormErrors>({})
@@ -106,7 +109,7 @@ const getAddressTitle = (place: OSMPlace) => {
     const isUniqueName =
         place.name && place.name !== addr?.road && place.name !== addr?.neighbourhood
 
-    return (isUniqueName ? place.name : road || neighborhood) || "موقع محدد"
+    return (isUniqueName ? place.name : road || neighborhood) || "لم يتم التعرف على الشارع"
 }
 
 const renderAddressDisplay = () => {
@@ -138,6 +141,7 @@ const renderAddressDisplay = () => {
 
 export default function AddAddressOverlay({
     onAddressSubmit,
+    onClose,
     className,
     ...rest
 }: AddAddressOverlayProps) {
@@ -168,15 +172,15 @@ export default function AddAddressOverlay({
     return (
         <div className={clsx(styles.root, className)} {...rest}>
             {currentViewSignal.value === "geoLocation" ? (
-                <GeoLocationWindow />
+                <GeoLocationWindow onClose={onClose} />
             ) : (
-                <DeliverTo onAddressSubmit={onAddressSubmit} />
+                <DeliverTo onAddressSubmit={onAddressSubmit} onClose={onClose} />
             )}
         </div>
     )
 }
 
-function GeoLocationWindow() {
+function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
     useSignals()
     const debouncedFetchAddress = useDebouncedCallback(async (coords: [number, number]) => {
         const result = await safe<OSMPlace>(getAdressByCordinates(coords[0], coords[1]))
@@ -190,6 +194,10 @@ function GeoLocationWindow() {
             })
             return
         }
+        // --- CHECK FOR SAUDI ARABIA ---
+        const countryCode = result.data.address?.country_code?.toLowerCase()
+        isSupportedSignal.value = countryCode === "sa"
+        // ------------------------------
         console.log(result.data)
         address.value = result.data.display_name || "عنوان غير معروف"
         place.value = result.data
@@ -233,7 +241,7 @@ function GeoLocationWindow() {
     const handleSearch = useDebouncedCallback(async (q: string) => {
         if (!q.trim()) return
         searchLoading.value = true
-        const result = await safe<OSMPlace[]>(searchForAddresses(q))
+        const result = await safe<OSMPlace[]>(searchForAddresses(q, selectedCoords.value))
         if (!result.success) {
             showMessage({ content: "Failed to fetch addresses", type: "error" })
             searchResults.value = []
@@ -273,7 +281,7 @@ function GeoLocationWindow() {
                     <House className={styles.labelIcon} />
                     <h3 className={styles.label}>إضافة عنوان جديد</h3>
                 </div>
-                <X onClick={handleCloseOverlay} className={styles.closeIcon} />
+                <X onClick={onClose} className={styles.closeIcon} />
             </div>
 
             <div className={styles.mapSection}>
@@ -323,6 +331,7 @@ function GeoLocationWindow() {
                 <div className={styles.mapContainer}>
                     <MapComponent
                         selectedCoords={selectedCoords.value}
+                        isSupported={isSupportedSignal.value}
                         onLocationSelect={(coords: [number, number]) => {
                             selectedCoords.value = coords
                         }}
@@ -343,24 +352,24 @@ function GeoLocationWindow() {
                 <Button
                     type="primary"
                     className={styles.submitBtn}
-                    disabled={!selectedCoords.value || loadingAddress.value}
+                    // Disable button if address is not supported
+                    disabled={
+                        !selectedCoords.value || loadingAddress.value || !isSupportedSignal.value
+                    }
                     onClick={() => {
                         if (place.value) {
                             currentViewSignal.value = "deliverTo"
                         }
                     }}
                 >
-                    تأكيد العنوان
+                    {/* Change label based on support */}
+                    {isSupportedSignal.value ? "تأكيد العنوان" : "الموقع غير مدعوم"}
                 </Button>
             </div>
         </div>
     )
 }
 
-// 1. Add this near your other signals at the top of the file
-const hasSubmittedSignal = signal(false)
-
-// 2. Add a pure validation function (No state management inside it!)
 const validateForm = (): boolean => {
     const data = formSignal.value
     const errors: FormErrors = {}
@@ -379,8 +388,13 @@ const validateForm = (): boolean => {
     formErrorsSignal.value = errors
     return Object.keys(errors).length === 0
 }
-
-function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) => void }) {
+function DeliverTo({
+    onAddressSubmit,
+    onClose,
+}: {
+    onAddressSubmit?: (address: NewAddress) => void
+    onClose?: () => void
+}) {
     useSignals()
     // 1. Define Refs for the fields that have validation
     const recipientNameRef = useRef<HTMLDivElement>(null)
@@ -406,6 +420,7 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
 
         if (isValid) {
             onAddressSubmit?.(formSignal.value)
+            onClose?.()
         } else {
             // 3. Find the first key in the error object
             const firstErrorKey = Object.keys(formErrorsSignal.value)[0]
@@ -431,7 +446,7 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                     />
                     <h3 className={styles.label}>تسليم إلى</h3>
                 </div>
-                <X onClick={handleCloseOverlay} className={styles.closeIcon} />
+                <X onClick={onClose} className={styles.closeIcon} />
             </div>
 
             <div className={styles.main}>
@@ -454,7 +469,6 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                     </Button>
                 </div>
                 <div className={styles.form}>
-                    {/* 1. Delivery Location (Auto-filled + Postal Code) */}
                     <div className={styles.section}>
                         <h4 className={styles.title}>موقع التوصيل</h4>
                         <div className={styles.row}>
@@ -463,7 +477,6 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 value={formSignal.value.region}
                                 readOnly
                                 icon={MapPin}
-                                // Better: Explains how to change it since it's read-only
                                 tooltip="يتم تحديد المدينة بناءً على موقع الدبوس. لتغييرها، يرجى تعديل الموقع على الخريطة."
                             />
                             <TextBox
@@ -471,7 +484,6 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 icon={MapPin}
                                 value={formSignal.value.city}
                                 readOnly
-                                // Better: Explains why it's locked
                                 tooltip="تم استخراج اسم الحي تلقائياً من الإحداثيات لضمان دقة التوصيل."
                             />
                         </div>
@@ -506,7 +518,7 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                           : ""
                                 }
                                 label="الرمز البريدي"
-                                placeholder="مثال: 12271"
+                                placeholder="مثال: 12271 (اختياري)"
                                 // Better: Explains where to find it (Commonly found on the green building plates in KSA)
                                 tooltip="الرمز البريدي (5 أرقام) موجود في تفاصيل عنوانك الوطني ."
                                 readOnly={foundPostalCode !== undefined}
@@ -527,16 +539,6 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
 
                         {/* Row 1: Building Number & Short Code */}
                         <div className={styles.row}>
-                            {/* <TextBox
-                                label="رقم المبنى (4 أرقام)"
-                                placeholder="مثال: 7422"
-                                required
-                                tooltip="الرقم المكون من 4 أرقام (موجود على اللوحة الخضراء)"
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={4}
-                                icon={Building}
-                            /> */}
                             <TextBox
                                 ref={buildingNumberRef}
                                 label="رقم المبنى (4 أرقام)"
@@ -549,7 +551,7 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 onChange={(e) => {
                                     formSignal.value = {
                                         ...formSignal.value,
-                                        buildingNumber: e.target.value,
+                                        buildingNumber: e.target.value.replace(/[^0-9]/g, ""),
                                     }
                                     validateForm()
                                 }}
@@ -560,6 +562,13 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 tooltip="رمز العنوان الوطني المكون من 8 أحرف وأرقام (اختياري)"
                                 maxLength={8}
                                 style={{ textTransform: "uppercase" }}
+                                value={formSignal.value.shortCode || ""}
+                                onChange={(e) =>
+                                    (formSignal.value = {
+                                        ...formSignal.value,
+                                        shortCode: e.target.value,
+                                    })
+                                }
                             />
                         </div>
 
@@ -571,12 +580,26 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                                 placeholder="مثال: شقة 12، الدور 3"
                                 tooltip="رقم الشقة و الطابق (اتركه فارغاً إذا كان العنوان فيلا)"
                                 icon={House}
+                                value={formSignal.value.unitNumber || ""}
+                                onChange={(e) =>
+                                    (formSignal.value = {
+                                        ...formSignal.value,
+                                        unitNumber: e.target.value,
+                                    })
+                                }
                             />
                             <TextBox
                                 label="اسم المبنى / المجمّع"
                                 icon={Building}
                                 placeholder="مثال: برج الراجحي / مجمع نجد (اختياري)"
                                 tooltip="يساعد المندوب في التعرف على موقعك أسرع (اختياري)"
+                                value={formSignal.value.buildingName || ""}
+                                onChange={(e) =>
+                                    (formSignal.value = {
+                                        ...formSignal.value,
+                                        buildingName: e.target.value,
+                                    })
+                                }
                             />
                         </div>
 
@@ -584,6 +607,13 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                             label="وصف إضافي للموقع"
                             placeholder="مثال: بجوار مسجد الملك خالد (اختياري)"
                             tooltip="أي معالم قريبة أو تعليمات إضافية تساعدنا في الوصول إليك بسهولة"
+                            value={formSignal.value.landmark || ""}
+                            onChange={(e) =>
+                                (formSignal.value = {
+                                    ...formSignal.value,
+                                    landmark: e.target.value,
+                                })
+                            }
                         />
 
                         <MultiSelect
@@ -625,14 +655,17 @@ function DeliverTo({ onAddressSubmit }: { onAddressSubmit?: (place: NewAddress) 
                             />
                         </div>
                         <PhoneInput
+                            ref={phoneNumberRef}
                             className={styles.phoneInput}
+                            error={formErrorsSignal.value.phoneNumber}
                             value={formSignal.value.phoneNumber}
-                            onChange={(value) =>
-                                (formSignal.value = {
+                            onChange={(value) => {
+                                formSignal.value = {
                                     ...formSignal.value,
                                     phoneNumber: value,
-                                })
-                            }
+                                }
+                                validateForm()
+                            }}
                         />
                     </div>
                 </div>

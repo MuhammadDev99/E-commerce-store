@@ -158,15 +158,100 @@ export async function getAdressByCordinates(lat: number, lng: number, language: 
     return data
 }
 
-export async function searchForAddresses(query: string): Promise<OSMPlace[]> {
-    const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&countrycodes=sa`,
-        { headers: { "Accept-Language": "ar,en" } },
-    )
-    const data = await response.json() as OSMPlace[]
-    return data
-}
+// export async function searchForAddresses(query: string, coords: [number, number] | null | undefined): Promise<OSMPlace[]> {
+//     const response = await fetch(
+//         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&countrycodes=sa`,
+//         { headers: { "Accept-Language": "ar,en" } },
+//     )
+//     const data = await response.json() as OSMPlace[]
+//     return data
+// }
 
+export async function searchForAddresses(
+    query: string,
+    coords: [number, number] | null | undefined
+): Promise<OSMPlace[]> {
+    let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=10&addressdetails=1&countrycodes=sa`;
+
+    // If coordinates are provided, create a "viewbox" to bias results to that area
+    if (coords && coords[0] !== 0) {
+        const [lat, lon] = coords;
+        const delta = 0.1; // Approximately 10km-15km radius
+
+        // Viewbox format: <left>,<top>,<right>,<bottom>
+        const viewbox = `${lon - delta},${lat + delta},${lon + delta},${lat - delta}`;
+
+        // bounded=0 means "prioritize this area but search elsewhere if not found"
+        // bounded=1 means "ONLY search inside this area"
+        url += `&viewbox=${viewbox}&bounded=0`;
+    }
+
+    const response = await fetch(url, {
+        headers: {
+            "Accept-Language": "ar,en",
+            "User-Agent": "YourAppName/1.0" // OSM policy prefers a User-Agent
+        }
+    });
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    return data as OSMPlace[];
+}
+// export function mapOSMToFormValue(
+//     osm: OSMPlace,
+//     currentForm: NewAddress
+// ): NewAddress {
+//     const { address: addr } = osm;
+
+//     // Helper to clean common Arabic prefixes (optional but recommended)
+//     const cleanName = (name: string | undefined) => {
+//         if (!name) return "";
+//         // Removes "محافظة " or "منطقة " to leave just the name like "الرياض"
+//         return name.replace(/^(محافظة|منطقة)\s+/, "").trim();
+//     };
+
+//     return {
+//         ...currentForm,
+//         latitude: osm.lat,
+//         longitude: osm.lon,
+
+//         // 1. Region: Usually 'state' (Region) is the top-level administrative area
+//         region: cleanName(addr.state || addr.province || ""),
+
+//         // 2. City: Improved fallback hierarchy
+//         // Added 'province' and 'county' as fallbacks for cities
+//         city: cleanName(
+//             addr.city ||
+//             addr.town ||
+//             addr.village ||
+//             addr.municipality ||
+//             addr.province ||
+//             addr.county ||
+//             ""
+//         ),
+
+//         // 3. District: 'suburb' is 'حي'
+//         district: addr.suburb || addr.neighbourhood || addr.city_district || "",
+
+//         // 4. Street
+//         street: addr.road || "",
+
+//         // 5. Building Number
+//         buildingNumber: (addr["house_number"] as string) || "",
+
+//         // 6. Building Name
+//         buildingName: addr.amenity || (addr["building"] as string) || null,
+
+//         // 7. Metadata
+//         postalCode: addr.postcode || null,
+//         countryCode: addr.country_code?.toUpperCase() || "",
+
+//         // 8. Landmark
+//         landmark: addr.amenity || addr.neighbourhood || null,
+//         displayAddress: osm.display_name
+//     };
+// }
 
 export function mapOSMToFormValue(
     osm: OSMPlace,
@@ -174,36 +259,51 @@ export function mapOSMToFormValue(
 ): NewAddress {
     const { address: addr } = osm;
 
+    const cleanName = (name: string | undefined) => {
+        if (!name) return "";
+        // Added 'بلدية' to the cleaning regex
+        return name.replace(/^(محافظة|منطقة|بلدية)\s+/, "").trim();
+    };
+
+    // Logical Hierarchy:
+    // 1. Region -> state (e.g., Riyadh Region)
+    // 2. City   -> city or province (e.g., Riyadh City/Province)
+    // 3. District -> suburb, neighbourhood, or municipality (e.g., Al-Ma'athar)
+
+    const region = cleanName(addr.state || "");
+
+    const city = cleanName(
+        addr.city ||
+        addr.province ||
+        addr.town ||
+        ""
+    );
+
+    const district = cleanName(
+        addr.suburb ||
+        addr.neighbourhood ||
+        addr.municipality || // In SA, municipality often represents the district
+        addr.city_district ||
+        ""
+    );
+
     return {
-        ...currentForm, // Preserve fields like userId, phoneNumber, recipientName
+        ...currentForm,
         latitude: osm.lat,
         longitude: osm.lon,
 
-        // Mapping Logic:
-        // 1. Region: Usually 'state' or 'province'
-        region: addr.state || addr.province || "",
+        region: region,
+        city: city,
+        district: district,
 
-        // 2. City: OSM uses a hierarchy based on size
-        city: addr.city || addr.town || addr.village || addr.municipality || "",
-
-        // 3. District: 'suburb' is usually the best match for 'حي' (District)
-        district: addr.suburb || addr.neighbourhood || addr.city_district || "",
-
-        // 4. Street: 'road' is the standard OSM key for streets
         street: addr.road || "",
-
-        // 5. Building Number: Handled via the index signature in your OSMAddress type
         buildingNumber: (addr["house_number"] as string) || "",
-
-        // 6. Building Name: 'amenity' (like "Mall of Arabia") or 'building'
         buildingName: addr.amenity || (addr["building"] as string) || null,
-
-        // 7. Metadata
         postalCode: addr.postcode || null,
         countryCode: addr.country_code?.toUpperCase() || "",
 
-        // 8. Landmark: Use amenity or the most specific location name available
-        landmark: addr.amenity || addr.neighbourhood || null,
+        // Use the district or municipality as a landmark if amenity is missing
+        landmark: addr.amenity || addr.neighbourhood || addr.municipality || null,
+        displayAddress: osm.display_name
     };
-};
-
+}

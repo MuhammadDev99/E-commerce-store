@@ -4,7 +4,17 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { useState, useEffect } from "react"
 
-function MapController({ coords, setCoords, interactive, zoom }: any) {
+type Coordinates = [number, number]
+
+interface MapControllerProps {
+    coords: Coordinates | null
+    setCoords?: (coords: Coordinates) => void
+    interactive: boolean
+    zoom: number
+    isSupported?: boolean
+}
+
+function MapController({ coords, setCoords, interactive, zoom, isSupported }: MapControllerProps) {
     const map = useMap()
 
     useEffect(() => {
@@ -34,21 +44,33 @@ function MapController({ coords, setCoords, interactive, zoom }: any) {
             ${
                 interactive
                     ? `
-            <div style="background:rgba(255,255,255,1); padding:0.2em 0.5em; border-radius:0.5em; border:0.125em solid var(--primary-3); font-weight:bold; margin-bottom:0.25em; white-space:nowrap; font-size:1em; color:#000; box-shadow: 0 0.125em 0.25em rgba(0,0,0,0.2);">
-                عنوان استلام الطلب
+            <div style="
+                background:white; 
+                padding:0.2em 0.5em; 
+                border-radius:0.5em; 
+                border:0.125em solid ${isSupported ? "var(--primary-3)" : "#ff4d4f"}; 
+                font-weight:bold; 
+                margin-bottom:0.25em; 
+                white-space:nowrap; 
+                font-size:1em; 
+                color:${isSupported ? "#000" : "#ff4d4f"}; 
+                box-shadow: 0 0.125em 0.25em rgba(0,0,0,0.2);">
+                ${isSupported ? "عنوان استلام الطلب" : "العنوان غير مدعوم"}
             </div>`
                     : ""
             }
             <img 
                 src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png" 
-                style="width:1.5625em; height:2.5625em; filter:drop-shadow(0 0.125em 0.25em rgba(0,0,0,0.4));" 
+                style="
+                    width:1.5625em; 
+                    height:2.5625em; 
+                    filter: ${isSupported ? "none" : "hue-rotate(140deg)"}; 
+                    drop-shadow(0 0.125em 0.25em rgba(0,0,0,0.4));" 
             />
         </div>`,
         className: "",
-        // Leaflet expects numbers here, but these numbers represent the total
-        // footprint of your HTML div in pixels relative to the font-size.
-        iconSize: [100, 100], // A large enough container to prevent clipping
-        iconAnchor: [50, interactive ? 90 : 45], // This is the horizontal center and vertical tip
+        iconSize: [100, 100],
+        iconAnchor: [50, interactive ? 90 : 45],
     })
 
     return coords ? <Marker position={coords} icon={customDivIcon} /> : null
@@ -60,6 +82,7 @@ export default function Map({
     selectedCoords,
     interactive = true,
     zoom = 13,
+    isSupported = true,
 }: any) {
     const [isMounted, setIsMounted] = useState(false)
 
@@ -92,6 +115,7 @@ export default function Map({
                 setCoords={onLocationSelect}
                 interactive={interactive}
                 zoom={zoom}
+                isSupported={isSupported}
             />
         </MapContainer>
     )

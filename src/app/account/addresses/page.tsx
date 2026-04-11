@@ -5,10 +5,14 @@ import clsx from "clsx"
 import AddressCardButton from "@/components/AddressCardButton"
 import { useSignal, useSignals } from "@preact/signals-react/runtime"
 import AddAddressOverlay from "@/components/AddAddressOverlay"
+import { NewAddress } from "@/types"
 
 export default function AddressesPage() {
     useSignals()
     const showAddressOverlay = useSignal<boolean>(true)
+    const handleSaveAddress = (address: NewAddress) => {
+        console.log(address)
+    }
     return (
         <div className={clsx(styles.page)}>
             <div className={styles.titleWrapper}>
@@ -23,7 +27,12 @@ export default function AddressesPage() {
                 <AddressCardButton
                     onClick={() => (showAddressOverlay.value = !showAddressOverlay.value)}
                 />
-                {showAddressOverlay.value && <AddAddressOverlay />}
+                {showAddressOverlay.value && (
+                    <AddAddressOverlay
+                        onClose={() => (showAddressOverlay.value = false)}
+                        onAddressSubmit={handleSaveAddress}
+                    />
+                )}
             </div>
         </div>
     )

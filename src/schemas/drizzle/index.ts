@@ -189,6 +189,7 @@ export const addresses = pgTable("addresses", {
     addressType: addressTypeEnum("address_type").default("home").notNull(),
     addressNickname: varchar("address_nickname", { length: 100 }),
     recipientName: text("recipient_name").notNull(),
+    displayAddress: text("display_address").notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),

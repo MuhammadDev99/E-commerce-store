@@ -12,6 +12,7 @@
   .window {
     margin: auto;
     width: 50em;
+    max-width: 95%;
     height: 90vh;
     border-radius: var(--border-radius-3);
     box-sizing: border-box;
