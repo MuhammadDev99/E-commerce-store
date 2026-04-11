@@ -105,7 +105,8 @@ export const orders = pgTable("orders", {
     userId: text("user_id").notNull().references(() => user.id),
 
     // Link to the address used for this order
-    addressId: integer("address_id").references(() => addresses.id),
+    addressId: uuid("address_id").references(() => addresses.id),
+
 
     // Logistics specific
     otoOrderId: text("oto_order_id"),
@@ -151,7 +152,7 @@ export const userPreferences = pgTable("user_preferences", {
     userId: text("user_id")
         .primaryKey()
         .references(() => user.id, { onDelete: "cascade" }),
-    defaultAdressId: integer("default_address_id")
+    defaultAddressId: uuid("default_address_id")
         .references(() => addresses.id, { onDelete: "set null" }),
 });
 
@@ -171,7 +172,7 @@ export const addresses = pgTable("addresses", {
     street: text("street").notNull(),
 
     // New Fields
-    postalCode: varchar("postal_code", { length: 10 }), // KSA Postcodes are 5 digits (e.g., 11391)
+    postalCode: varchar("postal_code", { length: 64 }), // KSA Postcodes are 5 digits (e.g., 11391)
     countryCode: varchar("country_code", { length: 2 }).default("SA").notNull(), // ISO-2 (e.g., "SA")
 
     // Accuracy: 10,8 is standard for sub-meter GPS precision
@@ -179,15 +180,15 @@ export const addresses = pgTable("addresses", {
     longitude: decimal("longitude", { precision: 11, scale: 8 }).notNull(),
 
     // --- Data from User (Manual Input) ---
-    buildingNumber: varchar("building_number", { length: 10 }).notNull(),
-    unitNumber: varchar("unit_number", { length: 50 }),
+    buildingNumber: varchar("building_number", { length: 64 }).notNull(),
+    unitNumber: varchar("unit_number", { length: 128 }),
     buildingName: varchar("building_name", { length: 255 }),
-    shortCode: varchar("short_code", { length: 10 }),
+    shortCode: varchar("short_code", { length: 64 }),
     landmark: text("landmark"),
 
     // --- Classification & UX ---
     addressType: addressTypeEnum("address_type").default("home").notNull(),
-    addressNickname: varchar("address_nickname", { length: 100 }),
+    addressNickname: varchar("address_nickname", { length: 128 }),
     recipientName: text("recipient_name").notNull(),
     displayAddress: text("display_address").notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }).notNull(),

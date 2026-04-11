@@ -157,12 +157,12 @@ async function getUserId(): Promise<string> {
     if (!session) throw new Error("Unauthorized");
     return session.user.id
 }
-export async function upsertAddress({ form }: { form: NewAddress }): Promise<Address> {
+export async function upsertAddress(address: NewAddress): Promise<Address> {
     const userId = await getUserId();
 
     // 1. Prepare data, ensuring userId is forced to the current user
     const insertData = {
-        ...form,
+        ...address,
         userId,
         updatedAt: new Date(),
     };
@@ -187,7 +187,7 @@ export async function upsertAddress({ form }: { form: NewAddress }): Promise<Add
 
     return upserted;
 }
-export async function setDefaultAddressId(addressId: number): Promise<UserPreferences> {
+export async function setDefaultAddressId(addressId: string): Promise<UserPreferences> {
     const userId = await getUserId();
 
     // We use insert().onConflictDoUpdate() so that:
@@ -197,14 +197,21 @@ export async function setDefaultAddressId(addressId: number): Promise<UserPrefer
         .insert(userPreferences)
         .values({
             userId: userId,
-            defaultAdressId: addressId,
+            defaultAddressId: addressId,
         })
         .onConflictDoUpdate({
             target: userPreferences.userId,
-            set: { defaultAdressId: addressId },
+            set: { defaultAddressId: addressId },
         }).returning()
     if (!preferences) {
         throw new Error("Failed to set default address.");
     }
     return preferences;
+}
+
+
+export async function getAddresses(): Promise<Address[]> {
+    const userId = await getUserId()
+    const items = await db.select().from(addresses).where(eq(addresses.userId, userId))
+    return items
 }

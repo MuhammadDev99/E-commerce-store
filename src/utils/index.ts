@@ -257,53 +257,97 @@ export function mapOSMToFormValue(
     osm: OSMPlace,
     currentForm: NewAddress
 ): NewAddress {
-    const { address: addr } = osm;
+    // Safely default to an empty object if address is somehow missing
+    const addr = osm.address || ({} as Record<string, string>);
 
-    const cleanName = (name: string | undefined) => {
-        if (!name) return "";
-        // Added 'بلدية' to the cleaning regex
-        return name.replace(/^(محافظة|منطقة|بلدية)\s+/, "").trim();
+    /**
+     * 1. Safely strips administrative prefixes. 
+     * We ONLY strip Region, Governorate, and Municipality. 
+     * We do NOT strip "مدينة" (City) or "قرية" (Village) to prevent breaking 
+     * real names like "المدينة المنورة" (Al Madinah) or "قرية العليا" (Qaryat al Ulya).
+     */
+    const cleanName = (val: string | null | undefined): string => {
+        if (!val || typeof val !== "string") return "";
+        const regex = /^((ال)?منطقة|(ال)?محافظة|(ال)?بلدية)\s+/i;
+        return val.replace(regex, "").trim();
     };
 
-    // Logical Hierarchy:
-    // 1. Region -> state (e.g., Riyadh Region)
-    // 2. City   -> city or province (e.g., Riyadh City/Province)
-    // 3. District -> suburb, neighbourhood, or municipality (e.g., Al-Ma'athar)
+    /**
+     * 2. Helper to check multiple OSM keys in order of preference.
+     * Returns the first one that exists and has a value.
+     */
+    const getFirstValid = (keys: string[]): string => {
+        for (const key of keys) {
+            if (addr[key] && typeof addr[key] === "string" && addr[key].trim() !== "") {
+                return addr[key].trim();
+            }
+        }
+        return "";
+    };
 
-    const region = cleanName(addr.state || "");
+    // 3. Map Geographical Hierarchy
+    // Region: State is the standard, but state_district or region act as backups.
+    const regionRaw = getFirstValid(["state", "state_district", "region"]);
+    const region = cleanName(regionRaw);
 
-    const city = cleanName(
-        addr.city ||
-        addr.province ||
-        addr.town ||
-        ""
-    );
+    // City: City > Town > Province (Governorate) > County > Municipality
+    const cityRaw = getFirstValid(["city", "town", "province", "county", "municipality"]);
+    const city = cleanName(cityRaw);
 
-    const district = cleanName(
-        addr.suburb ||
-        addr.neighbourhood ||
-        addr.municipality || // In SA, municipality often represents the district
-        addr.city_district ||
-        ""
-    );
+    // District: Neighborhoods, Suburbs, or Rural Villages act as the district.
+    const districtRaw = getFirstValid([
+        "neighbourhood", "suburb", "quarter", "village",
+        "city_district", "district", "hamlet", "isolated_dwelling"
+    ]);
+    const district = cleanName(districtRaw);
 
+    // 4. Map Specific Address Details
+    const street = getFirstValid(["road", "pedestrian", "path", "street"]);
+    const buildingNumber = getFirstValid(["house_number", "street_number"]);
+    const postalCode = getFirstValid(["postcode"]);
+    const countryCode = (addr["country_code"] || "").toUpperCase();
+
+    // 5. Intelligent Building / Landmark Detection
+    // OSM stores POIs in these specific keys...
+    let buildingNameRaw = getFirstValid([
+        "amenity", "building", "shop", "office", "tourism", "leisure", "historic"
+    ]);
+
+    // ...OR it stores the POI in the top-level `osm.name`.
+    // We must ensure `osm.name` isn't just duplicating the street or city name.
+    const osmTopName = (osm.name || "").trim();
+    const isPOIName = osmTopName &&
+        osmTopName !== street &&
+        osmTopName !== cityRaw &&
+        osmTopName !== districtRaw &&
+        osmTopName !== regionRaw;
+
+    if (!buildingNameRaw && isPOIName) {
+        buildingNameRaw = osmTopName; // e.g., "Al-Rajihi Bank", "King Khalid Hospital"
+    }
+
+    const buildingName = buildingNameRaw || null;
+
+    // Landmark falls back to the building name, then district, then city.
+    const landmark = buildingNameRaw || district || city || null;
+
+    // 6. Return Final Object
     return {
         ...currentForm,
-        latitude: osm.lat,
-        longitude: osm.lon,
+        latitude: osm.lat || "",
+        longitude: osm.lon || "",
 
-        region: region,
-        city: city,
-        district: district,
+        region,
+        city,
+        district,
 
-        street: addr.road || "",
-        buildingNumber: (addr["house_number"] as string) || "",
-        buildingName: addr.amenity || (addr["building"] as string) || null,
-        postalCode: addr.postcode || null,
-        countryCode: addr.country_code?.toUpperCase() || "",
+        street,
+        buildingNumber,
+        buildingName,
+        postalCode,
+        countryCode,
 
-        // Use the district or municipality as a landmark if amenity is missing
-        landmark: addr.amenity || addr.neighbourhood || addr.municipality || null,
-        displayAddress: osm.display_name
+        landmark,
+        displayAddress: (osm.display_name || "").trim()
     };
 }

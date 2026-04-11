@@ -1,5 +1,135 @@
 .root {
+  /* Base font size for the card */
+  font-size: 1em;
+  background-color: #ffffff;
+  border: 0.1em solid #e5e7eb;
+  border-radius: var(--border-radius-3);
   display: flex;
   flex-direction: column;
-  background-color: aqua;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  text-align: start;
+}
+
+.root:hover {
+  border-color: var(--primary-4);
+  box-shadow: var(--focus-ring-shadow-2);
+}
+
+.root:has(.deleteBtn:hover) {
+  border-color: var(--color-red-4);
+  box-shadow: 0 0 0 0.2em color-mix(in srgb, var(--color-red-4), transparent 90%);
+}
+
+.header {
+  padding: 1.25em 1.25em 0.5em;
+}
+
+.titleArea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75em;
+}
+
+.recipientName {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+  color: #111827;
+}
+
+.badge {
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 0.2em 0.6em;
+  border-radius: var(--border-radius-1);
+}
+
+.home {
+  background-color: var(--color-azure-1);
+  color: var(--color-azure-4);
+}
+
+.work {
+  background-color: var(--color-mango-1);
+  color: var(--color-mango-4);
+}
+
+.other {
+  background-color: #f9fafb;
+  color: #4b5563;
+}
+
+.body {
+  padding: 0 1.25em 1.25em;
+  flex-grow: 1;
+}
+
+.displayAddress {
+  margin: 0 0 0.75em;
+  font-size: 0.875em;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.phone {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.875em;
+  color: #6b7280;
+}
+
+.icon {
+  width: 0.875em;
+  height: 0.875em;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  border-top: 0.0625em solid #f3f4f6;
+  background-color: #f9fafb;
+}
+
+.editBtn,
+.deleteBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.875em;
+  font-size: 0.875em;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editBtn {
+  color: #4b5563;
+  border-inline-end: 0.0625em solid #e5e7eb;
+}
+
+.editBtn:hover {
+  background-color: var(--primary-11);
+  color: var(--primary-4);
+}
+
+.deleteBtn {
+  color: var(--black-7);
+}
+
+.deleteBtn:hover {
+  background-color: var(--color-red-1);
+  color: var(--color-red-4);
+}
+
+.btnIcon {
+  width: 1.125em;
+  height: 1.125em;
 }

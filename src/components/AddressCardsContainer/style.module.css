@@ -1,0 +1,8 @@
+.root {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  background-color: white;
+  padding: 1em;
+  border-radius: var(--border-radius-3)
+}
