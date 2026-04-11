@@ -215,3 +215,24 @@ export async function getAddresses(): Promise<Address[]> {
     const items = await db.select().from(addresses).where(eq(addresses.userId, userId))
     return items
 }
+export async function deleteAddressById(addressId: string): Promise<Address> {
+    const userId = await getUserId();
+
+    // Perform the deletion with a security check on userId
+    const [deletedAddress] = await db
+        .delete(addresses)
+        .where(
+            and(
+                eq(addresses.id, addressId),
+                eq(addresses.userId, userId)
+            )
+        )
+        .returning();
+
+    // Optional: Throw an error if nothing was deleted (e.g., ID doesn't exist or wrong user)
+    if (!deletedAddress) {
+        throw new Error("Address not found");
+    }
+
+    return deletedAddress;
+}

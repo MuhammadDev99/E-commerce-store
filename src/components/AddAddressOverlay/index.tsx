@@ -33,9 +33,9 @@ import SearchBox2 from "../SearchBox2"
 
 // Utils & Types
 import { safe } from "@/utils/safe"
-import { getAdressByCordinates, searchForAddresses, mapOSMToFormValue } from "@/utils"
+import { getAddressByCordinates, searchForAddresses, mapOSMToFormValue } from "@/utils"
 import { showMessage } from "@/utils/showMessage"
-import { NewAddress, OSMPlace } from "@/types"
+import { Address, NewAddress, OSMPlace } from "@/types"
 import styles from "./style.module.css"
 import { useDebouncedCallback } from "@/hooks"
 import { signal } from "@preact/signals-react"
@@ -45,11 +45,6 @@ import MultiSelect from "../MultiSelect"
 import { authClient } from "@/lib/auth-client"
 import { useSignals } from "@preact/signals-react/runtime"
 
-interface AddAddressOverlayProps extends ComponentPropsWithoutRef<"div"> {
-    onAddressSubmit?: (place: NewAddress) => void
-    onClose?: () => void
-}
-
 // --- Dynamic Imports ---
 const MapComponent = dynamic(() => import("../Map"), {
     ssr: false,
@@ -57,11 +52,12 @@ const MapComponent = dynamic(() => import("../Map"), {
 })
 const currentViewSignal = signal<"geoLocation" | "deliverTo">("geoLocation")
 // 1. Location Signals
-const selectedCoords = signal<[number, number] | null>(null)
+// const selectedCoords = signal<[number, number] | null>(null)
 const place = signal<OSMPlace | null>(null)
-const address = signal<string>("")
+// const address = signal<string>("")
 const loadingAddress = signal(false)
 const isSupportedSignal = signal(true) // Add this line
+const lastFetchedCoordsSignal = signal<string | null>(null)
 
 // 2. Search Signals
 const searchQuery = signal("")
@@ -111,11 +107,25 @@ const getAddressTitle = (place: OSMPlace) => {
 
     return (isUniqueName ? place.name : road || neighborhood) || "لم يتم التعرف على الشارع"
 }
-
+function getFormCoords(): [number, number] | null {
+    const lat = parseFloat(formSignal.value.latitude)
+    const lng = parseFloat(formSignal.value.longitude)
+    if (isNaN(lat) || isNaN(lng)) return null
+    return [lat, lng]
+}
+function setFormCoords(coords: [number, number]) {
+    formSignal.value = {
+        ...formSignal.value,
+        longitude: coords[1].toString(),
+        latitude: coords[0].toString(),
+    }
+}
 const renderAddressDisplay = () => {
-    if (!selectedCoords.value) {
+    if (!getFormCoords()) {
         return (
-            <p className={styles.addressText}>{address.value || "يرجى تحديد موقع على الخريطة"}</p>
+            <p className={styles.addressText}>
+                {formSignal.value.displayAddress || "يرجى تحديد موقع على الخريطة"}
+            </p>
         )
     }
     if (loadingAddress.value) {
@@ -139,27 +149,99 @@ const renderAddressDisplay = () => {
     }
 }
 
+const resetAddressSignals = () => {
+    currentViewSignal.value = "geoLocation"
+    place.value = null
+    loadingAddress.value = false
+    isSupportedSignal.value = true
+    lastFetchedCoordsSignal.value = null
+    searchQuery.value = ""
+    searchResults.value = []
+    searchLoading.value = false
+    dropdownOpen.value = false
+    formErrorsSignal.value = {}
+    formSignal.value = {
+        phoneNumber: "",
+        userId: "",
+        region: "",
+        city: "",
+        district: "",
+        street: "",
+        latitude: "",
+        longitude: "",
+        buildingNumber: "",
+        recipientName: "",
+        addressNickname: "",
+        postalCode: "",
+        addressType: "home",
+        displayAddress: "",
+    }
+}
+interface AddAddressOverlayProps extends ComponentPropsWithoutRef<"div"> {
+    onAddressSubmit?: (place: NewAddress) => void
+    onClose?: () => void
+    address?: Address | null
+}
+
 export default function AddAddressOverlay({
     onAddressSubmit,
     onClose,
     className,
+    address,
     ...rest
 }: AddAddressOverlayProps) {
     useSignals()
+    // Create a wrapper for onClose to ensure reset happens
+    const handleClose = () => {
+        resetAddressSignals()
+        onClose?.()
+    }
+    useEffect(() => {
+        console.log(address)
+        if (address) {
+            formSignal.value = address
+            currentViewSignal.value = "deliverTo"
+        }
+    }, [address]) // This runs only when the address prop changes
+
     const { data: session } = authClient.useSession()
 
     // 1. Hydration Guard
     const [mounted, setMounted] = useState(false)
-
+    const windowRef = useRef<HTMLDivElement | null>(null)
+    // Inside AddAddressOverlay component
     useEffect(() => {
         setMounted(true)
 
-        // 2. Sync session data only on mount/change
+        const handleClickOutside = (e: MouseEvent) => {
+            const target = e.target as Node
+
+            // 1. Check if the element is still connected to the document
+            // If it's not, it was unmounted (like the dropdown item)
+            // and we should ignore this click.
+            if (!document.contains(target)) {
+                return
+            }
+
+            // 2. Normal "click outside" check
+            if (windowRef.current && !windowRef.current.contains(target)) {
+                handleClose()
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [onClose])
+    useEffect(() => {
+        setMounted(true)
+
         if (session?.user) {
             formSignal.value = {
                 ...formSignal.value,
-                phoneNumber: session.user.phoneNumber || "",
-                recipientName: session.user.name || "",
+                recipientName: formSignal.value.recipientName || session.user.name || "",
+                phoneNumber: formSignal.value.phoneNumber || session.user.phoneNumber || "",
             }
         }
     }, [session])
@@ -171,23 +253,32 @@ export default function AddAddressOverlay({
 
     return (
         <div className={clsx(styles.root, className)} {...rest}>
-            {currentViewSignal.value === "geoLocation" ? (
-                <GeoLocationWindow onClose={onClose} />
-            ) : (
-                <DeliverTo onAddressSubmit={onAddressSubmit} onClose={onClose} />
-            )}
+            <div ref={windowRef} className={styles.windowWrapper}>
+                {currentViewSignal.value === "geoLocation" ? (
+                    <GeoLocationWindow onClose={handleClose} />
+                ) : (
+                    <DeliverTo onAddressSubmit={onAddressSubmit} onClose={handleClose} />
+                )}
+            </div>
         </div>
     )
 }
 
 function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
     useSignals()
+    const formCoords = getFormCoords()
     const debouncedFetchAddress = useDebouncedCallback(async (coords: [number, number]) => {
-        const result = await safe<OSMPlace>(getAdressByCordinates(coords[0], coords[1]))
+        const result = await safe<OSMPlace>(getAddressByCordinates(coords[0], coords[1]))
 
         if (!result.success) {
             loadingAddress.value = false
-            address.value = "حدث خطأ"
+            formSignal.value = {
+                ...formSignal.value,
+                city: "",
+                street: "",
+                region: "",
+                postalCode: "",
+            }
             showMessage({
                 content: "حدث خطأ أثناء جلب العنوان: " + result.error.message,
                 type: "error",
@@ -199,23 +290,28 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
         isSupportedSignal.value = countryCode === "sa"
         // ------------------------------
         console.log(result.data)
-        address.value = result.data.display_name || "عنوان غير معروف"
         place.value = result.data
         loadingAddress.value = false
-        formSignal.value = mapOSMToFormValue(result.data, formSignal.value)
+        formSignal.value = mapOSMToFormValue(result.data, formSignal.value, formCoords)
     }, 800) // Wait 800ms after the last call before executing
 
-    // 2. Trigger it via useEffect
     useEffect(() => {
-        if (!selectedCoords.value) return
+        if (formCoords) {
+            // Create a unique string for the current coordinates
+            const currentCoordsKey = `${formCoords[0]},${formCoords[1]}`
 
-        // Immediately show loading state when coordinates change
-        loadingAddress.value = true
-        // Pass the latest coordinates to the debounced function
-        if (selectedCoords.value) {
-            debouncedFetchAddress(selectedCoords.value)
+            // If we already fetched the address for these exact coordinates, skip the fetch!
+            if (lastFetchedCoordsSignal.value === currentCoordsKey) {
+                return
+            }
+
+            loadingAddress.value = true
+            debouncedFetchAddress(formCoords)
+
+            // Save these coordinates as the last fetched ones
+            lastFetchedCoordsSignal.value = currentCoordsKey
         }
-    }, [selectedCoords.value, debouncedFetchAddress])
+    }, [formSignal.value.longitude, formSignal.value.latitude])
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -230,18 +326,10 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
-    // Fetch address details when coordinates change
-    useEffect(() => {
-        if (!selectedCoords.value) return
-        debouncedFetchAddress(selectedCoords.value)
-    }, [selectedCoords.value])
-
-    // --- Handlers ---
-
     const handleSearch = useDebouncedCallback(async (q: string) => {
         if (!q.trim()) return
         searchLoading.value = true
-        const result = await safe<OSMPlace[]>(searchForAddresses(q, selectedCoords.value))
+        const result = await safe<OSMPlace[]>(searchForAddresses(q, formCoords))
         if (!result.success) {
             showMessage({ content: "Failed to fetch addresses", type: "error" })
             searchResults.value = []
@@ -256,7 +344,7 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
 
     const handleSelectResult = (result: OSMPlace) => {
         const coords: [number, number] = [parseFloat(result.lat), parseFloat(result.lon)]
-        selectedCoords.value = coords
+        setFormCoords(coords)
         searchQuery.value = result.display_name
         dropdownOpen.value = false
         searchResults.value = []
@@ -266,7 +354,7 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
         if (!navigator.geolocation) return
         navigator.geolocation.getCurrentPosition(
             ({ coords: { latitude, longitude } }) => {
-                selectedCoords.value = [latitude, longitude]
+                setFormCoords([latitude, longitude])
             },
             () => alert("يرجى تفعيل صلاحيات الموقع الجغرافي"),
         )
@@ -330,10 +418,10 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
 
                 <div className={styles.mapContainer}>
                     <MapComponent
-                        selectedCoords={selectedCoords.value}
+                        selectedCoords={formCoords}
                         isSupported={isSupportedSignal.value}
                         onLocationSelect={(coords: [number, number]) => {
-                            selectedCoords.value = coords
+                            setFormCoords(coords)
                         }}
                     />
                 </div>
@@ -353,9 +441,7 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
                     type="primary"
                     className={styles.submitBtn}
                     // Disable button if address is not supported
-                    disabled={
-                        !selectedCoords.value || loadingAddress.value || !isSupportedSignal.value
-                    }
+                    disabled={!formCoords || loadingAddress.value || !isSupportedSignal.value}
                     onClick={() => {
                         if (place.value) {
                             currentViewSignal.value = "deliverTo"
@@ -396,6 +482,7 @@ function DeliverTo({
     onClose?: () => void
 }) {
     useSignals()
+    const formCoords = getFormCoords()
     // 1. Define Refs for the fields that have validation
     const recipientNameRef = useRef<HTMLDivElement>(null)
     const buildingNumberRef = useRef<HTMLDivElement>(null)
@@ -405,15 +492,17 @@ function DeliverTo({
         buildingNumber: buildingNumberRef,
         phoneNumber: phoneNumberRef,
     }
-    // 4. Move the "Redirect" logic to an effect, not the render body
-    useEffect(() => {
-        if (!place.value) {
-            currentViewSignal.value = "geoLocation"
-        }
-    }, [])
+    if (!formSignal.value.city || !formSignal.value.region) {
+        currentViewSignal.value = "geoLocation"
+    }
+    // useEffect(() => {
+    //     if (!place.value) {
+    //         currentViewSignal.value = "geoLocation"
+    //     }
+    // }, [])
 
-    // If we are in the middle of redirecting, render nothing
-    if (!place.value) return null
+    // if (!place.value) return null
+
     const handleSaveAddress = () => {
         // Run validation
         const isValid = validateForm()
@@ -454,7 +543,7 @@ function DeliverTo({
                     <div className={styles.adressWindowWrapper}>
                         <div className={styles.adressWindow}>
                             <MapComponent
-                                selectedCoords={selectedCoords.value}
+                                selectedCoords={formCoords}
                                 interactive={false}
                                 zoom={18}
                             />

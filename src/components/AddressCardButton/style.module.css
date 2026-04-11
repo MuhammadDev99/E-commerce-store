@@ -1,7 +1,9 @@
 .root {
   display: flex;
   flex-direction: column;
-  height: 9em;
+  min-height: 12em;
+  height: 100%;
+  /* This tells the button to fill the grid cell height */
   border-radius: var(--border-radius-3);
   border: 0.1em dashed var(--primary-4);
   color: var(--primary-5);
@@ -13,15 +15,21 @@
   transition: var(--transition);
   font-size: 1em;
   background-color: transparent;
-}
+  gap: 0.5em;
 
-.root:hover {
-  background-color: var(--primary-11);
-  /* border: 0.1em solid var(--primary-4); */
-}
+  &:hover {
+    background-color: var(--primary-11);
+    /* border: 0.1em solid var(--primary-4); */
+  }
 
-.root .icon {
-  width: 2em;
-  height: 2em;
-  stroke-width: 0.05em;
+  .icon {
+    width: 3.5em;
+    height: 3.5em;
+    stroke-width: 0.05em;
+  }
+
+  .label {
+    font-size: 1.4em;
+    margin-bottom: 1em;
+  }
 }

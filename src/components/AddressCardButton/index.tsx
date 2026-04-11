@@ -9,7 +9,7 @@ export default function AddressCardButton({ className, ...rest }: Props) {
     return (
         <button {...rest} className={clsx(styles.root, className)}>
             <PlusIcon className={styles.icon} />
-            <p>أضف عنوان جديد</p>
+            <p className={styles.label}>أضف عنوان جديد</p>
         </button>
     )
 }

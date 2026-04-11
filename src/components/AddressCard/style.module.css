@@ -57,8 +57,8 @@
 }
 
 .other {
-  background-color: #f9fafb;
-  color: #4b5563;
+  background-color: var(--white-2);
+  color: var(--black-4);
 }
 
 .body {

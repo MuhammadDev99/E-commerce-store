@@ -150,14 +150,31 @@ export const getEmptyProduct = (): NewProduct => ({
 });
 
 
-export async function getAdressByCordinates(lat: number, lng: number, language: string = "ar"): Promise<OSMPlace> {
+// export async function getAdressByCordinates(lat: number, lng: number, language: string = "ar"): Promise<OSMPlace> {
+//     const response = await fetch(
+//         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=${language}`,
+//     )
+//     console.log(response)
+//     const data = await response.json() as OSMPlace
+//     return data
+// }
+export async function getAddressByCordinates(lat: number, lng: number, language: string = "ar"): Promise<OSMPlace> {
     const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=${language}`,
-    )
-    const data = await response.json() as OSMPlace
-    return data
-}
+        {
+            headers: {
+                'User-Agent': 'E-commerceApp'
+            }
+        }
+    );
 
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as OSMPlace;
+    return data;
+}
 // export async function searchForAddresses(query: string, coords: [number, number] | null | undefined): Promise<OSMPlace[]> {
 //     const response = await fetch(
 //         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&countrycodes=sa`,
@@ -255,7 +272,8 @@ export async function searchForAddresses(
 
 export function mapOSMToFormValue(
     osm: OSMPlace,
-    currentForm: NewAddress
+    currentForm: NewAddress,
+    formCoords: [number, number] | null
 ): NewAddress {
     // Safely default to an empty object if address is somehow missing
     const addr = osm.address || ({} as Record<string, string>);
@@ -303,7 +321,7 @@ export function mapOSMToFormValue(
 
     // 4. Map Specific Address Details
     const street = getFirstValid(["road", "pedestrian", "path", "street"]);
-    const buildingNumber = getFirstValid(["house_number", "street_number"]);
+    // const buildingNumber = getFirstValid(["house_number", "street_number"]);
     const postalCode = getFirstValid(["postcode"]);
     const countryCode = (addr["country_code"] || "").toUpperCase();
 
@@ -334,20 +352,16 @@ export function mapOSMToFormValue(
     // 6. Return Final Object
     return {
         ...currentForm,
-        latitude: osm.lat || "",
-        longitude: osm.lon || "",
-
+        latitude: formCoords ? formCoords[0].toString() : "",
+        longitude: formCoords ? formCoords[1].toString() : "",
         region,
         city,
         district,
-
         street,
-        buildingNumber,
-        buildingName,
+        buildingName: currentForm.buildingName ? currentForm.buildingName : buildingName,
         postalCode,
         countryCode,
-
-        landmark,
+        landmark: currentForm.landmark ? currentForm.landmark : buildingName,
         displayAddress: (osm.display_name || "").trim()
     };
 }

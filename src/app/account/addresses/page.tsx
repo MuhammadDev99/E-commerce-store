@@ -5,6 +5,7 @@ import AddressCardsContainer from "@/components/AddressCardsContainer"
 import { getAddresses } from "@/utils/db/user"
 import { showMessage } from "@/utils/showMessage"
 import ErrorDisplay from "@/components/ErrorDisplay"
+import { OSMPlace } from "@/types"
 
 export default async function AddressesPage() {
     const addressesResult = await safe(getAddresses())
@@ -13,6 +14,10 @@ export default async function AddressesPage() {
         return <ErrorDisplay error={addressesResult.error} />
         showMessage({ content: "فشل تحميل العناوين، الرجاء المحاولة لاحقًا", type: "error" })
     }
+    // const result = await safe<OSMPlace>(getAdressByCordinates(36.268821, 36.559981))
+    // console.log(result.success)
+    // console.log(JSON.stringify(result.error))
+    // console.log(JSON.stringify(result.data))
     return (
         <div className={clsx(styles.page)}>
             <div className={styles.titleWrapper}>
