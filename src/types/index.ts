@@ -221,8 +221,18 @@ export type OSMPlace = {
 }
 
 
-export type FormElementRef = {
+export interface FormElementRef {
   value: string
   error: string | undefined
   validate: () => boolean
+  focus: () => void
+}
+
+export type UserProfile = {
+  phoneNumber: string;
+  firstName: string
+  lastName: string
+  nationality: string
+  dateOfBirth: Date;
+  sex: 'male' | 'female'
 }

@@ -11,7 +11,7 @@ export const getNationalityOptions = () => {
     const allCountries = Object.entries(countryObj).map(([code, name]) => ({
         display: name,
         value: code.toLowerCase(),
-    }));
+    })).filter(x => x.value !== 'il');
 
     // Define your frequent countries
     const frequentCodes = ["sa", "eg", "in", "pk", "bd"];

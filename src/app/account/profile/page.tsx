@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import TextBox from "@/components/form-elements/TextBox"
 import SelectBox from "@/components/form-elements/SelectBox"
 import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
@@ -8,95 +9,114 @@ import Button from "@/components/Button"
 import styles from "./style.module.css"
 import clsx from "clsx"
 import { getNationalityOptions } from "@/external/my-library/utils/getCountries"
-
-/**
- * Shared interface for our form components
- * This matches the useImperativeHandle logic in TextBox, SelectBox, and PhoneInput
- */
-export interface FormElementRef {
-    value: string
-    error: string | undefined
-    validate: () => boolean
-    focus: () => void
-}
+import RadioSelect from "@/components/RadioSelect"
+import { User } from "lucide-react"
+import { FormElementRef, UserProfile } from "@/types"
+import { saveUserProfile } from "@/utils/db/user"
+import { safe } from "@/utils/safe"
+import { showMessage } from "@/utils/showMessage"
 
 export default function ProfilePage() {
-    // 1. Phone State (PhoneInput is controlled)
-    const [phone, setPhone] = useState<string>("")
+    const router = useRouter()
+    const [gender, setGender] = useState<string>("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [hasChanged, setHasChanged] = useState(false) // 1. Track if anything changed
 
-    // 2. Create Refs for every field
     const phoneRef = useRef<FormElementRef>(null)
     const firstNameRef = useRef<FormElementRef>(null)
     const lastNameRef = useRef<FormElementRef>(null)
     const nationalityRef = useRef<FormElementRef>(null)
     const birthdayRef = useRef<FormElementRef>(null)
+    const genderRef = useRef<FormElementRef>(null)
 
     const nationalityOptions = getNationalityOptions()
 
-    const handleSave = () => {
-        /**
-         * 3. List refs in visual order (Top to Bottom).
-         * This determines which field the page scrolls to first.
-         */
-        const fieldRefs = [phoneRef, firstNameRef, lastNameRef, nationalityRef, birthdayRef]
+    // 2. Helper to enable the button when a user interacts
+    const onFieldChange = () => {
+        if (!hasChanged) setHasChanged(true)
+    }
 
-        // 4. Trigger validation for every field
-        // We use .map to ensure all fields show their error messages simultaneously
+    const handleSave = async () => {
+        const fieldRefs = [
+            phoneRef,
+            firstNameRef,
+            lastNameRef,
+            nationalityRef,
+            birthdayRef,
+            genderRef,
+        ]
+
         const validationResults = fieldRefs.map((ref) => ref.current?.validate())
-
-        // 5. Find the index of the first field that returned 'false' (invalid)
         const firstErrorIndex = validationResults.indexOf(false)
 
         if (firstErrorIndex !== -1) {
-            // 6. Scroll to and focus the first field that failed
             fieldRefs[firstErrorIndex].current?.focus()
             return
         }
 
-        // 7. Success logic - All fields are valid
-        const formData = {
-            phone: phoneRef.current?.value,
-            firstName: firstNameRef.current?.value,
-            lastName: lastNameRef.current?.value,
-            nationality: nationalityRef.current?.value,
-            birthday: birthdayRef.current?.value,
+        setIsSubmitting(true)
+
+        const dobValue = birthdayRef.current?.value
+        const profileData = {
+            phoneNumber: phoneRef.current?.value || "",
+            firstName: firstNameRef.current?.value || "",
+            lastName: lastNameRef.current?.value || "",
+            nationality: nationalityRef.current?.value || "",
+            dateOfBirth: dobValue ? new Date(dobValue) : undefined,
+            sex: (genderRef.current?.value as "male" | "female") || undefined,
+        } as UserProfile
+
+        const result = await safe(saveUserProfile(profileData))
+
+        if (!result.success) {
+            showMessage({
+                content: result.error + " حدث خطأ أثناء حفظ البيانات",
+                type: "error",
+            })
+        } else {
+            showMessage({ content: "تم حفظ البيانات بنجاح", type: "success" })
+            setHasChanged(false) // 3. Reset change tracker on success
+            router.refresh()
         }
 
-        console.log("Saving successfully:", formData)
-        alert("تم حفظ المعلومات بنجاح")
+        setIsSubmitting(false)
     }
 
     return (
         <div className={clsx(styles.page)}>
             <h1>حسابك</h1>
 
-            {/* Section 1: Contact Info */}
             <section className={styles.section}>
+                <h4>معلومات التواصل</h4>
                 <TextBox
                     label="البريد الإلكتروني"
                     defaultValue="mohammad.onthefloor@gmail.com"
                     readOnly
                 />
-                <PhoneInput ref={phoneRef} value={phone} onChange={setPhone} />
+                {/* 4. Add onChange to all components */}
+                <PhoneInput ref={phoneRef} onChange={onFieldChange} />
             </section>
 
-            {/* Section 2: Personal Info */}
             <section className={styles.section}>
+                <h4>معلوماتك الشخصية</h4>
                 <div className={styles.row}>
                     <TextBox
                         ref={firstNameRef}
                         label="الاسم الأول"
                         placeholder="أدخل الاسم الأول"
+                        onChange={onFieldChange}
                         validation={(value) => {
-                            if (!value) return "هذا الحقل مطلوب"
-                            if (value.length < 3) return "يجب ان يكون الاسم اكبر من ثلاثة احرف"
+                            if (value && value.length < 3) {
+                                return "يجب ان يكون الاسم اكبر من ثلاثة احرف"
+                            }
+                            return undefined
                         }}
                     />
                     <TextBox
                         ref={lastNameRef}
                         label="اسم العائلة"
                         placeholder="أدخل اسم العائلة"
-                        validation={(value) => (!value ? "هذا الحقل مطلوب" : undefined)}
+                        onChange={onFieldChange}
                     />
                 </div>
 
@@ -105,29 +125,41 @@ export default function ProfilePage() {
                         ref={nationalityRef}
                         label="الجنسية"
                         placeholder="اختر الجنسية"
-                        options={nationalityOptions} // Automatically has all ~250 countries
-                        validation={(val) => (!val ? "يرجى اختيار الجنسية" : undefined)}
+                        options={nationalityOptions}
+                        onChange={onFieldChange}
                     />
                     <TextBox
                         ref={birthdayRef}
                         label="يوم الميلاد"
                         type="date"
-                        validation={(val) => (!val ? "يرجى تحديد التاريخ" : undefined)}
-                        helperText="لا يمكن تغييرها في وقت لاحق"
+                        onChange={onFieldChange}
                     />
                 </div>
+
+                <RadioSelect
+                    ref={genderRef}
+                    label="الجنس"
+                    icon={User}
+                    value={gender}
+                    onChange={(val) => {
+                        setGender(val)
+                        onFieldChange() // Trigger change on radio select
+                    }}
+                    options={[
+                        { display: "ذكر", value: "male" },
+                        { display: "أنثى", value: "female" },
+                    ]}
+                />
             </section>
 
-            {/* Spacer for scroll testing */}
-            <div style={{ height: "50vh", opacity: 0.1, pointerEvents: "none" }}>
-                <p>{".\n".repeat(20)}</p>
-                <p style={{ textAlign: "center" }}>
-                    مساحة للتمرير لاختبار ميزة التمرير التلقائي للأخطاء
-                </p>
-            </div>
-
-            <Button onClick={handleSave} className={styles.submitBtn}>
-                حفظ المعلومات
+            <Button
+                type="primary"
+                onClick={handleSave}
+                className={styles.submitBtn}
+                // 5. Disable if no changes OR if currently submitting
+                disabled={isSubmitting || !hasChanged}
+            >
+                {isSubmitting ? "جاري الحفظ..." : "حفظ المعلومات"}
             </Button>
         </div>
     )

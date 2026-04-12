@@ -1,8 +1,15 @@
 .page {
   padding: 1em 0;
-  width: 35em;
-  max-width: 90%;
+  /* width: 35em; */
+  width: 90%;
+  max-width: 95%;
   margin: auto;
+  margin-bottom: 3em;
+
+  .submitBtn {
+    font-size: 1.05em;
+    padding: 0.5em 3em;
+  }
 
   & h1 {
     font-size: 1.5em;
@@ -19,7 +26,10 @@
     /* Space between TextBox components */
     margin-bottom: 2.5em;
     padding-bottom: 2em;
+    background-color: white;
     border-bottom: 1px solid #f0f0f0;
+    padding: 1em;
+    border-radius: var(--border-radius-3);
 
     &:last-child {
       border-bottom: none;

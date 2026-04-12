@@ -1,4 +1,12 @@
-import { forwardRef, ComponentPropsWithoutRef, useImperativeHandle, useRef, useState } from "react"
+import {
+    forwardRef,
+    ComponentPropsWithoutRef,
+    useImperativeHandle,
+    useRef,
+    useState,
+    useEffect,
+    useMemo,
+} from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
 
@@ -9,12 +17,11 @@ export interface FormElementRef {
     focus: () => void
 }
 
-// Define the types for grouped or single options
 export type SelectOption = { display: string; value: string | number }
 export type SelectGroup = { groupLabel: string; items: SelectOption[] }
 type OptionItem = SelectOption | SelectGroup
 
-interface SelectBoxProps extends Omit<ComponentPropsWithoutRef<"select">, "options"> {
+interface SelectBoxProps extends Omit<ComponentPropsWithoutRef<"div">, "onChange"> {
     label?: string
     error?: string
     helperText?: string
@@ -23,6 +30,11 @@ interface SelectBoxProps extends Omit<ComponentPropsWithoutRef<"select">, "optio
     placeholder?: string
     options?: OptionItem[]
     validation?: (value: string) => string | undefined
+    value?: string | number
+    defaultValue?: string | number
+    onChange?: (value: string) => void
+    required?: boolean
+    disabled?: boolean
 }
 
 const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
@@ -41,30 +53,63 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
             validation,
             onChange,
             defaultValue,
+            value: controlledValue,
             ...rest
         },
         ref,
     ) => {
         const containerRef = useRef<HTMLDivElement>(null)
-        const selectRef = useRef<HTMLSelectElement>(null)
+        const [isOpen, setIsOpen] = useState(false)
+        const [selectedValue, setSelectedValue] = useState<string>(
+            (controlledValue ?? defaultValue ?? "").toString(),
+        )
         const [internalError, setInternalError] = useState<string | undefined>(undefined)
-
-        // Background color logic: check if we have a value initially
-        const [isFilled, setIsFilled] = useState(!!defaultValue)
 
         const currentError = internalError || externalError
         const hasError = !!currentError
 
+        // Flatten options for easier searching and keyboard nav
+        const flatOptions = useMemo(() => {
+            const items: SelectOption[] = []
+            options.forEach((item) => {
+                if ("items" in item) items.push(...item.items)
+                else items.push(item)
+            })
+            return items
+        }, [options])
+
+        // Find display text for the trigger
+        const selectedDisplay = useMemo(() => {
+            return (
+                flatOptions.find((opt) => opt.value.toString() === selectedValue)?.display ||
+                placeholder
+            )
+        }, [flatOptions, selectedValue, placeholder])
+
+        // Sync controlled value
+        useEffect(() => {
+            if (controlledValue !== undefined) setSelectedValue(controlledValue.toString())
+        }, [controlledValue])
+
+        // Close on click outside
+        useEffect(() => {
+            const handleClickOutside = (event: MouseEvent) => {
+                if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                    setIsOpen(false)
+                }
+            }
+            document.addEventListener("mousedown", handleClickOutside)
+            return () => document.removeEventListener("mousedown", handleClickOutside)
+        }, [])
+
         useImperativeHandle(ref, () => ({
-            get value() {
-                return selectRef.current?.value || ""
-            },
+            value: selectedValue,
             get error() {
                 return internalError
             },
             validate: () => {
-                if (validation && selectRef.current) {
-                    const msg = validation(selectRef.current.value)
+                if (validation) {
+                    const msg = validation(selectedValue)
                     setInternalError(msg)
                     return !msg
                 }
@@ -72,9 +117,29 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
             },
             focus: () => {
                 containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-                selectRef.current?.focus({ preventScroll: true })
+                setIsOpen(true)
             },
         }))
+
+        const handleSelect = (val: string | number) => {
+            const stringVal = val.toString()
+            setSelectedValue(stringVal)
+            setIsOpen(false)
+            if (internalError) setInternalError(undefined)
+            onChange?.(stringVal)
+        }
+
+        const handleKeyDown = (e: React.KeyboardEvent) => {
+            if (disabled) return
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                setIsOpen(!isOpen)
+            } else if (e.key === "Escape") {
+                setIsOpen(false)
+            } else if (e.key === "ArrowDown" && !isOpen) {
+                setIsOpen(true)
+            }
+        }
 
         return (
             <div
@@ -85,7 +150,9 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
                     required && styles.required,
                     hasError && styles.negative,
                     disabled && styles.disabled,
+                    isOpen && styles.isOpen,
                 )}
+                {...rest}
             >
                 {label && (
                     <div className={styles.labelWrapper}>
@@ -101,51 +168,68 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
                 )}
 
                 <div className={styles.selectWrapper}>
-                    <select
-                        ref={selectRef}
-                        // Toggle background class
-                        className={clsx(styles.select, isFilled && styles.filled)}
-                        required={required}
-                        disabled={disabled}
-                        defaultValue={defaultValue ?? ""}
-                        onChange={(e) => {
-                            setIsFilled(!!e.target.value)
-                            if (internalError) setInternalError(undefined)
-                            onChange?.(e)
-                        }}
-                        {...rest}
+                    {/* The Trigger (The visual replacement for <select>) */}
+                    <div
+                        className={clsx(styles.selectTrigger, selectedValue && styles.filled)}
+                        tabIndex={disabled ? -1 : 0}
+                        onClick={() => !disabled && setIsOpen(!isOpen)}
+                        onKeyDown={handleKeyDown}
+                        role="combobox"
+                        aria-expanded={isOpen}
+                        aria-haspopup="listbox"
                     >
-                        {placeholder && (
-                            <option value="" disabled>
-                                {placeholder}
-                            </option>
-                        )}
+                        <span className={styles.triggerValue}>{selectedDisplay}</span>
+                        <div className={styles.arrowIcon} />
+                    </div>
 
-                        {options.map((item, idx) => {
-                            // If it has 'items', render an optgroup
-                            if ("items" in item) {
+                    {/* The Dropdown Menu */}
+                    {isOpen && (
+                        <div className={styles.dropdownMenu} role="listbox">
+                            {options.map((item, idx) => {
+                                if ("items" in item) {
+                                    return (
+                                        <div key={idx} className={styles.group}>
+                                            <div className={styles.groupLabel}>
+                                                {item.groupLabel}
+                                            </div>
+                                            {item.items.map((opt) => (
+                                                <div
+                                                    key={opt.value}
+                                                    className={clsx(
+                                                        styles.option,
+                                                        selectedValue === opt.value.toString() &&
+                                                            styles.selected,
+                                                    )}
+                                                    onClick={() => handleSelect(opt.value)}
+                                                    role="option"
+                                                    aria-selected={
+                                                        selectedValue === opt.value.toString()
+                                                    }
+                                                >
+                                                    {opt.display}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )
+                                }
                                 return (
-                                    <optgroup
-                                        label={item.groupLabel}
-                                        key={idx}
-                                        className={styles.optgroup}
+                                    <div
+                                        key={item.value}
+                                        className={clsx(
+                                            styles.option,
+                                            selectedValue === item.value.toString() &&
+                                                styles.selected,
+                                        )}
+                                        onClick={() => handleSelect(item.value)}
+                                        role="option"
+                                        aria-selected={selectedValue === item.value.toString()}
                                     >
-                                        {item.items.map((opt) => (
-                                            <option key={opt.value} value={opt.value}>
-                                                {opt.display}
-                                            </option>
-                                        ))}
-                                    </optgroup>
+                                        {item.display}
+                                    </div>
                                 )
-                            }
-                            // Otherwise render a standard option
-                            return (
-                                <option key={item.value} value={item.value}>
-                                    {item.display}
-                                </option>
-                            )
-                        })}
-                    </select>
+                            })}
+                        </div>
+                    )}
                 </div>
 
                 {(currentError || helperText) && (

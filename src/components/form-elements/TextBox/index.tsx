@@ -8,7 +8,7 @@ interface TextInputProps extends ComponentPropsWithoutRef<"input"> {
     helperText?: string
     icon?: React.ElementType
     tooltip?: string
-    validation?: (value: string) => string | undefined
+    validation?: (value: string) => string | undefined | null
 }
 
 const TextBox = forwardRef<any, TextInputProps>(
@@ -47,7 +47,7 @@ const TextBox = forwardRef<any, TextInputProps>(
             validate: () => {
                 if (validation && inputRef.current) {
                     const msg = validation(inputRef.current.value)
-                    setInternalError(msg)
+                    setInternalError(msg || undefined)
                     return !msg
                 }
                 return true

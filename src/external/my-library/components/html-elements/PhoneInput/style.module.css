@@ -14,14 +14,14 @@
 }
 
 .labelWrapper .icon {
-  height: 1em;
-  width: 1em;
+  height: 1.1em;
+  width: 1.1em;
   color: inherit;
 }
 
 .label {
-  font-weight: 600;
-  /* font-size: 0.85em; */
+  /* font-weight: 600; */
+  font-size: 1.1em;
   margin-bottom: 0.4em;
 }
 
@@ -113,9 +113,9 @@
 }
 
 .icon {
-  width: 0.875em;
+  width: 0.9em;
   /* 14px equivalent */
-  height: 0.875em;
+  height: 0.9em;
   margin-left: 0.25em;
   /* 4px equivalent */
 }
@@ -124,13 +124,13 @@
 .successText {
   display: flex;
   align-items: center;
-  font-size: 0.75em;
+  font-size: 0.9em;
   font-weight: 500;
   animation: fadeIn 0.3s ease;
 }
 
 .errorText {
-  color: #ef4444;
+  color: var(--color-red-4);
 }
 
 .successText {

@@ -1,8 +1,8 @@
 'use server'
 import { db } from "@/db";
-import { addresses, cartItems, coupons, products, reviews, userPreferences } from "@/schemas/drizzle";
+import { addresses, cartItems, coupons, products, reviews, user, userPreferences } from "@/schemas/drizzle";
 import { auth } from "@/lib/auth";
-import { Address, CartItem, CartItemWithProduct, NewAddress, Product, RatedProduct, UserPreferences } from "@/types";
+import { Address, CartItem, CartItemWithProduct, NewAddress, Product, RatedProduct, UserPreferences, UserProfile } from "@/types";
 import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 
@@ -235,4 +235,28 @@ export async function deleteAddressById(addressId: string): Promise<Address> {
     }
 
     return deletedAddress;
+}
+
+
+export async function saveUserProfile(profile: UserProfile) {
+    const userId = await getUserId();
+
+    const [updatedUser] = await db
+        .update(user)
+        .set({
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            phoneNumber: profile.phoneNumber,
+            nationality: profile.nationality,
+            sex: profile.sex,
+            // Convert Date object to YYYY-MM-DD string format
+            dateOfBirth: profile.dateOfBirth.toISOString().split('T')[0],
+            // Optionally update the generic 'name' field too
+            name: `${profile.firstName} ${profile.lastName}`.trim(),
+            updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId))
+        .returning();
+
+    return updatedUser;
 }

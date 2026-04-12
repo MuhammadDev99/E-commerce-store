@@ -1,0 +1,68 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+
+  .options {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5em;
+    /* Increased gap for better spacing between options */
+    flex-wrap: wrap;
+  }
+
+  /* Nested Header styling */
+  .header {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 0.5em;
+
+    .label {
+      font-weight: bold;
+      font-size: 1em;
+      color: var(--foreground, #333);
+    }
+
+    .icon {
+      width: 1.1em;
+      height: 1.1em;
+      color: var(--foreground-muted, #666);
+    }
+  }
+
+  /* Validation Message (Helper text or Error) */
+  .message {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: -0.25em;
+    /* Bring it slightly closer to the options */
+  }
+
+  /* Error State Styles */
+  &.negative {
+    .label {
+      color: #d93025;
+      /* Red color for error label */
+    }
+
+    .icon {
+      color: #d93025;
+    }
+
+    /* If your RadioInput component supports error states, 
+       you can target it here if needed */
+  }
+
+  .errorMessage {
+    color: #d93025;
+    font-weight: 500;
+  }
+}
+
+/* Accessibility: focus ring if the container gets focused via .focus() */
+.root:focus-visible {
+  outline: none;
+}

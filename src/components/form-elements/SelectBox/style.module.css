@@ -3,212 +3,216 @@
   flex-direction: column;
   gap: 0.2em;
   min-width: 0;
-
-  /* State: Disabled */
-  &.disabled {
-    .select {
-      cursor: not-allowed;
-      background-color: var(--white-2) !important;
-      opacity: 0.7;
-    }
-  }
-
-  /* State: Error/Negative */
-  &.negative {
-    .labelWrapper {
-      color: var(--color-red-4);
-    }
-
-    &:has(.select:focus) .labelWrapper {
-      color: var(--color-red-4);
-    }
-
-    .select {
-      border-color: var(--color-red-4);
-      background-color: var(--cold-white-2);
-      /* Initial state */
-
-      &:focus {
-        border-color: var(--color-red-4);
-        outline-color: var(--color-red-1);
-      }
-    }
-
-    .message {
-      color: var(--color-red-4);
-    }
-  }
-
-  /* State: Required */
-  &.required {
-    .label::after {
-      content: '*';
-      margin-left: 0.2em;
-      color: var(--color-red-3);
-    }
-  }
-
-  /* Focus effect for Label */
-  &:has(.select:focus) .labelWrapper {
-    color: var(--primary-2);
-  }
+  position: relative;
 
   .labelWrapper {
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 0.4em;
     color: var(--black-3);
     transition: var(--transition);
     margin-bottom: 0.1em;
-  }
 
-  .icon {
-    height: 1.1em;
-    width: 1.1em;
-    margin: 0;
-  }
-
-  .label {
-    font-size: 1.1em;
-    color: inherit;
+    .label {
+      font-size: 1.1em;
+      color: inherit;
+    }
   }
 
   .selectWrapper {
     position: relative;
     width: 100%;
+
+    .selectTrigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      width: 100%;
+      height: 2.3em;
+      padding: 0.3em 0.8em;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: var(--cold-white-2);
+      border: 0.1em solid var(--white-4);
+      border-radius: var(--border-radius-1);
+      transition: var(--transition);
+      outline: none;
+      user-select: none;
+
+      &:focus {
+        border-color: var(--primary-4);
+        background-color: white;
+        box-shadow: 0 0 0 0.2em color-mix(in srgb, var(--primary-4), transparent 80%);
+      }
+
+      &.filled {
+        background-color: white;
+        /* border-color: var(--white-4); */
+      }
+
+      .triggerValue {
+        color: var(--black-4);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .arrowIcon {
+        width: 1.1em;
+        height: 1.1em;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: transform 0.2s ease;
+      }
+    }
+
+    .dropdownMenu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 100%;
+      max-height: 250px;
+      overflow-y: auto;
+      background-color: white;
+      border: 1px solid var(--white-4);
+      border-radius: var(--border-radius-1);
+      box-shadow: var(--shadow-2);
+      z-index: 1000;
+      padding: 4px 0;
+
+      .option {
+        padding: 0.6em 1em;
+        cursor: pointer;
+        font-size: 0.95em;
+        color: var(--black-2);
+        transition: background 0.1s;
+
+        &:hover {
+          background-color: var(--cold-white-1);
+        }
+
+        &.selected {
+          background-color: var(--primary-5);
+          color: var(--white-1);
+          font-weight: bold;
+        }
+      }
+
+      .groupLabel {
+        padding: 0.6em 1em;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--primary-5);
+        font-weight: bold;
+        background-color: var(--white-1);
+      }
+    }
   }
 
-  .select {
-    appearance: none;
-    -webkit-appearance: none;
-    box-sizing: border-box;
-    width: 100%;
-    height: 2.3em;
-    padding: 0.3em 2.2em 0.3em 0.4em;
-    /* Extra right padding for arrow */
-    font-size: 1em;
-    cursor: pointer;
+  .tooltipContainer {
+    position: relative;
+    display: inline-flex;
+    cursor: help;
+    margin-bottom: -0.05em;
 
-    background-color: var(--cold-white-2);
-    border: 0.1em solid var(--white-4);
-    border-radius: var(--border-radius-1);
-    outline: 0.2em solid transparent;
-    transition: var(--transition);
+    &:hover,
+    &:focus-within {
+      .tooltipBox {
+        visibility: visible;
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
 
-    /* Custom Arrow SVG */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 1.1em;
-    background-position: right 0.6em center;
+    .tooltipTrigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.3em;
+      height: 1.3em;
+      font-size: 0.65em;
+      font-weight: bold;
+      background-color: var(--white-3);
+      color: var(--black-3);
+      border-radius: 50%;
+      transition: var(--transition);
+    }
 
-    &:focus {
-      background-color: white;
-      border-color: var(--primary-4);
-      outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
+    .tooltipBox {
+      position: absolute;
+      bottom: 140%;
+      left: 50%;
+      transform: translateX(-50%) translateY(1em);
+      width: max-content;
+      max-width: 16em;
+      padding: 0.6em 0.8em;
+      background-color: #222;
+      color: #fff;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      border-radius: var(--border-radius-2);
+      box-shadow: var(--shadow-1);
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.2s, transform 0.2s;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -0.3em;
+        border-width: 0.3em;
+        border-style: solid;
+        border-color: #222 transparent transparent transparent;
+      }
     }
   }
 
   .message {
     margin-top: 0.2em;
     font-size: 0.9em;
+    color: var(--black-3);
   }
-}
 
-/* Tooltip Styles (Same as TextBox) */
-.tooltipContainer {
-  position: relative;
-  display: inline-flex;
-  cursor: help;
-  margin-bottom: -0.05em;
-
-  &:hover .tooltipBox,
-  &:focus-within .tooltipBox {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  .errorMessage {
+    color: var(--color-red-4) !important;
+    font-weight: 500;
   }
-}
 
-.tooltipTrigger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.3em;
-  height: 1.3em;
-  font-size: 0.65em;
-  font-weight: bold;
-  background-color: var(--white-3);
-  color: var(--black-3);
-  border-radius: 50%;
-  transition: var(--transition);
-}
-
-.tooltipBox {
-  position: absolute;
-  bottom: 140%;
-  left: 50%;
-  transform: translateX(-50%) translateY(1em);
-  width: max-content;
-  max-width: 16em;
-  padding: 0.6em 0.8em;
-  background-color: #222;
-  color: #fff;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  border-radius: var(--border-radius-2);
-  box-shadow: var(--shadow-1);
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 100;
-  transition: opacity 0.2s, transform 0.2s;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -0.3em;
-    border-width: 0.3em;
-    border-style: solid;
-    border-color: #222 transparent transparent transparent;
+  &.isOpen .arrowIcon {
+    transform: rotate(180deg);
   }
-}
 
-/* Initial state (Empty/Placeholder) */
-.select {
-  background-color: var(--cold-white-2);
-  color: var(--black-4);
-  /* Placeholder color */
-}
+  &.filled .triggerValue {
+    color: var(--black-1);
+  }
 
-/* Filled state: background turns white */
-.select.filled {
-  background-color: white !important;
-  color: var(--black-1);
-  /* Text turns black/primary */
-}
+  &.disabled .selectTrigger {
+    cursor: not-allowed;
+    background-color: var(--white-2) !important;
+    opacity: 0.7;
+  }
 
-/* Styling the optgroup label */
-.optgroup {
-  font-style: normal;
-  font-weight: bold;
-  color: var(--primary-2);
-  /* Give the header a brand color */
-  background-color: var(--white-1);
-}
+  &.negative {
+    .selectTrigger {
+      border-color: var(--color-red-4);
+    }
 
-/* Ensure options inside the group look normal */
-.optgroup option {
-  font-weight: normal;
-  color: var(--black-2);
-  padding: 10px;
-  /* Note: padding on options varies by browser */
-}
+    .labelWrapper,
+    .message {
+      color: var(--color-red-4);
+    }
+  }
 
-/* Fix for Safari/Chrome to ensure the "disabled" placeholder is gray */
-.select:invalid,
-.select option[disabled] {
-  color: var(--black-4);
+  &.required .label::after {
+    content: '*';
+    margin-left: 0.2em;
+    color: var(--color-red-3);
+  }
 }
