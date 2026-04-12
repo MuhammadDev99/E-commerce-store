@@ -19,7 +19,7 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html>
+        <html lang="ar" dir="rtl">
             {/* <head>
                 <Script
                     src="https://goselljs.paythetap.com/v2.2.2/js/gosell.js"

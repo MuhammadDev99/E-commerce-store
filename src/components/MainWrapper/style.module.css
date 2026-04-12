@@ -3,20 +3,35 @@
   flex-direction: column;
   direction: rtl;
   height: 100vh;
-  background-color: var(--white-light-2)
+  background-color: var(--white-light-2);
+  overflow: hidden;
+  /* Prevents the whole page from scrolling */
+}
+
+.topNav {
+  flex-shrink: 0;
+  /* Ensures the top nav never shrinks and stays in place */
 }
 
 .root .mainContainer {
   display: flex;
-  height: inherit;
   flex-direction: row;
+  flex: 1;
+  /* Takes up the remaining height BELOW the topNav */
+  overflow: hidden;
+  /* Prevents the container from expanding beyond the screen */
 }
 
 .root .mainContainer .sideBar {
   flex-shrink: 0;
   flex-grow: 0;
+  overflow-y: auto;
+  /* If you have a lot of links in the sidebar, this lets ONLY the sidebar scroll independently */
 }
 
 .root .mainContainer .contentBody {
   flex-grow: 1;
+  overflow-y: auto;
+  /* THIS IS THE MAGIC: Only the content area will scroll */
+  height: 100%;
 }

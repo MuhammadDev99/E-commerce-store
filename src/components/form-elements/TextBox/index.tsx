@@ -1,28 +1,66 @@
-import { forwardRef, ComponentPropsWithoutRef } from "react"
+import { forwardRef, useImperativeHandle, useRef, useState, ComponentPropsWithoutRef } from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
 
 interface TextInputProps extends ComponentPropsWithoutRef<"input"> {
     label?: string
-    error?: string
+    error?: string // External error from props
     helperText?: string
     icon?: React.ElementType
     tooltip?: string
+    validation?: (value: string) => string | undefined
 }
 
-// Wrap with forwardRef
-// The first Type is the element the ref points to (HTMLDivElement)
-// The second Type is the Props interface
-const TextBox = forwardRef<HTMLDivElement, TextInputProps>(
+const TextBox = forwardRef<any, TextInputProps>(
     (
-        { label, error, helperText, className, required, icon: Icon, tooltip, readOnly, ...rest },
-        ref, // Add ref here
+        {
+            label,
+            error: externalError,
+            helperText,
+            className,
+            required,
+            icon: Icon,
+            tooltip,
+            readOnly,
+            validation,
+            onChange,
+            ...rest
+        },
+        ref,
     ) => {
-        const hasError = !!error
+        // 1. Internal Refs
+        const containerRef = useRef<HTMLDivElement>(null)
+        const inputRef = useRef<HTMLInputElement>(null)
+        const [internalError, setInternalError] = useState<string | undefined>(undefined)
+
+        const currentError = internalError || externalError
+        const hasError = !!currentError
+
+        // 2. Expose methods to parent
+        useImperativeHandle(ref, () => ({
+            get value() {
+                return inputRef.current?.value || ""
+            },
+            get error() {
+                return internalError
+            },
+            validate: () => {
+                if (validation && inputRef.current) {
+                    const msg = validation(inputRef.current.value)
+                    setInternalError(msg)
+                    return !msg
+                }
+                return true
+            },
+            focus: () => {
+                containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+                inputRef.current?.focus({ preventScroll: true })
+            },
+        }))
 
         return (
             <div
-                ref={ref} // Attach the ref to the container div
+                ref={containerRef} // This ref is for scrolling
                 className={clsx(
                     styles.root,
                     className,
@@ -44,11 +82,21 @@ const TextBox = forwardRef<HTMLDivElement, TextInputProps>(
                     </div>
                 )}
 
-                <input className={styles.input} required={required} readOnly={readOnly} {...rest} />
+                <input
+                    ref={inputRef} // This ref is for the value/focus
+                    className={styles.input}
+                    required={required}
+                    readOnly={readOnly}
+                    onChange={(e) => {
+                        if (internalError) setInternalError(undefined) // Clear error on type
+                        onChange?.(e)
+                    }}
+                    {...rest}
+                />
 
-                {(error || helperText) && (
+                {(currentError || helperText) && (
                     <p className={clsx(styles.message, hasError && styles.errorMessage)}>
-                        {error || helperText}
+                        {currentError || helperText}
                     </p>
                 )}
             </div>
@@ -56,7 +104,5 @@ const TextBox = forwardRef<HTMLDivElement, TextInputProps>(
     },
 )
 
-// Set displayName for better debugging in React DevTools
 TextBox.displayName = "TextBox"
-
 export default TextBox

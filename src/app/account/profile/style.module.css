@@ -1,6 +1,40 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  background-color: beige;
-  height: 100%;
+  padding: 1em 0;
+  width: 35em;
+  max-width: 90%;
+  margin: auto;
+
+  & h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 2em;
+    color: #333;
+  }
+
+  /* Target the sections inside the page */
+  & .section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+    /* Space between TextBox components */
+    margin-bottom: 2.5em;
+    padding-bottom: 2em;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    /* Target the horizontal row */
+    & .row {
+      display: flex;
+      gap: 1em;
+      width: 100%;
+
+      /* Ensure TextBox components inside the row grow equally */
+      &>* {
+        flex: 1;
+      }
+    }
+  }
 }

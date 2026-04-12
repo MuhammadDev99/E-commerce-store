@@ -1,29 +1,45 @@
 "use client"
 
-import React, { useState, forwardRef, ComponentPropsWithoutRef } from "react"
-import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input"
+import React, {
+    useState,
+    forwardRef,
+    useImperativeHandle,
+    useRef,
+    ComponentPropsWithoutRef,
+} from "react"
+import { isValidPhoneNumber } from "react-phone-number-input"
+import ReactPhoneInput from "react-phone-number-input"
 import "react-phone-number-input/style.css"
 import styles from "./style.module.css"
 import clsx from "clsx"
 import { Phone } from "lucide-react"
 
-// 1. Extend ComponentPropsWithoutRef to allow passing standard div props
-// We omit "onChange" from standard div props because PhoneInput expects a string, not an Event.
+// Use the same interface as TextBox and SelectBox
+export interface FormElementRef {
+    value: string
+    error: string | undefined
+    validate: () => boolean
+    focus: () => void
+}
+
 export interface ModernPhoneInputProps extends Omit<ComponentPropsWithoutRef<"div">, "onChange"> {
     value?: string
     onChange?: (value: string) => void
     label?: string
-    error?: string // Add the error prop
+    error?: string
 }
 
-// 2. Wrap with forwardRef
-const ModernPhoneInput = forwardRef<HTMLDivElement, ModernPhoneInputProps>(
-    (
-        { className, value, onChange, label = "رقم الجوال", error, ...rest },
-        ref, // Add ref here
-    ) => {
+const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
+    ({ className, value, onChange, label = "رقم الجوال", error: externalError, ...rest }, ref) => {
+        // 1. Internal Refs
+        const containerRef = useRef<HTMLDivElement>(null)
         const [isTouched, setIsTouched] = useState(false)
         const [isValid, setIsValid] = useState<boolean | null>(null)
+
+        // 2. Logic helpers
+        const isLocalError = isTouched && isValid === false
+        const hasError = !!externalError || isLocalError
+        const displayError = externalError || "رقم غير صحيح"
 
         const handleChange = (val?: string) => {
             const phone = val || ""
@@ -38,25 +54,42 @@ const ModernPhoneInput = forwardRef<HTMLDivElement, ModernPhoneInputProps>(
             }
         }
 
-        // 3. Merge external error prop with local validation state
-        const isLocalError = isTouched && isValid === false
-        const hasError = !!error || isLocalError
-        // If an external error is passed, display it. Otherwise fallback to default message.
-        const displayError = error || "رقم غير صحيح"
+        // 3. Expose methods to ProfilePage
+        useImperativeHandle(ref, () => ({
+            get value() {
+                return value || ""
+            },
+            get error() {
+                return hasError ? displayError : undefined
+            },
+            validate: () => {
+                const isPhoneValid = value ? isValidPhoneNumber(value) : false
+                setIsValid(isPhoneValid)
+                setIsTouched(true)
+                return isPhoneValid
+            },
+            focus: () => {
+                // Scroll to the container
+                containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+
+                // Find the actual input element inside the third-party component and focus it
+                const input = containerRef.current?.querySelector("input")
+                input?.focus({ preventScroll: true })
+            },
+        }))
 
         return (
             <div
-                ref={ref} // Attach the ref to the root div
+                ref={containerRef}
                 className={clsx(styles.container, className)}
                 dir="rtl"
-                {...rest} // Spread rest props (like id, onBlur, etc.)
+                {...rest}
             >
                 <div className={styles.labelWrapper}>
                     <label className={styles.label}>{label}</label>
                     <Phone className={styles.icon} />
                 </div>
 
-                {/* Apply error styles if there is an external error OR a local error */}
                 <div
                     className={clsx(
                         styles.inputWrapper,
@@ -64,7 +97,7 @@ const ModernPhoneInput = forwardRef<HTMLDivElement, ModernPhoneInputProps>(
                         isTouched && isValid === true && !hasError && styles.inputSuccess,
                     )}
                 >
-                    <PhoneInput
+                    <ReactPhoneInput
                         international
                         defaultCountry="SA"
                         value={value}
@@ -74,7 +107,6 @@ const ModernPhoneInput = forwardRef<HTMLDivElement, ModernPhoneInputProps>(
                     />
                 </div>
 
-                {/* Status Messages */}
                 <div className={styles.statusContainer}>
                     {hasError && (
                         <span className={styles.errorText}>
@@ -106,7 +138,6 @@ const ModernPhoneInput = forwardRef<HTMLDivElement, ModernPhoneInputProps>(
     },
 )
 
-// Set displayName for better debugging in React DevTools
-ModernPhoneInput.displayName = "ModernPhoneInput"
+PhoneInput.displayName = "ModernPhoneInput"
 
-export default ModernPhoneInput
+export default PhoneInput

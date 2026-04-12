@@ -23,6 +23,7 @@ import { addedItemSignal, cartCountSignal } from "@/signals";
 import { addItemToCartDB } from "./db/user";
 import { db } from "@/db";
 import { cartItems } from "@/schemas/drizzle";
+import { RefObject } from "react";
 export async function searchProducts(query: string): Promise<Product[]> {
     return new Promise(resolve => {
         resolve(MOCK_PRODUCTS.filter(product => product.name.toLowerCase().includes(query.toLowerCase())))

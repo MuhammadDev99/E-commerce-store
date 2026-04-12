@@ -12,8 +12,7 @@
 /* Card Styling */
 .root .card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  /* border-radius: 12px; */
+  border: 0.075em solid #e5e7eb;
   border-radius: var(--border-radius-3);
   padding: 0.5em;
   overflow: hidden;
@@ -62,7 +61,6 @@
   padding: 0.75em 1em;
   text-decoration: none;
   color: #374151;
-  /* border-radius: 8px; */
   border-radius: var(--border-radius-2);
   transition: all 0.2s ease;
 }
@@ -76,6 +74,8 @@
 .root .icon {
   color: #9ca3af;
   transition: color 0.2s ease;
+  height: 1.1em;
+  width: 1.1em;
 }
 
 .root .link:hover .icon {

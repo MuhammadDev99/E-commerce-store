@@ -219,3 +219,10 @@ export type OSMPlace = {
   address: OSMAddress;
   boundingbox: [string, string, string, string]; // Correctly typed as a 4-item tuple
 }
+
+
+export type FormElementRef = {
+  value: string
+  error: string | undefined
+  validate: () => boolean
+}

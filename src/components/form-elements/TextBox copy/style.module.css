@@ -4,26 +4,23 @@
   gap: 0.2em;
   min-width: 0;
 
-  /* State: Disabled */
-  &.disabled {
-    .select {
+  &.readOnly {
+    .input {
       cursor: not-allowed;
       background-color: var(--white-2) !important;
-      opacity: 0.7;
     }
   }
 
-  /* State: Error/Negative */
   &.negative {
     .labelWrapper {
       color: var(--color-red-4);
     }
 
-    &:has(.select:focus) .labelWrapper {
+    &:has(.input:focus) .labelWrapper {
       color: var(--color-red-4);
     }
 
-    .select {
+    .input {
       border-color: var(--color-red-4);
 
       &:focus {
@@ -37,17 +34,20 @@
     }
   }
 
-  /* State: Required */
   &.required {
     .label::after {
       content: '*';
       margin-left: 0.2em;
       color: var(--color-red-3);
     }
+
+    .input::after {
+      content: "*";
+    }
   }
 
-  /* Focus effect for Label */
-  &:has(.select:focus) .labelWrapper {
+
+  &:has(.input:focus) .labelWrapper {
     color: var(--primary-2);
   }
 
@@ -72,35 +72,29 @@
     color: inherit;
   }
 
-  .selectWrapper {
-    position: relative;
-    width: 100%;
-  }
-
-  .select {
-    appearance: none;
-    -webkit-appearance: none;
+  .input {
     box-sizing: border-box;
-    width: 100%;
+    min-width: 0;
+    width: inherit;
     height: 2.3em;
-    padding: 0.3em 2.2em 0.3em 0.4em;
-    /* Extra right padding for arrow */
+    padding: 0.3em 0.4em;
     font-size: 1em;
-    cursor: pointer;
 
     background-color: var(--cold-white-2);
     border: 0.1em solid var(--white-4);
     border-radius: var(--border-radius-1);
     outline: 0.2em solid transparent;
+
+    resize: none;
+    caret-color: var(--primary-3);
     transition: var(--transition);
 
-    /* Custom Arrow SVG */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 1.1em;
-    background-position: right 0.6em center;
+    &:not(:placeholder-shown) {
+      background-color: white;
+    }
 
-    &:focus {
+    &:focus,
+    &:focus-within {
       background-color: white;
       border-color: var(--primary-4);
       outline: 0.2em solid color-mix(in srgb, var(--primary-4), transparent 80%);
@@ -113,7 +107,6 @@
   }
 }
 
-/* Tooltip Styles (Same as TextBox) */
 .tooltipContainer {
   position: relative;
   display: inline-flex;
@@ -147,15 +140,18 @@
   bottom: 140%;
   left: 50%;
   transform: translateX(-50%) translateY(1em);
+
   width: max-content;
   max-width: 16em;
   padding: 0.6em 0.8em;
+
   background-color: #222;
   color: #fff;
   font-size: 0.75rem;
   line-height: 1.4;
   border-radius: var(--border-radius-2);
   box-shadow: var(--shadow-1);
+
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
