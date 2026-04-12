@@ -7,6 +7,7 @@ import PhoneInput from "@/external/my-library/components/html-elements/PhoneInpu
 import Button from "@/components/Button"
 import styles from "./style.module.css"
 import clsx from "clsx"
+import { getNationalityOptions } from "@/external/my-library/utils/getCountries"
 
 /**
  * Shared interface for our form components
@@ -29,6 +30,8 @@ export default function ProfilePage() {
     const lastNameRef = useRef<FormElementRef>(null)
     const nationalityRef = useRef<FormElementRef>(null)
     const birthdayRef = useRef<FormElementRef>(null)
+
+    const nationalityOptions = getNationalityOptions()
 
     const handleSave = () => {
         /**
@@ -101,14 +104,9 @@ export default function ProfilePage() {
                     <SelectBox
                         ref={nationalityRef}
                         label="الجنسية"
-                        defaultValue={"choose"}
-                        options={[
-                            { display: "اختر الجنسية", value: "choose" },
-                            { display: "سعودي", value: "saudi" },
-                            { display: "مصري", value: "egyption" },
-                        ]}
-                        validation={(val) => (val === "choose" ? "يرجى اختيار الجنسية" : undefined)}
-                        helperText="لا يمكن تغييرها في وقت لاحق"
+                        placeholder="اختر الجنسية"
+                        options={nationalityOptions} // Automatically has all ~250 countries
+                        validation={(val) => (!val ? "يرجى اختيار الجنسية" : undefined)}
                     />
                     <TextBox
                         ref={birthdayRef}

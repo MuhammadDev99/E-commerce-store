@@ -2,7 +2,6 @@ import { forwardRef, ComponentPropsWithoutRef, useImperativeHandle, useRef, useS
 import clsx from "clsx"
 import styles from "./style.module.css"
 
-// Ensure this matches the interface used in TextBox
 export interface FormElementRef {
     value: string
     error: string | undefined
@@ -10,15 +9,20 @@ export interface FormElementRef {
     focus: () => void
 }
 
-interface SelectBoxProps extends ComponentPropsWithoutRef<"select"> {
+// Define the types for grouped or single options
+export type SelectOption = { display: string; value: string | number }
+export type SelectGroup = { groupLabel: string; items: SelectOption[] }
+type OptionItem = SelectOption | SelectGroup
+
+interface SelectBoxProps extends Omit<ComponentPropsWithoutRef<"select">, "options"> {
     label?: string
-    error?: string // External error prop
+    error?: string
     helperText?: string
     icon?: React.ElementType
     tooltip?: string
     placeholder?: string
-    options?: { display: string; value: string | number }[]
-    validation?: (value: string) => string | undefined // Validation function
+    options?: OptionItem[]
+    validation?: (value: string) => string | undefined
 }
 
 const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
@@ -36,19 +40,21 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
             placeholder,
             validation,
             onChange,
+            defaultValue,
             ...rest
         },
         ref,
     ) => {
-        // 1. Internal Refs for DOM and State for errors
         const containerRef = useRef<HTMLDivElement>(null)
         const selectRef = useRef<HTMLSelectElement>(null)
         const [internalError, setInternalError] = useState<string | undefined>(undefined)
 
+        // Background color logic: check if we have a value initially
+        const [isFilled, setIsFilled] = useState(!!defaultValue)
+
         const currentError = internalError || externalError
         const hasError = !!currentError
 
-        // 2. Expose methods to the parent via the forwarded ref
         useImperativeHandle(ref, () => ({
             get value() {
                 return selectRef.current?.value || ""
@@ -60,21 +66,19 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
                 if (validation && selectRef.current) {
                     const msg = validation(selectRef.current.value)
                     setInternalError(msg)
-                    return !msg // returns true if valid (no msg)
+                    return !msg
                 }
                 return true
             },
             focus: () => {
-                // Scroll the whole component into view
                 containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-                // Focus the actual select element
                 selectRef.current?.focus({ preventScroll: true })
             },
         }))
 
         return (
             <div
-                ref={containerRef} // Used for scrolling
+                ref={containerRef}
                 className={clsx(
                     styles.root,
                     className,
@@ -98,26 +102,49 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
 
                 <div className={styles.selectWrapper}>
                     <select
-                        ref={selectRef} // Used for value and focus
-                        className={styles.select}
+                        ref={selectRef}
+                        // Toggle background class
+                        className={clsx(styles.select, isFilled && styles.filled)}
                         required={required}
                         disabled={disabled}
+                        defaultValue={defaultValue ?? ""}
                         onChange={(e) => {
-                            if (internalError) setInternalError(undefined) // Clear error when user selects
+                            setIsFilled(!!e.target.value)
+                            if (internalError) setInternalError(undefined)
                             onChange?.(e)
                         }}
                         {...rest}
                     >
                         {placeholder && (
-                            <option value="" disabled hidden>
+                            <option value="" disabled>
                                 {placeholder}
                             </option>
                         )}
-                        {options.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.display}
-                            </option>
-                        ))}
+
+                        {options.map((item, idx) => {
+                            // If it has 'items', render an optgroup
+                            if ("items" in item) {
+                                return (
+                                    <optgroup
+                                        label={item.groupLabel}
+                                        key={idx}
+                                        className={styles.optgroup}
+                                    >
+                                        {item.items.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.display}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )
+                            }
+                            // Otherwise render a standard option
+                            return (
+                                <option key={item.value} value={item.value}>
+                                    {item.display}
+                                </option>
+                            )
+                        })}
                     </select>
                 </div>
 
@@ -132,5 +159,4 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
 )
 
 SelectBox.displayName = "SelectBox"
-
 export default SelectBox

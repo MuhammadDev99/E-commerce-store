@@ -25,6 +25,8 @@
 
     .select {
       border-color: var(--color-red-4);
+      background-color: var(--cold-white-2);
+      /* Initial state */
 
       &:focus {
         border-color: var(--color-red-4);
@@ -172,4 +174,41 @@
     border-style: solid;
     border-color: #222 transparent transparent transparent;
   }
+}
+
+/* Initial state (Empty/Placeholder) */
+.select {
+  background-color: var(--cold-white-2);
+  color: var(--black-4);
+  /* Placeholder color */
+}
+
+/* Filled state: background turns white */
+.select.filled {
+  background-color: white !important;
+  color: var(--black-1);
+  /* Text turns black/primary */
+}
+
+/* Styling the optgroup label */
+.optgroup {
+  font-style: normal;
+  font-weight: bold;
+  color: var(--primary-2);
+  /* Give the header a brand color */
+  background-color: var(--white-1);
+}
+
+/* Ensure options inside the group look normal */
+.optgroup option {
+  font-weight: normal;
+  color: var(--black-2);
+  padding: 10px;
+  /* Note: padding on options varies by browser */
+}
+
+/* Fix for Safari/Chrome to ensure the "disabled" placeholder is gray */
+.select:invalid,
+.select option[disabled] {
+  color: var(--black-4);
 }
