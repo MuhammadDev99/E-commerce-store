@@ -6,15 +6,15 @@ import React, {
     useImperativeHandle,
     useRef,
     ComponentPropsWithoutRef,
+    useEffect,
 } from "react"
-import { isValidPhoneNumber } from "react-phone-number-input"
+import { isValidPhoneNumber, isPossiblePhoneNumber } from "react-phone-number-input"
 import ReactPhoneInput from "react-phone-number-input"
 import "react-phone-number-input/style.css"
 import styles from "./style.module.css"
 import clsx from "clsx"
 import { Phone } from "lucide-react"
 
-// Use the same interface as TextBox and SelectBox
 export interface FormElementRef {
     value: string
     error: string | undefined
@@ -30,49 +30,71 @@ export interface ModernPhoneInputProps extends Omit<ComponentPropsWithoutRef<"di
 }
 
 const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
-    ({ className, value, onChange, label = "رقم الجوال", error: externalError, ...rest }, ref) => {
-        // 1. Internal Refs
+    (
+        {
+            className,
+            value: externalValue,
+            onChange,
+            label = "رقم الجوال",
+            error: externalError,
+            ...rest
+        },
+        ref,
+    ) => {
+        // 1. Internal state to track the actual input value
+        const [phoneNumber, setPhoneNumber] = useState(externalValue || "")
         const containerRef = useRef<HTMLDivElement>(null)
         const [isTouched, setIsTouched] = useState(false)
         const [isValid, setIsValid] = useState<boolean | null>(null)
 
-        // 2. Logic helpers
+        // Sync internal state if external value changes (props update)
+        useEffect(() => {
+            if (externalValue !== undefined) {
+                setPhoneNumber(externalValue)
+            }
+        }, [externalValue])
+
         const isLocalError = isTouched && isValid === false
         const hasError = !!externalError || isLocalError
         const displayError = externalError || "رقم غير صحيح"
 
         const handleChange = (val?: string) => {
-            const phone = val || ""
-            onChange?.(phone)
+            const currentPhone = val || ""
+            setPhoneNumber(currentPhone) // Update local state immediately
+            onChange?.(currentPhone)
 
-            if (phone) {
-                setIsValid(isValidPhoneNumber(phone))
-                setIsTouched(true)
+            if (currentPhone) {
+                // While typing, check if it's at least "possible" to avoid early errors
+                setIsValid(isPossiblePhoneNumber(currentPhone))
             } else {
                 setIsValid(null)
-                setIsTouched(false)
             }
         }
 
-        // 3. Expose methods to ProfilePage
+        const handleBlur = () => {
+            setIsTouched(true)
+            if (phoneNumber) {
+                setIsValid(isValidPhoneNumber(phoneNumber))
+            }
+        }
+
         useImperativeHandle(ref, () => ({
             get value() {
-                return value || ""
+                // Return the internal state value, not the prop
+                return phoneNumber || ""
             },
             get error() {
                 return hasError ? displayError : undefined
             },
             validate: () => {
-                const isPhoneValid = value ? isValidPhoneNumber(value) : false
+                // Validate against the INTERNAL state phoneNumber
+                const isPhoneValid = phoneNumber ? isValidPhoneNumber(phoneNumber) : false
                 setIsValid(isPhoneValid)
                 setIsTouched(true)
                 return isPhoneValid
             },
             focus: () => {
-                // Scroll to the container
                 containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-
-                // Find the actual input element inside the third-party component and focus it
                 const input = containerRef.current?.querySelector("input")
                 input?.focus({ preventScroll: true })
             },
@@ -100,8 +122,9 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
                     <ReactPhoneInput
                         international
                         defaultCountry="SA"
-                        value={value}
+                        value={phoneNumber} // Use internal state
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         className={styles.phoneInput}
                         placeholder="05X XXX XXXX"
                     />

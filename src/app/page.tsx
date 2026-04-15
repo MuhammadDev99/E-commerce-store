@@ -4,6 +4,7 @@ import ProductsDisplay from "@/components/ProductsDisplay"
 import { safe } from "@/external/my-library/utils"
 import { Product } from "@/types"
 import { getProducts } from "@/utils/db/user"
+import LoginWindow from "@/components/LoginWindow"
 
 export default async function Home() {
     const productsResult = await safe<Product[]>(getProducts())

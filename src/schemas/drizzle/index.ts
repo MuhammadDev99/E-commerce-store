@@ -14,10 +14,10 @@ import {
     decimal,
     uuid,
 } from "drizzle-orm/pg-core";
-import { account, session, user, verification } from "./auth";
+import { user } from "./auth";
 import { getTableColumns, sql } from "drizzle-orm";
 
-export { user, session, verification, account }
+export * from "./auth";
 
 export const genderEnum = pgEnum("gender", ["Women", "Men", "Unisex"]);
 

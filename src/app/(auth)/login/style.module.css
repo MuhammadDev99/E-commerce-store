@@ -1,17 +1,89 @@
-.page {
+.root {
+  display: flex;
+  width: 100%;
+  padding: 1em 1em 3em 1em;
+  box-sizing: border-box;
+}
+
+.card {
+  background: white;
+  margin: auto;
+  width: 95%;
+  max-width: 25em;
+  border-radius: var(--border-radius-3);
+  box-shadow: var(--shadow-1);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin: 4rem auto;
-  width: 20rem;
+  gap: 2rem;
+  padding: 2em;
+  box-sizing: border-box;
 }
 
-.page>div {
-  width: 100% !important;
+
+.header {
+  text-align: center;
 }
 
-.page .name {
+.header h3 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+
+.header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.formSection {
   display: flex;
-  flex-direction: row;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.textBtn {
+  background: none;
+  border: none;
+  color: #0070f3;
+  /* Primary Blue */
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* TextBox internal styling improvements */
+.message {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  color: #666;
+}
+
+.errorMessage {
+  color: #e53e3e;
+}
+
+.negative input {
+  border-color: #e53e3e !important;
 }

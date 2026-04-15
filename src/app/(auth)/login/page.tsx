@@ -1,75 +1,118 @@
 "use client"
-import { Button, Text, Textbox } from "@/external/my-library/components"
+import clsx from "clsx"
 import styles from "./style.module.css"
-import { showMessage } from "@/utils/showMessage"
-import { useSignal, useSignals } from "@preact/signals-react/runtime"
-import { safe } from "@/external/my-library/utils"
-import { MessageUI } from "@/types"
-// 1. Import the authClient
-import { authClient } from "@/lib/auth-client"
+import { useRef, useState } from "react"
+import { useSignals } from "@preact/signals-react/runtime"
+import TextBox from "@/components/form-elements/TextBox"
+import Button from "@/components/Button"
 import { useRouter } from "next/navigation"
-
-type LoginFrom = {
-    email: string
-    password: string
-}
-
-const loginSuccessMessage: MessageUI = {
-    title: "Login Successful",
-    content: "You have successfully logged in!",
-    type: "success",
-}
+import { authClient } from "@/lib/auth-client"
+import { showMessage } from "@/utils/showMessage" // أضفنا هذه لاستيراد رسائل التنبيه
 
 export default function LoginPage() {
     useSignals()
     const router = useRouter()
-    const form = useSignal<LoginFrom>({ email: "", password: "" })
 
-    // 2. Implement the auth logic
-    const loginAuth = async (formData: LoginFrom) => {
+    // Refs to access the TextBox imperative methods (validate, value)
+    const emailRef = useRef<any>(null)
+    const passwordRef = useRef<any>(null)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const handleSubmit = async () => {
+        // Trigger internal validation of both fields
+        const isEmailValid = emailRef.current?.validate()
+        const isPassValid = passwordRef.current?.validate()
+
+        if (!isEmailValid || !isPassValid) return
+
+        setIsLoading(true)
+
+        // استدعاء دالة تسجيل الدخول من better-auth
         const { data, error } = await authClient.signIn.email({
-            email: formData.email,
-            password: formData.password,
-            callbackURL: "/dashboard", // Redirects after login
+            email: emailRef.current.value,
+            password: passwordRef.current.value,
         })
 
-        if (error) {
-            // Throw the error so the 'safe' utility catches it
-            throw new Error(error.message || "Invalid email or password")
-        }
+        setIsLoading(false)
 
-        return data
+        if (error) {
+            // عرض رسالة خطأ في حال فشل تسجيل الدخول
+            showMessage({
+                title: "خطأ في تسجيل الدخول",
+                content: error.message || "البريد الإلكتروني أو كلمة السر غير صحيحة",
+                type: "error",
+            })
+        } else {
+            // عرض رسالة نجاح وتوجيه المستخدم للوحة التحكم
+            showMessage({
+                title: "أهلاً بك",
+                content: "تم تسجيل الدخول بنجاح",
+                type: "success",
+            })
+            router.push("/dashboard")
+        }
     }
 
-    const handleLogin = async () => {
-        const result = await safe(loginAuth(form.value))
+    // Validation Rules
+    const validateEmail = (val: string) => {
+        if (!val) return "البريد الإلكتروني مطلوب"
+        if (!/\S+@\S+\.\S+/.test(val)) return "يرجى إدخال بريد إلكتروني صحيح"
+        return null
+    }
 
-        if (result.success) {
-            showMessage(loginSuccessMessage)
-        } else {
-            showMessage({ content: result.error.message, type: "error" })
-        }
+    const validatePassword = (val: string) => {
+        if (!val) return "كلمة السر مطلوبة"
+        if (val.length < 6) return "كلمة السر يجب أن تكون 6 أحرف على الأقل"
+        return null
     }
 
     return (
-        <div className={styles.page}>
-            <Textbox
-                label="البريد الإلكتروني"
-                type="email"
-                value={form.value.email}
-                onChange={(value) => (form.value = { ...form.value, email: value })}
-            />
-            <Textbox
-                label="كلمة السر"
-                type="password"
-                value={form.value.password}
-                onChange={(value) => (form.value = { ...form.value, password: value })}
-            />
-            <Button onClick={handleLogin} styleType="primary">
-                تسجيل الدخول
-            </Button>
-            <Text>لا تملك حساب؟</Text>
-            <Button onClick={() => router.push("/register")}>تسجيل حساب</Button>
+        <div className={clsx(styles.root)}>
+            <div className={styles.card}>
+                <div className={styles.header}>
+                    <h3>تسجيل الدخول</h3>
+                    <p>أهلاً بك مجدداً، يرجى إدخال بياناتك</p>
+                </div>
+
+                <div className={styles.formSection}>
+                    <TextBox
+                        ref={emailRef}
+                        label="البريد الإلكتروني"
+                        placeholder="example@mail.com"
+                        validation={validateEmail}
+                        type="email"
+                    />
+                    <TextBox
+                        ref={passwordRef}
+                        label="كلمة السر"
+                        placeholder="••••••••"
+                        validation={validatePassword}
+                        type="password"
+                    />
+                </div>
+
+                <div className={styles.actions}>
+                    <Button
+                        type="primary"
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className={styles.submitBtn}
+                    >
+                        {isLoading ? "جاري التحميل..." : "تسجيل الدخول"}
+                    </Button>
+
+                    <div className={styles.footer}>
+                        <span>ليس لديك حساب؟</span>
+                        <button
+                            type="button"
+                            className={styles.textBtn}
+                            onClick={() => router.push("/register")}
+                        >
+                            تسجيل حساب جديد
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

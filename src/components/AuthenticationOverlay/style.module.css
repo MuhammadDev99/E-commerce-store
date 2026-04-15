@@ -1,0 +1,19 @@
+.root {
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  z-index: 1;
+  display: flex;
+
+  .window {
+    position: relative;
+    /* width: 20em;
+    height: 90%; */
+    margin: auto;
+    background-color: white;
+    border-radius: var(--border-radius-3);
+    padding: 1em;
+    box-sizing: border-box;
+  }
+}

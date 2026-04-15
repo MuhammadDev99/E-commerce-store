@@ -6,6 +6,8 @@ import DashboardNavBar from "../NavigationBars/DashboardNavBar"
 import Navbar from "../NavigationBars/Navbar"
 import { getDisplayLanguage } from "@/utils"
 import AccountSidebar from "../NavigationBars/AccountSidebar"
+import LoginWindow from "../LoginWindow"
+import AuthenticationOverlay from "../AuthenticationOverlay"
 
 export default function MainWrapper({
     className,
@@ -24,6 +26,8 @@ export default function MainWrapper({
             <div className={styles.topNav}>
                 {!isDashboard && <Navbar className={styles.mainNav} />}
             </div>
+            {/* <AuthenticationOverlay /> */}
+
             <div className={styles.mainContainer}>
                 <div className={styles.sideBar}>
                     {isAccount && <AccountSidebar className={styles.accountNav} />}

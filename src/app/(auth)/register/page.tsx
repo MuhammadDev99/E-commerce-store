@@ -1,167 +1,233 @@
 "use client"
-import { Button, Textbox, Text, RadioInput } from "@/external/my-library/components"
-import styles from "./style.module.css"
-import { showMessage } from "@/utils/showMessage"
-import { useSignal, useSignals } from "@preact/signals-react/runtime"
-import { MessageUI } from "@/types"
-import { safe } from "@/external/my-library/utils"
-import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
-// 1. Import the authClient
-import { authClient } from "@/lib/auth-client"
-import { getDisplayLanguage } from "@/utils"
 import clsx from "clsx"
+import styles from "./style.module.css"
+import { useRef, useState } from "react"
+import { useSignals } from "@preact/signals-react/runtime"
+import TextBox from "@/components/form-elements/TextBox"
+import Button from "@/components/Button"
+import CodeInput from "@/components/form-elements/CodeInput"
 import { useRouter } from "next/navigation"
-type RegisterForm = {
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-    retypedPassword: string
-    phoneNumber: string
-    dateOfBirth: string
-}
-
-const passwordMismatchError: MessageUI = {
-    title: "Error",
-    content: "Passwords do not match",
-    durationMs: 3000,
-    type: "error",
-}
-
-const missingInformationError: MessageUI = {
-    title: "Error",
-    content: "Please fill in all fields",
-    durationMs: 3000,
-    type: "error",
-}
-
-const registerationSuccessMessage: MessageUI = {
-    title: "Success",
-    content: "Registered successfully",
-    durationMs: 3000,
-    type: "success",
-}
+import { authClient } from "@/lib/auth-client"
+import { showMessage } from "@/utils/showMessage"
 
 export default function RegisterPage() {
     useSignals()
     const router = useRouter()
-    const form = useSignal<RegisterForm>({
+
+    const [isOtpSent, setIsOtpSent] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+
+    // STATE TO SAVE FORM DATA
+    const [savedData, setSavedData] = useState({
         firstName: "",
         lastName: "",
         email: "",
         password: "",
-        retypedPassword: "",
-        phoneNumber: "",
-        dateOfBirth: new Date().toISOString().split("T")[0],
     })
 
-    // 2. Implement the auth logic
-    const registerAuth = async (formData: RegisterForm) => {
-        const { data, error } = await authClient.signUp.email({
-            email: formData.email,
-            password: formData.password,
-            name: `${formData.firstName} ${formData.lastName}`,
-            phoneNumber: formData.phoneNumber,
-            dateOfBirth: formData.dateOfBirth,
-            role: "user",
-            callbackURL: "/dashboard",
+    // Refs
+    const firstNameRef = useRef<any>(null)
+    const lastNameRef = useRef<any>(null)
+    const emailRef = useRef<any>(null)
+    const passwordRef = useRef<any>(null)
+    const otpRef = useRef<any>(null)
+
+    // Step 1: Create Account & Send OTP
+    const handleSendOtp = async () => {
+        const isFirstNameValid = firstNameRef.current?.validate()
+        const isLastNameValid = lastNameRef.current?.validate()
+        const isEmailValid = emailRef.current?.validate()
+        const isPassValid = passwordRef.current?.validate()
+
+        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || !isPassValid) return
+
+        const emailVal = emailRef.current.value
+        const passwordVal = passwordRef.current.value
+        const firstNameVal = firstNameRef.current.value
+        const lastNameVal = lastNameRef.current.value
+
+        setSavedData({
+            firstName: firstNameVal,
+            lastName: lastNameVal,
+            email: emailVal,
+            password: passwordVal,
         })
-        if (error) {
-            throw new Error(error.message || "Registration failed")
-        }
-        return data
-    }
 
-    const handleRegister = async () => {
-        const { firstName, lastName, email, password, retypedPassword, dateOfBirth, phoneNumber } =
-            form.value
+        setIsLoading(true)
 
-        if (
-            !firstName ||
-            !lastName ||
-            !email ||
-            !password ||
-            !retypedPassword ||
-            !phoneNumber ||
-            !dateOfBirth
-        ) {
-            showMessage(missingInformationError)
-            return
-        }
+        // 1. Create the user account FIRST (this will set emailVerified: false in DB)
+        const { error: signUpError } = await authClient.signUp.email({
+            email: emailVal,
+            password: passwordVal,
+            name: `${firstNameVal} ${lastNameVal}`,
+            firstName: firstNameVal,
+            lastName: lastNameVal,
+        })
 
-        if (password !== retypedPassword) {
-            showMessage(passwordMismatchError)
-            return
-        }
-
-        // 3. The 'safe' wrapper handles the try/catch internally
-        const result = await safe(registerAuth(form.value))
-
-        if (result.success) {
-            showMessage(registerationSuccessMessage)
-            // Optional: window.location.href = "/dashboard";
-        } else {
+        if (signUpError) {
+            setIsLoading(false)
             showMessage({
-                title: "Registration Failed",
-                content: result.error.message, // error from 'safe' is an Error object
-                durationMs: 5000,
+                title: "خطأ",
+                content: signUpError.message || "فشل إنشاء الحساب، قد يكون البريد مستخدماً بالفعل",
                 type: "error",
+            })
+            return
+        }
+
+        // 2. Send the Verification OTP
+        const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+            email: emailVal,
+            type: "email-verification", // Use email-verification type
+        })
+
+        setIsLoading(false)
+
+        if (otpError) {
+            showMessage({
+                title: "خطأ",
+                content: otpError.message || "تم إنشاء الحساب ولكن فشل إرسال الكود",
+                type: "error",
+            })
+            // Move to OTP screen anyway since account was created
+            setIsOtpSent(true)
+        } else {
+            setIsOtpSent(true)
+            showMessage({
+                title: "تم الإرسال",
+                content: "يرجى التحقق من بريدك الإلكتروني وإدخال الكود",
+                type: "success",
             })
         }
     }
-    const displayLanguage = getDisplayLanguage()
+
+    // Step 2: Verify OTP
+    const handleVerifyAndRegister = async () => {
+        const isOtpValid = otpRef.current?.validate()
+        if (!isOtpValid) return
+
+        setIsLoading(true)
+
+        // Verify the code (This updates `emailVerified` to true in your DB)
+        const { error: verifyError } = await authClient.emailOtp.verifyEmail({
+            email: savedData.email,
+            otp: otpRef.current.value,
+        })
+
+        setIsLoading(false)
+
+        if (verifyError) {
+            // If the code is wrong, they stay on the screen and can try again
+            showMessage({
+                title: "رمز غير صحيح",
+                content: "تأكد من إدخال الرمز الصحيح والمحاولة مرة أخرى",
+                type: "error",
+            })
+        } else {
+            // Success! The database is now updated.
+            showMessage({
+                title: "مرحباً بك",
+                content: "تم التحقق من الحساب بنجاح",
+                type: "success",
+            })
+            router.push("/dashboard")
+        }
+    }
+
+    // Validation Rules
+    const validateRequired = (val: string) => (!val ? "هذا الحقل مطلوب" : null)
+    const validateEmail = (val: string) => {
+        if (!val) return "البريد الإلكتروني مطلوب"
+        if (!/\S+@\S+\.\S+/.test(val)) return "يرجى إدخال بريد إلكتروني صحيح"
+        return null
+    }
+    const validatePassword = (val: string) => (val.length < 6 ? "كلمة السر ضعيفة جداً" : null)
+
     return (
-        <div className={clsx(styles.page, styles[displayLanguage])}>
-            <div className={styles.name}>
-                <Textbox
-                    label="الإسم الأول"
-                    value={form.value.firstName}
-                    onChange={(value) => (form.value = { ...form.value, firstName: value })}
-                />
-                <Textbox
-                    label="الإسم الأخير"
-                    value={form.value.lastName}
-                    onChange={(value) => (form.value = { ...form.value, lastName: value })}
-                />
+        <div className={clsx(styles.root)}>
+            <div className={styles.card}>
+                <div className={styles.header}>
+                    <h3>{isOtpSent ? "تحقق من البريد" : "إنشاء حساب"}</h3>
+                    <p>
+                        {isOtpSent
+                            ? `أدخل الكود المرسل إلى ${savedData.email}`
+                            : "أدخل بياناتك للانضمام إلينا"}
+                    </p>
+                </div>
+
+                <div className={styles.formSection}>
+                    {!isOtpSent ? (
+                        <>
+                            <div className={styles.nameRow}>
+                                <TextBox
+                                    ref={firstNameRef}
+                                    label="الاسم الأول"
+                                    placeholder="أحمد"
+                                    validation={validateRequired}
+                                />
+                                <TextBox
+                                    ref={lastNameRef}
+                                    label="الاسم الأخير"
+                                    placeholder="محمد"
+                                    validation={validateRequired}
+                                />
+                            </div>
+                            <TextBox
+                                ref={emailRef}
+                                label="البريد الإلكتروني"
+                                type="email"
+                                placeholder="mail@example.com"
+                                validation={validateEmail}
+                            />
+                            <TextBox
+                                ref={passwordRef}
+                                label="كلمة السر"
+                                type="password"
+                                placeholder="••••••••"
+                                validation={validatePassword}
+                            />
+                        </>
+                    ) : (
+                        <CodeInput ref={otpRef} length={6} />
+                    )}
+                </div>
+
+                <div className={styles.actions}>
+                    <Button
+                        type="primary"
+                        onClick={isOtpSent ? handleVerifyAndRegister : handleSendOtp}
+                        disabled={isLoading}
+                        className={styles.submitBtn}
+                    >
+                        {isLoading
+                            ? "جاري المعالجة..."
+                            : isOtpSent
+                              ? "تأكيد الكود والمتابعة"
+                              : "إنشاء الحساب وإرسال الرمز"}
+                    </Button>
+
+                    {/* Notice: If they click "Change Email", they will have to refresh because the account with the old email is already created. This is standard behavior. */}
+                    {isOtpSent && (
+                        <button
+                            className={styles.textBtn}
+                            onClick={() => window.location.reload()}
+                            style={{ textAlign: "center", textDecoration: "none" }}
+                        >
+                            تغيير البريد الإلكتروني؟
+                        </button>
+                    )}
+
+                    <div className={styles.footer}>
+                        <span>لديك حساب؟</span>
+                        <button
+                            type="button"
+                            className={styles.textBtn}
+                            onClick={() => router.push("/login")}
+                        >
+                            تسجيل الدخول
+                        </button>
+                    </div>
+                </div>
             </div>
-            <Textbox
-                label="البريد الإلكتروني"
-                type="email"
-                value={form.value.email}
-                onChange={(value) => (form.value = { ...form.value, email: value })}
-            />
-            <PhoneInput
-                value={form.value.phoneNumber}
-                onChange={(value) => (form.value = { ...form.value, phoneNumber: value })}
-            />
-            <Textbox
-                label="كلمة السر"
-                type="password"
-                value={form.value.password}
-                onChange={(value) => (form.value = { ...form.value, password: value })}
-            />
-            <Textbox
-                label="أعد كتابة كلمة السر"
-                type="password"
-                value={form.value.retypedPassword}
-                onChange={(value) => (form.value = { ...form.value, retypedPassword: value })}
-            />
-            <Textbox
-                label="تاريخ الولادة"
-                type="date"
-                value={form.value.dateOfBirth}
-                onChange={(value) => (form.value = { ...form.value, dateOfBirth: value })}
-            />
-            <Text>الجنس</Text>
-            <div className={styles.gender}>
-                <RadioInput name="gender" label="ذكر" />
-                <RadioInput name="gender" label="انثى" />
-            </div>
-            <Button onClick={handleRegister} styleType="primary">
-                تسجيل حساب
-            </Button>
-            <Text>تملك حساب اصلاً؟</Text>
-            <Button onClick={() => router.push("/login")}>تسجيل دخول</Button>
         </div>
     )
 }

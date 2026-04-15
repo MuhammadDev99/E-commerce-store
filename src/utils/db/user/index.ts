@@ -250,7 +250,7 @@ export async function saveUserProfile(profile: UserProfile) {
             nationality: profile.nationality,
             sex: profile.sex,
             // Convert Date object to YYYY-MM-DD string format
-            dateOfBirth: profile.dateOfBirth.toISOString().split('T')[0],
+            dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString().split('T')[0] : null,
             // Optionally update the generic 'name' field too
             name: `${profile.firstName} ${profile.lastName}`.trim(),
             updatedAt: new Date(),

@@ -229,10 +229,10 @@ export interface FormElementRef {
 }
 
 export type UserProfile = {
-  phoneNumber: string;
-  firstName: string
-  lastName: string
-  nationality: string
-  dateOfBirth: Date;
-  sex: 'male' | 'female'
+  phoneNumber?: string;
+  firstName?: string
+  lastName?: string
+  nationality?: string
+  dateOfBirth?: Date;
+  sex?: 'male' | 'female'
 }

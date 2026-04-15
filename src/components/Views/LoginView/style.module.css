@@ -1,22 +1,12 @@
 .root {
-  display: flex;
-  width: 100%;
-  padding: 1em 1em 3em 1em;
-  box-sizing: border-box;
-}
-
-.card {
   background: white;
-  margin: auto;
-  width: 95%;
-  max-width: 25em;
-  border-radius: var(--border-radius-3);
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
   box-shadow: var(--shadow-1);
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding: 2em;
-  box-sizing: border-box;
 }
 
 
@@ -86,24 +76,4 @@
 
 .negative input {
   border-color: #e53e3e !important;
-}
-
-/* Add this to your existing style.module.css */
-
-.nameRow {
-  display: flex;
-  gap: 1.2rem;
-  width: 100%;
-}
-
-.nameRow>* {
-  flex: 1;
-  /* Makes both First Name and Last Name take up equal space 50/50 */
-}
-
-/* Optional: Stack names on top of each other on very small mobile screens */
-@media (max-width: 480px) {
-  .nameRow {
-    flex-direction: column;
-  }
 }
