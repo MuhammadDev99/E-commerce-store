@@ -1,13 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef, useState, ComponentPropsWithoutRef } from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
-
-export interface TextBoxRef {
-    value: string
-    error: string | undefined
-    validate: () => boolean
-    focus: () => void
-}
+import { FormElementRef } from "@/types"
 
 // 1. Omit BOTH value and defaultValue from the native input props
 interface TextInputProps extends Omit<ComponentPropsWithoutRef<"input">, "value" | "defaultValue"> {
@@ -21,7 +15,7 @@ interface TextInputProps extends Omit<ComponentPropsWithoutRef<"input">, "value"
     validation?: (value: string) => string | undefined | null
 }
 
-const TextBox = forwardRef<TextBoxRef, TextInputProps>(
+const TextBox = forwardRef<FormElementRef, TextInputProps>(
     (
         {
             label,
@@ -62,9 +56,14 @@ const TextBox = forwardRef<TextBoxRef, TextInputProps>(
                 }
                 return true
             },
+            // 1. Existing focus method
             focus: () => {
                 containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
                 inputRef.current?.focus({ preventScroll: true })
+            },
+            // 2. Add this to fix the error:
+            scrollIntoView: (options?: ScrollIntoViewOptions) => {
+                containerRef.current?.scrollIntoView(options)
             },
         }))
 

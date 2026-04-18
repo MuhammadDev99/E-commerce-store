@@ -11,13 +11,9 @@ export default async function AddressesPage() {
     const addressesResult = await safe(getAddresses())
 
     if (!addressesResult.success) {
-        return <ErrorDisplay error={addressesResult.error} />
         showMessage({ content: "فشل تحميل العناوين، الرجاء المحاولة لاحقًا", type: "error" })
+        return <ErrorDisplay error={addressesResult.error} />
     }
-    // const result = await safe<OSMPlace>(getAdressByCordinates(36.268821, 36.559981))
-    // console.log(result.success)
-    // console.log(JSON.stringify(result.error))
-    // console.log(JSON.stringify(result.data))
     return (
         <div className={clsx(styles.page)}>
             <div className={styles.titleWrapper}>

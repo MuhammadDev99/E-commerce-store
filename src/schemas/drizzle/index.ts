@@ -181,7 +181,8 @@ export const addresses = pgTable("addresses", {
 
     // --- Data from User (Manual Input) ---
     buildingNumber: varchar("building_number", { length: 64 }).notNull(),
-    unitNumber: varchar("unit_number", { length: 128 }),
+    // unitNumber: varchar("unit_number", { length: 128 }),
+    apartment_floor: varchar("apartment_floor", { length: 128 }),
     buildingName: varchar("building_name", { length: 255 }),
     shortCode: varchar("short_code", { length: 64 }),
     landmark: text("landmark"),
@@ -192,7 +193,7 @@ export const addresses = pgTable("addresses", {
     recipientName: text("recipient_name").notNull(),
     displayAddress: text("display_address").notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
-
+    label: varchar("label", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

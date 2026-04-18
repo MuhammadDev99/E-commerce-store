@@ -14,21 +14,29 @@ import { showMessage } from "@/utils/showMessage"
 // Import Lucide Icons
 import { Building, Building2, MapPin, Road, Mailbox, DoorOpen, Tag } from "lucide-react"
 
-type Props = { formId: number } & ComponentPropsWithoutRef<"div">
+type Props = { formId?: string } & ComponentPropsWithoutRef<"div">
 
 export default function AddressForm({ formId, ...rest }: Props) {
     useSignals()
 
     const form = useSignal<NewAddress>({
+        // Required fields per NewAddress type
         userId: "",
+        phoneNumber: "",
+        region: "",
         city: "",
         district: "",
         street: "",
-        postalCode: "",
+        latitude: "",
+        longitude: "",
         buildingNumber: "",
-        apartment: "",
-        label: "المنزل",
+        recipientName: "",
+        displayAddress: "",
+        // Optional fields
         id: formId,
+        postalCode: "",
+        apartment_floor: "",
+        label: "المنزل",
     })
 
     const setAsDefault = useSignal<boolean>(true)
@@ -36,12 +44,9 @@ export default function AddressForm({ formId, ...rest }: Props) {
     const handleAdressSave = async () => {
         showMessage({ type: "info", content: "Saving address..." })
 
-        if (typeof form.value.id !== "number") {
-            showMessage({ type: "error", content: "Address ID is missing" })
-            return
-        }
+        // Pass form.value directly instead of { form: form.value }
+        const result = await safe(upsertAddress(form.value))
 
-        const result = await safe(upsertAddress({ form: form.value }))
         if (!result.success) {
             showMessage({
                 title: "Failed to save address",
@@ -52,7 +57,12 @@ export default function AddressForm({ formId, ...rest }: Props) {
         }
 
         showMessage({ type: "success", content: "Address saved successfully" })
-        if (setAsDefault.value) await safe(setDefaultAddressId(form.value.id))
+
+        // Use the ID from the returned result or the form
+        const savedId = result.data.id || form.value.id
+        if (setAsDefault.value && savedId) {
+            await safe(setDefaultAddressId(savedId))
+        }
     }
 
     return (
@@ -63,7 +73,7 @@ export default function AddressForm({ formId, ...rest }: Props) {
                 <TextBox
                     label="المدينة"
                     placeholder="الرياض"
-                    icon={Building2} // Lucide component reference
+                    icon={Building2}
                     value={form.value.city}
                     onChange={(e) => (form.value = { ...form.value, city: e.target.value })}
                 />
@@ -89,7 +99,7 @@ export default function AddressForm({ formId, ...rest }: Props) {
                     label="رقم المبنى"
                     placeholder="1234"
                     icon={Building}
-                    value={form.value.buildingNumber ?? ""}
+                    value={form.value.buildingNumber}
                     onChange={(e) =>
                         (form.value = { ...form.value, buildingNumber: e.target.value })
                     }
@@ -108,8 +118,10 @@ export default function AddressForm({ formId, ...rest }: Props) {
                     label="رقم الشقة / الدور"
                     placeholder="شقة 5، الدور الثاني"
                     icon={DoorOpen}
-                    value={form.value.apartment ?? ""}
-                    onChange={(e) => (form.value = { ...form.value, apartment: e.target.value })}
+                    value={form.value.apartment_floor ?? ""}
+                    onChange={(e) =>
+                        (form.value = { ...form.value, apartment_floor: e.target.value })
+                    }
                 />
                 <TextBox
                     label="تسمية العنوان"

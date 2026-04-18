@@ -8,7 +8,7 @@ export default function AddressPage() {
     const displayLanguage = getDisplayLanguage()
     return (
         <div className={clsx(styles.page, styles[displayLanguage])}>
-            <AddressForm formId={0} className={styles.form} />
+            <AddressForm className={styles.form} />
         </div>
     )
 }

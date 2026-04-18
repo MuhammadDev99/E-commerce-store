@@ -35,7 +35,7 @@ import SearchBox2 from "../SearchBox2"
 import { safe } from "@/utils/safe"
 import { getAddressByCordinates, searchForAddresses, mapOSMToFormValue } from "@/utils"
 import { showMessage } from "@/utils/showMessage"
-import { Address, NewAddress, OSMPlace } from "@/types"
+import { Address, FormElementRef, NewAddress, OSMPlace } from "@/types"
 import styles from "./style.module.css"
 import { useDebouncedCallback } from "@/hooks"
 import { signal } from "@preact/signals-react"
@@ -484,10 +484,10 @@ function DeliverTo({
     useSignals()
     const formCoords = getFormCoords()
     // 1. Define Refs for the fields that have validation
-    const recipientNameRef = useRef<HTMLDivElement>(null)
-    const buildingNumberRef = useRef<HTMLDivElement>(null)
-    const phoneNumberRef = useRef<HTMLDivElement>(null)
-    const fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>> = {
+    const recipientNameRef = useRef<FormElementRef>(null)
+    const buildingNumberRef = useRef<FormElementRef>(null)
+    const phoneNumberRef = useRef<FormElementRef>(null)
+    const fieldRefs: Record<string, React.RefObject<FormElementRef | null>> = {
         recipientName: recipientNameRef,
         buildingNumber: buildingNumberRef,
         phoneNumber: phoneNumberRef,
@@ -516,10 +516,7 @@ function DeliverTo({
 
             if (firstErrorKey && fieldRefs[firstErrorKey]) {
                 // 4. Scroll to the element
-                fieldRefs[firstErrorKey].current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center", // Puts the input in the middle of the screen
-                })
+                fieldRefs[firstErrorKey].current?.focus()
             }
         }
     }
@@ -669,11 +666,11 @@ function DeliverTo({
                                 placeholder="مثال: شقة 12، الدور 3"
                                 tooltip="رقم الشقة و الطابق (اتركه فارغاً إذا كان العنوان فيلا)"
                                 icon={House}
-                                value={formSignal.value.unitNumber || ""}
+                                value={formSignal.value.apartment_floor || ""}
                                 onChange={(e) =>
                                     (formSignal.value = {
                                         ...formSignal.value,
-                                        unitNumber: e.target.value,
+                                        apartment_floor: e.target.value,
                                     })
                                 }
                             />
