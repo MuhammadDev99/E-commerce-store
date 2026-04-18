@@ -2,16 +2,26 @@ import { forwardRef, useImperativeHandle, useRef, useState, ComponentPropsWithou
 import clsx from "clsx"
 import styles from "./style.module.css"
 
-interface TextInputProps extends ComponentPropsWithoutRef<"input"> {
+export interface TextBoxRef {
+    value: string
+    error: string | undefined
+    validate: () => boolean
+    focus: () => void
+}
+
+// 1. Omit BOTH value and defaultValue from the native input props
+interface TextInputProps extends Omit<ComponentPropsWithoutRef<"input">, "value" | "defaultValue"> {
+    value?: string | number | readonly string[] | Date | undefined
+    defaultValue?: string | number | readonly string[] | Date | undefined // Add Date here
     label?: string
-    error?: string // External error from props
+    error?: string
     helperText?: string
     icon?: React.ElementType
     tooltip?: string
     validation?: (value: string) => string | undefined | null
 }
 
-const TextBox = forwardRef<any, TextInputProps>(
+const TextBox = forwardRef<TextBoxRef, TextInputProps>(
     (
         {
             label,
@@ -24,11 +34,12 @@ const TextBox = forwardRef<any, TextInputProps>(
             readOnly,
             validation,
             onChange,
+            value,
+            defaultValue, // 2. Destructure defaultValue
             ...rest
         },
         ref,
     ) => {
-        // 1. Internal Refs
         const containerRef = useRef<HTMLDivElement>(null)
         const inputRef = useRef<HTMLInputElement>(null)
         const [internalError, setInternalError] = useState<string | undefined>(undefined)
@@ -36,7 +47,6 @@ const TextBox = forwardRef<any, TextInputProps>(
         const currentError = internalError || externalError
         const hasError = !!currentError
 
-        // 2. Expose methods to parent
         useImperativeHandle(ref, () => ({
             get value() {
                 return inputRef.current?.value || ""
@@ -58,9 +68,20 @@ const TextBox = forwardRef<any, TextInputProps>(
             },
         }))
 
+        // 3. Helper to format dates for HTML input compatibility (YYYY-MM-DD)
+        const formatValue = (val: any) => {
+            if (val instanceof Date) {
+                const yyyy = val.getFullYear()
+                const mm = String(val.getMonth() + 1).padStart(2, "0")
+                const dd = String(val.getDate()).padStart(2, "0")
+                return `${yyyy}-${mm}-${dd}`
+            }
+            return val
+        }
+
         return (
             <div
-                ref={containerRef} // This ref is for scrolling
+                ref={containerRef}
                 className={clsx(
                     styles.root,
                     className,
@@ -83,12 +104,14 @@ const TextBox = forwardRef<any, TextInputProps>(
                 )}
 
                 <input
-                    ref={inputRef} // This ref is for the value/focus
+                    ref={inputRef}
                     className={styles.input}
                     required={required}
                     readOnly={readOnly}
+                    value={formatValue(value)} // Use helper
+                    defaultValue={formatValue(defaultValue)} // Use helper
                     onChange={(e) => {
-                        if (internalError) setInternalError(undefined) // Clear error on type
+                        if (internalError) setInternalError(undefined)
                         onChange?.(e)
                     }}
                     {...rest}

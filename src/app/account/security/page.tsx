@@ -1,10 +1,11 @@
 "use server"
 import ProfileClient from "@/components/PagesClient/ProfileClient"
+import SecurityClient from "@/components/PagesClient/SecurityClient"
 import { auth } from "@/lib/auth"
 import { UserProfile } from "@/types"
 import { headers } from "next/headers"
 
-export default async function SamplePage() {
+export default async function SecurityPage() {
     const session = await auth.api.getSession({ headers: await headers() })
-    return <div>Sample Page</div>
+    return <SecurityClient />
 }

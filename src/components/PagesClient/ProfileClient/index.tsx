@@ -16,9 +16,8 @@ import { saveUserProfile } from "@/utils/db/user"
 import { safe } from "@/utils/safe"
 import { showMessage } from "@/utils/showMessage"
 
-export default function ProfilePage({ profile }: { profile: UserProfile }) {
+export default function ProfileClient({ profile }: { profile: UserProfile }) {
     const router = useRouter()
-    const [sex, setSex] = useState<string>("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [hasChanged, setHasChanged] = useState(false) // 1. Track if anything changed
     const phoneRef = useRef<FormElementRef>(null)
@@ -73,7 +72,7 @@ export default function ProfilePage({ profile }: { profile: UserProfile }) {
 
         setIsSubmitting(false)
     }
-
+    console.log(profile.nationality)
     return (
         <div className={clsx(styles.page)}>
             <h1>حسابك</h1>
@@ -97,7 +96,7 @@ export default function ProfilePage({ profile }: { profile: UserProfile }) {
                         label="الاسم الأول"
                         placeholder="أدخل الاسم الأول"
                         onChange={onFieldChange}
-                        value={profile.firstName}
+                        defaultValue={profile.firstName}
                         validation={(value) => {
                             if (value && value.length < 3) {
                                 return "يجب ان يكون الاسم اكبر من ثلاثة احرف"
@@ -110,7 +109,7 @@ export default function ProfilePage({ profile }: { profile: UserProfile }) {
                         label="اسم العائلة"
                         placeholder="أدخل اسم العائلة"
                         onChange={onFieldChange}
-                        value={profile.lastName}
+                        defaultValue={profile.lastName}
                     />
                 </div>
 
@@ -121,14 +120,14 @@ export default function ProfilePage({ profile }: { profile: UserProfile }) {
                         placeholder="اختر الجنسية"
                         options={nationalityOptions}
                         onChange={onFieldChange}
-                        value={profile.nationality}
+                        defaultValue={profile.nationality}
                     />
                     <TextBox
                         ref={birthdayRef}
                         label="يوم الميلاد"
                         type="date"
                         onChange={onFieldChange}
-                        value={profile.dateOfBirth}
+                        defaultValue={profile.dateOfBirth}
                     />
                 </div>
 
@@ -136,16 +135,14 @@ export default function ProfilePage({ profile }: { profile: UserProfile }) {
                     ref={sexRef}
                     label="الجنس"
                     icon={User}
-                    value={sex}
-                    onChange={(val) => {
-                        setSex(val)
+                    onChange={() => {
                         onFieldChange() // Trigger change on radio select
                     }}
                     options={[
                         { display: "ذكر", value: "male" },
                         { display: "أنثى", value: "female" },
                     ]}
-                    value={profile.sex}
+                    defaultValue={profile.sex}
                 />
             </section>
 

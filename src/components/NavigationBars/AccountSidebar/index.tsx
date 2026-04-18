@@ -3,20 +3,33 @@ import styles from "./style.module.css"
 import { ComponentPropsWithoutRef } from "react"
 import { Package, Undo2, User, MapPin, ShieldCheck, LogOut } from "lucide-react"
 import Link from "next/link"
+import { logMeOut } from "@/utils/db/user"
+import { safe } from "@/utils/safe"
+import { showMessage } from "@/utils/showMessage"
+import { useRouter } from "next/navigation"
+import { UserProfile } from "@/types"
+import { User as UserType } from "@/types" // Use the User type from your types file
 
-type Props = {} & ComponentPropsWithoutRef<"div">
+type Props = { user: UserType } & ComponentPropsWithoutRef<"div">
 
-export default function AccountSidebar({ ...rest }: Props) {
-    const name = "محمد الخلف"
-    const email = "mohammad.onthefloor@gmail.com"
-
+export default function AccountSidebar({ user, ...rest }: Props) {
+    const router = useRouter()
+    const handleLogout = async () => {
+        const result = await safe(logMeOut())
+        if (!result.success) {
+            showMessage({ type: "error", content: result.error.message })
+            return
+        }
+        showMessage({ type: "success", content: "تم تسجيل الخروج بنجاح" })
+        router.push("/")
+    }
     return (
         <div className={clsx(styles.root, rest.className)} dir="rtl">
             <div className={clsx(styles.card, styles.profile)}>
                 <p className={styles.nameWrapper}>
-                    أهلاً <span className={styles.name}>{name}</span>
+                    أهلاً <span className={styles.name}>{user.name}</span>
                 </p>
-                <p className={styles.email}>{email}</p>
+                <p className={styles.email}>{user.email}</p>
             </div>
 
             <div className={styles.card}>
@@ -43,10 +56,10 @@ export default function AccountSidebar({ ...rest }: Props) {
             </div>
 
             <div className={styles.card}>
-                <Link href={"/account/logout"} className={clsx(styles.link, styles.logout)}>
+                <a onClick={handleLogout} className={clsx(styles.link, styles.logout)}>
                     <LogOut className={styles.icon} />
                     <p className={styles.text}>تسجيل الخروج</p>
-                </Link>
+                </a>
             </div>
         </div>
     )

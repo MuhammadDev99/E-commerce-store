@@ -1,11 +1,11 @@
 'use server'
 import { db } from "@/db";
-import { addresses, cartItems, coupons, products, reviews, user, userPreferences } from "@/schemas/drizzle";
+import { account, addresses, cartItems, coupons, products, reviews, user, userPreferences } from "@/schemas/drizzle";
 import { auth } from "@/lib/auth";
 import { Address, CartItem, CartItemWithProduct, NewAddress, Product, RatedProduct, UserPreferences, UserProfile } from "@/types";
 import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 import { headers } from "next/headers";
-
+import { session as sessionTable } from "@/schemas/drizzle";
 
 export async function getProducts(): Promise<Product[]> {
     const productItems = await db
@@ -259,4 +259,84 @@ export async function saveUserProfile(profile: UserProfile) {
         .returning();
 
     return updatedUser;
+}
+
+
+
+
+
+
+
+
+export async function deleteMyAccount(password: string) {
+    const reqHeaders = await headers();
+    const session = await auth.api.getSession({ headers: reqHeaders });
+
+    if (!session) throw new Error("Unauthorized");
+    const userId = session.user.id;
+
+    // 1. Password Verification (Standard)
+    const [userAccount] = await db.select().from(account).where(eq(account.userId, userId)).limit(1);
+    if (userAccount?.password) {
+        const verification = await auth.api.verifyPassword({ body: { password }, headers: reqHeaders });
+        if (verification?.status === false) throw new Error("Invalid password");
+    }
+
+    // 2. The Anonymization Process (Transaction)
+    await db.transaction(async (tx) => {
+        // A. DELETE Security/Access (Immediate Logout)
+        await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
+        await tx.delete(account).where(eq(account.userId, userId));
+
+        // B. DELETE PII (Personally Identifiable Information)
+        await tx.delete(addresses).where(eq(addresses.userId, userId));
+        await tx.delete(cartItems).where(eq(cartItems.userId, userId));
+
+        // C. SCRUB User Record
+        // We change the email to something unique so they can't use the old email
+        // but the orders still point to this User ID for accounting.
+        await tx.update(user)
+            .set({
+                name: "Deleted User",
+                firstName: "Deleted",
+                lastName: "User",
+                email: `deleted_${userId}@mehappy.site`, // Free up their real email
+                phoneNumber: null,
+                image: null,
+                nationality: null,
+                dateOfBirth: null,
+                role: "deleted",
+                updatedAt: new Date(),
+            })
+            .where(eq(user.id, userId));
+
+        // Note: We DO NOT delete 'orders' or 'orderItems'.
+        // They stay in the DB linked to the anonymized 'userId'.
+    });
+
+    return { success: true };
+}
+
+
+export async function changeMyPassword(currentPassword: string, newPassword: string) {
+    // Calling the internal Better Auth API directly.
+    // If the current password is wrong, or the session is invalid, 
+    // it will throw an error and bubble it automatically.
+    return await auth.api.changePassword({
+        body: {
+            currentPassword,
+            newPassword,
+            revokeOtherSessions: true, // Optional: logs out other devices for security
+        },
+        headers: await headers(),
+    });
+}
+
+export async function logMeOut() {
+    // Calling the internal signOut API.
+    // It will automatically identify the session from the headers,
+    // delete it from the 'session' table, and bubble any errors.
+    return await auth.api.signOut({
+        headers: await headers(),
+    });
 }

@@ -23,7 +23,28 @@
   font-size: 1.1em;
 }
 
+.root .headerWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .root .icon {
-  height: 1.5em;
+  height: 1.2em;
+  width: 1.2em;
   color: var(--icon-color);
+}
+
+.root .headerWrapper .closeIcon {
+  height: 1.2em;
+  width: 1.2em;
+  border-radius: 50%;
+  padding: 0.15em;
+  cursor: pointer;
+  color: var(--black-4);
+}
+
+.root .headerWrapper .closeIcon:hover {
+  background-color: var(--white-3);
 }

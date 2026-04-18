@@ -8,6 +8,7 @@ export default function Button({
     children,
     type = "normal",
     disabled = false,
+    loading = false, // Added loading prop with default value
     icon: Icon,
     iconRotationDeg = 0,
     flipIconOrder = false,
@@ -18,6 +19,7 @@ export default function Button({
     children?: React.ReactNode
     type?: "normal" | "primary" | "negative"
     disabled?: boolean
+    loading?: boolean // Added to types
     icon?: React.ElementType
     iconRotationDeg?: number
     onClick?: () => void
@@ -25,17 +27,28 @@ export default function Button({
     href?: string
 }) {
     const router = useRouter()
+
     const handleOnClick = () => {
+        // Prevent action if disabled or loading
+        if (disabled || loading) return
+
         onClick?.()
         if (href) {
             router.push(href)
         }
     }
+    if (loading) children = <p>جاري التحميل...</p>
     return (
         <button
             onClick={handleOnClick}
-            disabled={disabled}
-            className={clsx(styles.container, className, styles[type], disabled && styles.disabled)}
+            disabled={disabled || loading} // Disable HTML button when loading
+            className={clsx(
+                styles.container,
+                className,
+                styles[type],
+                (disabled || loading) && styles.disabled,
+                loading && styles.loading, // Add loading CSS class for styling
+            )}
         >
             {flipIconOrder && children}
             {Icon && (

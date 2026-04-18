@@ -1,0 +1,20 @@
+.window {
+  display: flex;
+  flex-direction: column;
+  width: 20em;
+  background-color: white;
+  border-radius: var(--border-radius-3);
+  padding: 1em;
+
+  .deleteBtn {
+    background-color: var(--color-red-4);
+    color: white;
+    align-self: center;
+    padding: 0.5em 2em;
+
+    &:hover {
+      color: var(--color-red-4);
+      background-color: var(--color-red-1);
+    }
+  }
+}

@@ -81,6 +81,14 @@ export const auth = betterAuth({
         type: "string",
         required: true // Required for your form
       },
+      nationality: {
+        type: "string",
+        required: false // Required for your form
+      },
+      sex: {
+        type: "string",
+        required: false // Set to true if you want to force it during signup
+      },
     },
   },
 });

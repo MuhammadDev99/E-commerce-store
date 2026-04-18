@@ -6,15 +6,14 @@ import styles from "./style.module.css"
 import { useSignals } from "@preact/signals-react/runtime"
 import { RadioInput } from "@/external/my-library/components"
 
-// We omit 'onChange' from the standard div props to avoid type conflicts
-// with your custom onChange signature.
 type Props = Omit<ComponentPropsWithoutRef<"div">, "onChange"> & {
     label: string
     icon?: React.ElementType
     options: { display: string; value: string }[]
     onChange?: (value: string) => void
     value?: string
-    error?: string // External error from props
+    defaultValue?: string
+    error?: string
     helperText?: string
     validation?: (value: string) => string | undefined | null
 }
@@ -23,6 +22,7 @@ const RadioSelect = forwardRef<any, Props>(
     (
         {
             value,
+            defaultValue,
             onChange,
             icon: Icon,
             label,
@@ -37,34 +37,37 @@ const RadioSelect = forwardRef<any, Props>(
     ) => {
         useSignals()
 
-        // 1. Internal Refs and State
         const containerRef = useRef<HTMLDivElement>(null)
         const [internalError, setInternalError] = useState<string | undefined>(undefined)
+
+        // 1. Add internal state to track the value if the component is uncontrolled
+        const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue ?? "")
+
+        // 2. Determine the "Active" value:
+        // If 'value' is provided by parent, use it (controlled).
+        // Otherwise, use our internal state (uncontrolled).
+        const activeValue = value !== undefined ? value : uncontrolledValue
 
         const currentError = internalError || externalError
         const hasError = !!currentError
 
-        // 2. Expose methods to parent
         useImperativeHandle(ref, () => ({
             get value() {
-                return value || ""
+                return activeValue
             },
             get error() {
                 return internalError
             },
             validate: () => {
                 if (validation) {
-                    const msg = validation(value || "")
+                    const msg = validation(activeValue)
                     setInternalError(msg || undefined)
                     return !msg
                 }
                 return true
             },
             focus: () => {
-                // Scroll the container into view
                 containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-
-                // Attempt to focus the first radio input inside, or fallback to the container
                 const firstRadio = containerRef.current?.querySelector("input")
                 if (firstRadio) {
                     firstRadio.focus({ preventScroll: true })
@@ -74,15 +77,22 @@ const RadioSelect = forwardRef<any, Props>(
             },
         }))
 
+        const handleSelect = (newValue: string) => {
+            // Update internal state so the UI changes immediately
+            setUncontrolledValue(newValue)
+
+            // Clear error
+            if (internalError) setInternalError(undefined)
+
+            // Notify parent
+            onChange?.(newValue)
+        }
+
         return (
             <div
-                ref={containerRef} // Reference for scrolling/focusing
-                tabIndex={-1} // Ensures the div itself can be focused if no radio input is found
-                className={clsx(
-                    styles.root,
-                    className,
-                    hasError && styles.negative, // Applies error styling to the container
-                )}
+                ref={containerRef}
+                tabIndex={-1}
+                className={clsx(styles.root, className, hasError && styles.negative)}
                 {...rest}
             >
                 <div className={styles.header}>
@@ -95,17 +105,14 @@ const RadioSelect = forwardRef<any, Props>(
                         <RadioInput
                             key={option.value}
                             label={option.display}
-                            name="same"
-                            onClick={() => {
-                                if (internalError) setInternalError(undefined) // Clear error on selection
-                                onChange?.(option.value)
-                            }}
-                            startValue={option.value === value}
+                            name={label} // Use a unique name per group
+                            onClick={() => handleSelect(option.value)}
+                            // UI reflects either the prop or the internal state
+                            startValue={option.value === activeValue}
                         />
                     ))}
                 </div>
 
-                {/* Validation & Helper Text Message */}
                 {(currentError || helperText) && (
                     <p className={clsx(styles.message, hasError && styles.errorMessage)}>
                         {currentError || helperText}
