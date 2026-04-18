@@ -1,25 +1,38 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import clsx from "clsx"
+import { User } from "lucide-react"
+
+// Components
 import TextBox from "@/components/form-elements/TextBox"
 import SelectBox from "@/components/form-elements/SelectBox"
 import PhoneInput from "@/external/my-library/components/html-elements/PhoneInput"
-import Button from "@/components/Button"
-import styles from "./style.module.css"
-import clsx from "clsx"
-import { getNationalityOptions } from "@/external/my-library/utils/getCountries"
 import RadioSelect from "@/components/RadioSelect"
-import { User } from "lucide-react"
+import Button from "@/components/Button"
+
+// Utils & Types
+import styles from "./style.module.css"
+import { getNationalityOptions } from "@/external/my-library/utils/getCountries"
 import { FormElementRef, UserProfile } from "@/types"
 import { saveUserProfile } from "@/utils/db/user"
 import { safe } from "@/utils/safe"
 import { showMessage } from "@/utils/showMessage"
+import { nameValidation } from "@/inputValidations"
 
-export default function ProfileClient({ profile }: { profile: UserProfile }) {
+interface Props {
+    profile: UserProfile
+}
+
+export default function ProfileClient({ profile }: Props) {
     const router = useRouter()
+
+    // State
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [hasChanged, setHasChanged] = useState(false) // 1. Track if anything changed
+    const [hasChanged, setHasChanged] = useState(false)
+
+    // Refs
     const phoneRef = useRef<FormElementRef>(null)
     const firstNameRef = useRef<FormElementRef>(null)
     const lastNameRef = useRef<FormElementRef>(null)
@@ -27,67 +40,70 @@ export default function ProfileClient({ profile }: { profile: UserProfile }) {
     const birthdayRef = useRef<FormElementRef>(null)
     const sexRef = useRef<FormElementRef>(null)
 
-    const nationalityOptions = getNationalityOptions()
+    const nationalityOptions = useMemo(() => getNationalityOptions(), [])
 
-    // 2. Helper to enable the button when a user interacts
-    const onFieldChange = () => {
+    // Helper: Mark form as dirty and trigger validation if needed
+    const handleChange = (ref?: React.RefObject<FormElementRef | null>) => {
         if (!hasChanged) setHasChanged(true)
+        if (ref?.current) ref.current.validate()
     }
 
     const handleSave = async () => {
         const fieldRefs = [phoneRef, firstNameRef, lastNameRef, nationalityRef, birthdayRef, sexRef]
 
-        const validationResults = fieldRefs.map((ref) => ref.current?.validate())
-        const firstErrorIndex = validationResults.indexOf(false)
-
-        if (firstErrorIndex !== -1) {
-            fieldRefs[firstErrorIndex].current?.focus()
+        // Validate all fields
+        const isInvalid = fieldRefs.some((ref) => ref.current?.validate() === false)
+        if (isInvalid) {
+            const firstError = fieldRefs.find((ref) => ref.current?.validate() === false)
+            firstError?.current?.focus()
             return
         }
 
         setIsSubmitting(true)
 
-        const dobValue = birthdayRef.current?.value
-        const profileData = {
+        const profileData: UserProfile = {
             phoneNumber: phoneRef.current?.value,
             firstName: firstNameRef.current?.value,
             lastName: lastNameRef.current?.value,
             nationality: nationalityRef.current?.value,
-            dateOfBirth: dobValue ? new Date(dobValue) : undefined,
+            dateOfBirth: birthdayRef.current?.value
+                ? new Date(birthdayRef.current.value)
+                : undefined,
             sex: (sexRef.current?.value as "male" | "female") || undefined,
-        } as UserProfile
+        }
 
-        const result = await safe(saveUserProfile(profileData))
+        const { success, error } = await safe(saveUserProfile(profileData))
 
-        if (!result.success) {
+        if (!success) {
             showMessage({
-                content: result.error + " حدث خطأ أثناء حفظ البيانات",
+                content: `${error} حدث خطأ أثناء حفظ البيانات`,
                 type: "error",
             })
         } else {
             showMessage({ content: "تم حفظ البيانات بنجاح", type: "success" })
-            setHasChanged(false) // 3. Reset change tracker on success
+            setHasChanged(false)
             router.refresh()
         }
 
         setIsSubmitting(false)
     }
-    console.log(profile.nationality)
+
     return (
         <div className={clsx(styles.page)}>
             <h1>حسابك</h1>
 
+            {/* Contact Section */}
             <section className={styles.section}>
                 <h4>معلومات التواصل</h4>
-                <TextBox
-                    label="البريد الإلكتروني"
-                    defaultValue="mohammad.onthefloor@gmail.com"
-                    readOnly
+                <TextBox label="البريد الإلكتروني" defaultValue={profile.email || "—"} readOnly />
+                <PhoneInput
+                    ref={phoneRef}
+                    onChange={() => handleChange()}
+                    value={profile.phoneNumber}
                 />
-                {/* 4. Add onChange to all components */}
-                <PhoneInput ref={phoneRef} onChange={onFieldChange} value={profile.phoneNumber} />
             </section>
 
+            {/* Personal Info Section */}
             <section className={styles.section}>
                 <h4>معلوماتك الشخصية</h4>
                 <div className={styles.row}>
@@ -95,21 +111,17 @@ export default function ProfileClient({ profile }: { profile: UserProfile }) {
                         ref={firstNameRef}
                         label="الاسم الأول"
                         placeholder="أدخل الاسم الأول"
-                        onChange={onFieldChange}
                         defaultValue={profile.firstName}
-                        validation={(value) => {
-                            if (value && value.length < 3) {
-                                return "يجب ان يكون الاسم اكبر من ثلاثة احرف"
-                            }
-                            return undefined
-                        }}
+                        validation={nameValidation}
+                        onChange={() => handleChange(firstNameRef)}
                     />
                     <TextBox
                         ref={lastNameRef}
                         label="اسم العائلة"
                         placeholder="أدخل اسم العائلة"
-                        onChange={onFieldChange}
                         defaultValue={profile.lastName}
+                        validation={nameValidation}
+                        onChange={() => handleChange(lastNameRef)}
                     />
                 </div>
 
@@ -119,15 +131,15 @@ export default function ProfileClient({ profile }: { profile: UserProfile }) {
                         label="الجنسية"
                         placeholder="اختر الجنسية"
                         options={nationalityOptions}
-                        onChange={onFieldChange}
                         defaultValue={profile.nationality}
+                        onChange={() => handleChange()}
                     />
                     <TextBox
                         ref={birthdayRef}
                         label="يوم الميلاد"
                         type="date"
-                        onChange={onFieldChange}
                         defaultValue={profile.dateOfBirth}
+                        onChange={() => handleChange()}
                     />
                 </div>
 
@@ -135,22 +147,19 @@ export default function ProfileClient({ profile }: { profile: UserProfile }) {
                     ref={sexRef}
                     label="الجنس"
                     icon={User}
-                    onChange={() => {
-                        onFieldChange() // Trigger change on radio select
-                    }}
                     options={[
                         { display: "ذكر", value: "male" },
                         { display: "أنثى", value: "female" },
                     ]}
                     defaultValue={profile.sex}
+                    onChange={() => handleChange()}
                 />
             </section>
 
             <Button
-                type="primary"
+                variant="primary"
                 onClick={handleSave}
                 className={styles.submitBtn}
-                // 5. Disable if no changes OR if currently submitting
                 disabled={isSubmitting || !hasChanged}
             >
                 {isSubmitting ? "جاري الحفظ..." : "حفظ المعلومات"}

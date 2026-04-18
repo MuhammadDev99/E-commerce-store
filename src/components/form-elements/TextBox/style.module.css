@@ -79,7 +79,7 @@
     height: 2.3em;
     padding: 0.3em 0.4em;
     font-size: 1em;
-
+    direction: ltr;
     background-color: var(--cold-white-2);
     border: 0.1em solid var(--white-4);
     border-radius: var(--border-radius-1);

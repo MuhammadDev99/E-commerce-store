@@ -21,7 +21,7 @@ export default async function MarketingPage({
     return (
         <div className={clsx(styles.page)}>
             <Card className={styles.header} title="الكوبونات" icon={TicketSVG}>
-                <Button href="/dashboard/coupon/generate" type="primary">
+                <Button href="/dashboard/coupon/generate" variant="primary">
                     إصنع كوبون
                 </Button>
             </Card>

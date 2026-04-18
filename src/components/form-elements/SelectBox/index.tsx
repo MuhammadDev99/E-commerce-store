@@ -1,21 +1,8 @@
-import {
-    forwardRef,
-    ComponentPropsWithoutRef,
-    useImperativeHandle,
-    useRef,
-    useState,
-    useEffect,
-    useMemo,
-} from "react"
+import { forwardRef, ComponentPropsWithoutRef, useRef, useState, useEffect, useMemo } from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
-
-export interface FormElementRef {
-    value: string
-    error: string | undefined
-    validate: () => boolean
-    focus: () => void
-}
+import { FormElementRef } from "@/types" // Ensure this is imported from your types file
+import { useFormImperativeHandle } from "@/hooks/useFormImperativeHandle"
 
 export type SelectOption = { display: string; value: string | number }
 export type SelectGroup = { groupLabel: string; items: SelectOption[] }
@@ -29,7 +16,7 @@ interface SelectBoxProps extends Omit<ComponentPropsWithoutRef<"div">, "onChange
     tooltip?: string
     placeholder?: string
     options?: OptionItem[]
-    validation?: (value: string) => string | undefined
+    validation?: (value: string) => string | undefined | null
     value?: string | number
     defaultValue?: string | number
     onChange?: (value: string) => void
@@ -63,12 +50,20 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
         const [selectedValue, setSelectedValue] = useState<string>(
             (controlledValue ?? defaultValue ?? "").toString(),
         )
-        const [internalError, setInternalError] = useState<string | undefined>(undefined)
+
+        // --- REUSABLE LOGIC ---
+        const { internalError, setInternalError } = useFormImperativeHandle({
+            ref,
+            containerRef,
+            validation,
+            getValue: () => selectedValue,
+            onFocus: () => setIsOpen(true), // Open dropdown when parent calls .focus()
+        })
 
         const currentError = internalError || externalError
         const hasError = !!currentError
 
-        // Flatten options for easier searching and keyboard nav
+        // Flatten options for easier searching
         const flatOptions = useMemo(() => {
             const items: SelectOption[] = []
             options.forEach((item) => {
@@ -102,30 +97,14 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
             return () => document.removeEventListener("mousedown", handleClickOutside)
         }, [])
 
-        useImperativeHandle(ref, () => ({
-            value: selectedValue,
-            get error() {
-                return internalError
-            },
-            validate: () => {
-                if (validation) {
-                    const msg = validation(selectedValue)
-                    setInternalError(msg)
-                    return !msg
-                }
-                return true
-            },
-            focus: () => {
-                containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-                setIsOpen(true)
-            },
-        }))
-
         const handleSelect = (val: string | number) => {
             const stringVal = val.toString()
             setSelectedValue(stringVal)
             setIsOpen(false)
+
+            // Clear error via the hook's state
             if (internalError) setInternalError(undefined)
+
             onChange?.(stringVal)
         }
 
@@ -168,7 +147,6 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
                 )}
 
                 <div className={styles.selectWrapper}>
-                    {/* The Trigger (The visual replacement for <select>) */}
                     <div
                         className={clsx(styles.selectTrigger, selectedValue && styles.filled)}
                         tabIndex={disabled ? -1 : 0}
@@ -182,7 +160,6 @@ const SelectBox = forwardRef<FormElementRef, SelectBoxProps>(
                         <div className={styles.arrowIcon} />
                     </div>
 
-                    {/* The Dropdown Menu */}
                     {isOpen && (
                         <div className={styles.dropdownMenu} role="listbox">
                             {options.map((item, idx) => {

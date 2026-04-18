@@ -9,20 +9,34 @@ import { showMessage } from "@/utils/showMessage"
 import { useRouter } from "next/navigation"
 import { UserProfile } from "@/types"
 import { User as UserType } from "@/types" // Use the User type from your types file
+import { authClient } from "@/lib/auth-client"
+import { cartCountSignal } from "@/signals"
 
 type Props = { user: UserType } & ComponentPropsWithoutRef<"div">
 
 export default function AccountSidebar({ user, ...rest }: Props) {
     const router = useRouter()
     const handleLogout = async () => {
-        const result = await safe(logMeOut())
-        if (!result.success) {
-            showMessage({ type: "error", content: result.error.message })
-            return
-        }
-        showMessage({ type: "success", content: "تم تسجيل الخروج بنجاح" })
-        router.push("/")
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    // 2. Clear local signals
+                    cartCountSignal.value = 0
+
+                    // 3. Show message and redirect
+                    showMessage({ type: "success", content: "تم تسجيل الخروج بنجاح" })
+
+                    // 4. Force a refresh to ensure all Server Components sync up
+                    router.push("/")
+                    router.refresh()
+                },
+                onError: (ctx) => {
+                    showMessage({ type: "error", content: ctx.error.message })
+                },
+            },
+        })
     }
+
     return (
         <div className={clsx(styles.root, rest.className)} dir="rtl">
             <div className={clsx(styles.card, styles.profile)}>

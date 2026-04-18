@@ -72,7 +72,7 @@ export default function LoginView({ onLogin, onRegister, isLoading, className, .
 
             <div className={styles.actions}>
                 <Button
-                    type="primary"
+                    variant="primary"
                     onClick={handleSubmit}
                     disabled={isLoading}
                     className={styles.submitBtn}

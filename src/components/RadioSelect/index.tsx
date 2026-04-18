@@ -1,10 +1,12 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useRef, useState, ComponentPropsWithoutRef } from "react"
+import { forwardRef, useRef, useState, ComponentPropsWithoutRef } from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
 import { useSignals } from "@preact/signals-react/runtime"
 import { RadioInput } from "@/external/my-library/components"
+import { FormElementRef } from "@/types"
+import { useFormImperativeHandle } from "@/hooks/useFormImperativeHandle"
 
 type Props = Omit<ComponentPropsWithoutRef<"div">, "onChange"> & {
     label: string
@@ -18,7 +20,7 @@ type Props = Omit<ComponentPropsWithoutRef<"div">, "onChange"> & {
     validation?: (value: string) => string | undefined | null
 }
 
-const RadioSelect = forwardRef<any, Props>(
+const RadioSelect = forwardRef<FormElementRef, Props>(
     (
         {
             value,
@@ -38,36 +40,18 @@ const RadioSelect = forwardRef<any, Props>(
         useSignals()
 
         const containerRef = useRef<HTMLDivElement>(null)
-        const [internalError, setInternalError] = useState<string | undefined>(undefined)
 
-        // 1. Add internal state to track the value if the component is uncontrolled
+        // 1. Uncontrolled state logic
         const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue ?? "")
-
-        // 2. Determine the "Active" value:
-        // If 'value' is provided by parent, use it (controlled).
-        // Otherwise, use our internal state (uncontrolled).
         const activeValue = value !== undefined ? value : uncontrolledValue
 
-        const currentError = internalError || externalError
-        const hasError = !!currentError
-
-        useImperativeHandle(ref, () => ({
-            get value() {
-                return activeValue
-            },
-            get error() {
-                return internalError
-            },
-            validate: () => {
-                if (validation) {
-                    const msg = validation(activeValue)
-                    setInternalError(msg || undefined)
-                    return !msg
-                }
-                return true
-            },
-            focus: () => {
-                containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+        // 2. --- REUSABLE LOGIC ---
+        const { internalError, setInternalError } = useFormImperativeHandle({
+            ref,
+            containerRef,
+            validation,
+            getValue: () => activeValue,
+            onFocus: () => {
                 const firstRadio = containerRef.current?.querySelector("input")
                 if (firstRadio) {
                     firstRadio.focus({ preventScroll: true })
@@ -75,16 +59,17 @@ const RadioSelect = forwardRef<any, Props>(
                     containerRef.current?.focus({ preventScroll: true })
                 }
             },
-        }))
+        })
+
+        const currentError = internalError || externalError
+        const hasError = !!currentError
 
         const handleSelect = (newValue: string) => {
-            // Update internal state so the UI changes immediately
             setUncontrolledValue(newValue)
 
-            // Clear error
+            // Clear error via the hook's state
             if (internalError) setInternalError(undefined)
 
-            // Notify parent
             onChange?.(newValue)
         }
 
@@ -105,9 +90,8 @@ const RadioSelect = forwardRef<any, Props>(
                         <RadioInput
                             key={option.value}
                             label={option.display}
-                            name={label} // Use a unique name per group
+                            name={label}
                             onClick={() => handleSelect(option.value)}
-                            // UI reflects either the prop or the internal state
                             startValue={option.value === activeValue}
                         />
                     ))}

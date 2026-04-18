@@ -76,7 +76,7 @@ export default function OrderSummary({
 
                 <Button
                     className={styles.checkout}
-                    styleType="primary"
+                    stylevariant="primary"
                     disabled={loading}
                     onClick={() => startCheckout(cartItems)}
                 >

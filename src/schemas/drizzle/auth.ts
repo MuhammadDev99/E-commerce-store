@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const sexEnum = pgEnum("sex", ["male", "female"]);
-
+export const roleEnum = pgEnum("role", ["user", "admin", "deleted"]);
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
@@ -18,7 +18,7 @@ export const user = pgTable("user", {
     createdAt: timestamp("createdAt").notNull(),
     updatedAt: timestamp("updatedAt").notNull(),
     // Custom Fields for your form
-    role: text("role").notNull().default("user"),
+    role: roleEnum("role").default("user"),
     phoneNumber: text("phoneNumber"),
     firstName: text("firstName"),
     lastName: text("lastName"),

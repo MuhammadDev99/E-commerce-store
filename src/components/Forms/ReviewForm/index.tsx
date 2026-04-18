@@ -73,7 +73,7 @@ export default function ReviewForm({
                 onChange={(value) => (form.value = { ...form.value, content: value })}
             />
             <Button
-                type="primary"
+                variant="primary"
                 className={styles.submitButton}
                 onClick={handleSubmit}
                 disabled={loading.value}

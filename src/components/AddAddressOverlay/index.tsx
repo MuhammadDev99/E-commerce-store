@@ -438,7 +438,7 @@ function GeoLocationWindow({ onClose }: { onClose?: () => void }) {
                 </div>
 
                 <Button
-                    type="primary"
+                    variant="primary"
                     className={styles.submitBtn}
                     // Disable button if address is not supported
                     disabled={!formCoords || loadingAddress.value || !isSupportedSignal.value}
@@ -759,7 +759,7 @@ function DeliverTo({
 
             <div className={styles.footer}>
                 <Button
-                    type="primary"
+                    variant="primary"
                     className={styles.submitBtn}
                     disabled={false}
                     onClick={handleSaveAddress}

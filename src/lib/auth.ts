@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import * as schema from "@/schemas/drizzle";
-import { emailOTP } from "better-auth/plugins"; // 1. Import plugin
+import { emailOTP } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -18,11 +18,24 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  // 2. Add the Plugin Configuration
-  // Inside auth (2).ts
   plugins: [
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
+        // Determine email content based on type
+        let subject = "Verify Your Email";
+        let title = "MeHappy Verification";
+        let message = "Your verification code is:";
+
+        if (type === "forget-password") {
+          subject = "Reset Your Password";
+          title = "Password Reset Request";
+          message = "Use the following code to reset your password:";
+        } else if (type === "sign-in") {
+          subject = "Login Code";
+          title = "MeHappy Login";
+          message = "Your login code is:";
+        }
+
         try {
           const res = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
@@ -34,26 +47,29 @@ export const auth = betterAuth({
             body: JSON.stringify({
               sender: { name: "MeHappy", email: "noreply@mehappy.site" },
               to: [{ email }],
-              subject: type === "email-verification" ? "Verify Your Email" : "Login Code",
+              subject: subject,
               htmlContent: `
-              <div style="font-family: sans-serif; text-align: center;">
-                <h2>MeHappy Verification</h2>
-                <p>Your verification code is:</p>
-                <h1 style="color: #4A90E2; letter-spacing: 5px;">${otp}</h1>
+              <div style="font-family: sans-serif; text-align: center; direction: ltr;">
+                <h2 style="color: #333;">${title}</h2>
+                <p style="color: #666;">${message}</p>
+                <h1 style="color: #4A90E2; letter-spacing: 5px; font-size: 32px; background: #f4f4f4; padding: 10px; display: inline-block;">${otp}</h1>
+                <p style="color: #999; font-size: 12px; margin-top: 20px;">This code will expire shortly.</p>
               </div>
             `,
             }),
           });
 
-          // ADD THIS CHECK:
           if (!res.ok) {
             const errorData = await res.text();
-            console.error("❌ Brevo API Error:", res.status, errorData);
-          } else {
-            console.log("✅ OTP Email sent successfully to", email);
+            // Bubbling up the error to the client
+            throw new Error(`Failed to send email: ${res.status} - ${errorData}`);
           }
+
+          console.log(`✅ OTP (${type}) sent successfully to`, email);
         } catch (error) {
-          console.error("❌ Failed to reach Brevo API:", error);
+          console.error("❌ Email Service Error:", error);
+          // Re-throw the error so better-auth knows the process failed
+          throw error;
         }
       },
     }),
@@ -67,27 +83,27 @@ export const auth = betterAuth({
       },
       phoneNumber: {
         type: "string",
-        required: false // Mark as optional
+        required: false
       },
       dateOfBirth: {
         type: "string",
-        required: false // Mark as optional
+        required: false
       },
       firstName: {
         type: "string",
-        required: true // Required for your form
+        required: true
       },
       lastName: {
         type: "string",
-        required: true // Required for your form
+        required: true
       },
       nationality: {
         type: "string",
-        required: false // Required for your form
+        required: false
       },
       sex: {
         type: "string",
-        required: false // Set to true if you want to force it during signup
+        required: false
       },
     },
   },

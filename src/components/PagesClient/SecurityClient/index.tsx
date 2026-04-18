@@ -18,6 +18,7 @@ type Props = {} & ComponentPropsWithoutRef<"div">
 export default function SecurityClient({ ...rest }: Props) {
     useSignals()
     // Refrences
+    const isLoading = useSignal<boolean>(false)
     const currentPasswordRef = useRef<FormElementRef>(null)
     const newPasswordRef = useRef<FormElementRef>(null)
     const confirmNewPasswordRef = useRef<FormElementRef>(null)
@@ -30,7 +31,9 @@ export default function SecurityClient({ ...rest }: Props) {
             showMessage({ content: "الرجاء إدخال كلمة المرور الحالية والجديدة", type: "error" })
             return
         }
+        isLoading.value = true
         const result = await safe(changeMyPassword(currentPassword, newPassword))
+        isLoading.value = false
         if (!result.success) {
             showMessage({ content: result.error.message, type: "error" })
             return
@@ -55,6 +58,7 @@ export default function SecurityClient({ ...rest }: Props) {
                 icon={LockIcon}
             >
                 <TextBox
+                    type="password"
                     ref={currentPasswordRef}
                     className={styles.currentPassword}
                     label="كلمة المرور الحالية"
@@ -65,22 +69,36 @@ export default function SecurityClient({ ...rest }: Props) {
                     }}
                     onChange={() => currentPasswordRef.current?.validate()}
                 />
+
                 <TextBox
+                    type="password"
                     ref={newPasswordRef}
                     label="كلمة المرور الجديدة"
                     validation={(value) => {
+                        // REMOVED: confirmNewPasswordRef.current?.validate()
+                        // REMOVED: newPasswordRef.current?.validate()
+
                         const genericError = passwordValidation(value)
                         if (genericError) return genericError
+
                         if (value === currentPasswordRef.current?.value) {
                             return "كلمة المرور الجديدة يجب أن تختلف عن الحالية"
                         }
                     }}
-                    onChange={() => newPasswordRef.current?.validate()}
+                    onChange={() => {
+                        // First validate this field
+                        newPasswordRef.current?.validate()
+                        // Then trigger validation on the confirm field to update its "match" status
+                        confirmNewPasswordRef.current?.validate()
+                    }}
                 />
+
                 <TextBox
+                    type="password"
                     ref={confirmNewPasswordRef}
                     label="تأكيد كلمة المرور الجديدة"
                     validation={(value) => {
+                        // Just logic here, no function calls
                         if (newPasswordRef.current && newPasswordRef.current.value !== value) {
                             return "كلمة المرور غير متطابقة"
                         }
@@ -88,8 +106,9 @@ export default function SecurityClient({ ...rest }: Props) {
                     onChange={() => confirmNewPasswordRef.current?.validate()}
                 />
                 <Button
+                    loading={isLoading.value}
                     onClick={handlePasswordChange}
-                    type="primary"
+                    variant="primary"
                     className={styles.changePasswordBtn}
                 >
                     غير كلمة المرور
@@ -98,7 +117,7 @@ export default function SecurityClient({ ...rest }: Props) {
             <Card className={styles.card} title="حذف الحساب" icon={Trash2Icon}>
                 <p>نحن حزينون لمغادرتك، نتمنى رؤيتك مجدداً!</p>
                 <Button
-                    type="negative"
+                    variant="negative"
                     onClick={() =>
                         (showAccountDeletionModal.value = !showAccountDeletionModal.value)
                     }

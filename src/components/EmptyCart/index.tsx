@@ -15,7 +15,7 @@ export default function EmptyCart({ className }: { className?: string }) {
             <Button
                 onClick={() => router.push("/")}
                 className={styles.backButton}
-                styleType="primary"
+                stylevariant="primary"
             >
                 عودة للرئيسية
             </Button>

@@ -1,12 +1,12 @@
-import { forwardRef, useImperativeHandle, useRef, useState, ComponentPropsWithoutRef } from "react"
+import { forwardRef, useRef, ComponentPropsWithoutRef } from "react"
 import clsx from "clsx"
 import styles from "./style.module.css"
 import { FormElementRef } from "@/types"
+import { useFormImperativeHandle } from "@/hooks/useFormImperativeHandle"
 
-// 1. Omit BOTH value and defaultValue from the native input props
 interface TextInputProps extends Omit<ComponentPropsWithoutRef<"input">, "value" | "defaultValue"> {
     value?: string | number | readonly string[] | Date | undefined
-    defaultValue?: string | number | readonly string[] | Date | undefined // Add Date here
+    defaultValue?: string | number | readonly string[] | Date | undefined
     label?: string
     error?: string
     helperText?: string
@@ -29,45 +29,27 @@ const TextBox = forwardRef<FormElementRef, TextInputProps>(
             validation,
             onChange,
             value,
-            defaultValue, // 2. Destructure defaultValue
+            defaultValue,
             ...rest
         },
         ref,
     ) => {
         const containerRef = useRef<HTMLDivElement>(null)
         const inputRef = useRef<HTMLInputElement>(null)
-        const [internalError, setInternalError] = useState<string | undefined>(undefined)
+
+        // --- REUSABLE LOGIC ---
+        const { internalError, setInternalError } = useFormImperativeHandle({
+            ref,
+            containerRef,
+            validation,
+            getValue: () => inputRef.current?.value || "",
+            onFocus: () => inputRef.current?.focus({ preventScroll: true }),
+        })
 
         const currentError = internalError || externalError
         const hasError = !!currentError
 
-        useImperativeHandle(ref, () => ({
-            get value() {
-                return inputRef.current?.value || ""
-            },
-            get error() {
-                return internalError
-            },
-            validate: () => {
-                if (validation && inputRef.current) {
-                    const msg = validation(inputRef.current.value)
-                    setInternalError(msg || undefined)
-                    return !msg
-                }
-                return true
-            },
-            // 1. Existing focus method
-            focus: () => {
-                containerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
-                inputRef.current?.focus({ preventScroll: true })
-            },
-            // 2. Add this to fix the error:
-            scrollIntoView: (options?: ScrollIntoViewOptions) => {
-                containerRef.current?.scrollIntoView(options)
-            },
-        }))
-
-        // 3. Helper to format dates for HTML input compatibility (YYYY-MM-DD)
+        // Helper to format dates for HTML input compatibility (YYYY-MM-DD)
         const formatValue = (val: any) => {
             if (val instanceof Date) {
                 const yyyy = val.getFullYear()
@@ -107,8 +89,8 @@ const TextBox = forwardRef<FormElementRef, TextInputProps>(
                     className={styles.input}
                     required={required}
                     readOnly={readOnly}
-                    value={formatValue(value)} // Use helper
-                    defaultValue={formatValue(defaultValue)} // Use helper
+                    value={formatValue(value)}
+                    defaultValue={formatValue(defaultValue)}
                     onChange={(e) => {
                         if (internalError) setInternalError(undefined)
                         onChange?.(e)

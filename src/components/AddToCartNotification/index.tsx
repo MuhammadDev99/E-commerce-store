@@ -57,7 +57,7 @@ export default function AddToCartNotification({ className }: { className?: strin
                             </div>
                         </div>
                         <div className={styles.buttons}>
-                            <Button styleType="primary">
+                            <Button stylevariant="primary">
                                 إتمام الطلب <CreditCardSVG className={styles.icon} />
                             </Button>
                             <Button>

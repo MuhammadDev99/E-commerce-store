@@ -9,6 +9,8 @@ import CodeInput from "@/components/form-elements/CodeInput"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { showMessage } from "@/utils/showMessage"
+import { passwordValidation } from "@/inputValidations"
+import { FormElementRef } from "@/types"
 
 export default function RegisterPage() {
     useSignals()
@@ -26,25 +28,33 @@ export default function RegisterPage() {
     })
 
     // Refs
-    const firstNameRef = useRef<any>(null)
-    const lastNameRef = useRef<any>(null)
-    const emailRef = useRef<any>(null)
-    const passwordRef = useRef<any>(null)
-    const otpRef = useRef<any>(null)
+    const firstNameRef = useRef<FormElementRef>(null)
+    const lastNameRef = useRef<FormElementRef>(null)
+    const emailRef = useRef<FormElementRef>(null)
+    const passwordRef = useRef<FormElementRef>(null)
+    const confirmPasswordRef = useRef<FormElementRef>(null)
+    const otpRef = useRef<FormElementRef>(null)
 
     // Step 1: Create Account & Send OTP
     const handleSendOtp = async () => {
-        const isFirstNameValid = firstNameRef.current?.validate()
-        const isLastNameValid = lastNameRef.current?.validate()
-        const isEmailValid = emailRef.current?.validate()
-        const isPassValid = passwordRef.current?.validate()
+        const registrationFields = [
+            firstNameRef,
+            lastNameRef,
+            emailRef,
+            passwordRef,
+            confirmPasswordRef, // Included this one
+        ]
+        const isValidForm = registrationFields.every((ref) => ref.current?.validate() === true)
+        if (!isValidForm) {
+            showMessage({ type: "error", content: "الرجاء تعبئة جميع الحقول بشكل صحيح" })
+            return
+        }
 
-        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || !isPassValid) return
-
-        const emailVal = emailRef.current.value
-        const passwordVal = passwordRef.current.value
-        const firstNameVal = firstNameRef.current.value
-        const lastNameVal = lastNameRef.current.value
+        // Extract values with fallbacks to satisfy TypeScript (string | undefined -> string)
+        const emailVal = emailRef.current?.value ?? ""
+        const passwordVal = passwordRef.current?.value ?? ""
+        const firstNameVal = firstNameRef.current?.value ?? ""
+        const lastNameVal = lastNameRef.current?.value ?? ""
 
         setSavedData({
             firstName: firstNameVal,
@@ -55,11 +65,13 @@ export default function RegisterPage() {
 
         setIsLoading(true)
 
-        // 1. Create the user account FIRST (this will set emailVerified: false in DB)
+        // 1. Create the user account FIRST
         const { error: signUpError } = await authClient.signUp.email({
             email: emailVal,
             password: passwordVal,
             name: `${firstNameVal} ${lastNameVal}`,
+            // If your better-auth schema expects these additional fields:
+            // @ts-ignore (only if your custom fields aren't in the base type yet)
             firstName: firstNameVal,
             lastName: lastNameVal,
         })
@@ -77,7 +89,7 @@ export default function RegisterPage() {
         // 2. Send the Verification OTP
         const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
             email: emailVal,
-            type: "email-verification", // Use email-verification type
+            type: "email-verification",
         })
 
         setIsLoading(false)
@@ -88,7 +100,6 @@ export default function RegisterPage() {
                 content: otpError.message || "تم إنشاء الحساب ولكن فشل إرسال الكود",
                 type: "error",
             })
-            // Move to OTP screen anyway since account was created
             setIsOtpSent(true)
         } else {
             setIsOtpSent(true)
@@ -103,27 +114,26 @@ export default function RegisterPage() {
     // Step 2: Verify OTP
     const handleVerifyAndRegister = async () => {
         const isOtpValid = otpRef.current?.validate()
-        if (!isOtpValid) return
+        const otpVal = otpRef.current?.value ?? "" // Handle undefined
+
+        if (!isOtpValid || !otpVal) return
 
         setIsLoading(true)
 
-        // Verify the code (This updates `emailVerified` to true in your DB)
         const { error: verifyError } = await authClient.emailOtp.verifyEmail({
             email: savedData.email,
-            otp: otpRef.current.value,
+            otp: otpVal,
         })
 
         setIsLoading(false)
 
         if (verifyError) {
-            // If the code is wrong, they stay on the screen and can try again
             showMessage({
                 title: "رمز غير صحيح",
                 content: "تأكد من إدخال الرمز الصحيح والمحاولة مرة أخرى",
                 type: "error",
             })
         } else {
-            // Success! The database is now updated.
             showMessage({
                 title: "مرحباً بك",
                 content: "تم التحقق من الحساب بنجاح",
@@ -140,7 +150,6 @@ export default function RegisterPage() {
         if (!/\S+@\S+\.\S+/.test(val)) return "يرجى إدخال بريد إلكتروني صحيح"
         return null
     }
-    const validatePassword = (val: string) => (val.length < 6 ? "كلمة السر ضعيفة جداً" : null)
 
     return (
         <div className={clsx(styles.root)}>
@@ -180,10 +189,23 @@ export default function RegisterPage() {
                             />
                             <TextBox
                                 ref={passwordRef}
-                                label="كلمة السر"
+                                label="كلمة المرور"
                                 type="password"
                                 placeholder="••••••••"
-                                validation={validatePassword}
+                                validation={passwordValidation}
+                                onChange={() => passwordRef.current?.validate()}
+                            />
+                            <TextBox
+                                ref={confirmPasswordRef}
+                                label="تأكيد كلمة المرور"
+                                type="password"
+                                placeholder="••••••••"
+                                validation={(value) => {
+                                    if (value !== passwordRef.current?.value) {
+                                        return "كلمة المرور غير متطابقة"
+                                    }
+                                }}
+                                onChange={() => confirmPasswordRef.current?.validate()}
                             />
                         </>
                     ) : (
@@ -193,9 +215,9 @@ export default function RegisterPage() {
 
                 <div className={styles.actions}>
                     <Button
-                        type="primary"
+                        variant="primary"
                         onClick={isOtpSent ? handleVerifyAndRegister : handleSendOtp}
-                        disabled={isLoading}
+                        loading={isLoading}
                         className={styles.submitBtn}
                     >
                         {isLoading
@@ -205,7 +227,6 @@ export default function RegisterPage() {
                               : "إنشاء الحساب وإرسال الرمز"}
                     </Button>
 
-                    {/* Notice: If they click "Change Email", they will have to refresh because the account with the old email is already created. This is standard behavior. */}
                     {isOtpSent && (
                         <button
                             className={styles.textBtn}

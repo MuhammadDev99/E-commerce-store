@@ -195,7 +195,7 @@ export default function CouponForm({ coupon }: { coupon?: Coupon }) {
 
                 <div className={styles.actions}>
                     <Button
-                        styleType="primary"
+                        stylevariant="primary"
                         onClick={handleSave}
                         disabled={isPending}
                         className={styles.saveBtn}

@@ -139,7 +139,7 @@ export default function AddressForm({ formId, ...rest }: Props) {
                 className={styles.switch}
             />
 
-            <Button type="primary" onClick={handleAdressSave}>
+            <Button variant="primary" onClick={handleAdressSave}>
                 حفظ العنوان
             </Button>
         </div>

@@ -92,6 +92,7 @@
 /* Logout Specific Style */
 .root .logout {
   color: #dc2626;
+  cursor: pointer;
 }
 
 .root .logout:hover {

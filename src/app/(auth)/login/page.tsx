@@ -7,19 +7,21 @@ import TextBox from "@/components/form-elements/TextBox"
 import Button from "@/components/Button"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
-import { showMessage } from "@/utils/showMessage" // أضفنا هذه لاستيراد رسائل التنبيه
+import { showMessage } from "@/utils/showMessage"
+import { emailValidation, passwordValidation } from "@/inputValidations"
 
 export default function LoginPage() {
     useSignals()
     const router = useRouter()
 
-    // Refs to access the TextBox imperative methods (validate, value)
     const emailRef = useRef<any>(null)
     const passwordRef = useRef<any>(null)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const handleSubmit = async () => {
-        // Trigger internal validation of both fields
+    // أضفنا (e) لمنع الصفحة من التحديث عند الإرسال
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault() // منع تحديث الصفحة التلقائي
+
         const isEmailValid = emailRef.current?.validate()
         const isPassValid = passwordRef.current?.validate()
 
@@ -27,7 +29,6 @@ export default function LoginPage() {
 
         setIsLoading(true)
 
-        // استدعاء دالة تسجيل الدخول من better-auth
         const { data, error } = await authClient.signIn.email({
             email: emailRef.current.value,
             password: passwordRef.current.value,
@@ -36,34 +37,19 @@ export default function LoginPage() {
         setIsLoading(false)
 
         if (error) {
-            // عرض رسالة خطأ في حال فشل تسجيل الدخول
             showMessage({
                 title: "خطأ في تسجيل الدخول",
                 content: error.message || "البريد الإلكتروني أو كلمة السر غير صحيحة",
                 type: "error",
             })
         } else {
-            // عرض رسالة نجاح وتوجيه المستخدم للوحة التحكم
             showMessage({
                 title: "أهلاً بك",
                 content: "تم تسجيل الدخول بنجاح",
                 type: "success",
             })
-            router.push("/dashboard")
+            router.push("/")
         }
-    }
-
-    // Validation Rules
-    const validateEmail = (val: string) => {
-        if (!val) return "البريد الإلكتروني مطلوب"
-        if (!/\S+@\S+\.\S+/.test(val)) return "يرجى إدخال بريد إلكتروني صحيح"
-        return null
-    }
-
-    const validatePassword = (val: string) => {
-        if (!val) return "كلمة السر مطلوبة"
-        if (val.length < 6) return "كلمة السر يجب أن تكون 6 أحرف على الأقل"
-        return null
     }
 
     return (
@@ -74,44 +60,57 @@ export default function LoginPage() {
                     <p>أهلاً بك مجدداً، يرجى إدخال بياناتك</p>
                 </div>
 
-                <div className={styles.formSection}>
-                    <TextBox
-                        ref={emailRef}
-                        label="البريد الإلكتروني"
-                        placeholder="example@mail.com"
-                        validation={validateEmail}
-                        type="email"
-                    />
-                    <TextBox
-                        ref={passwordRef}
-                        label="كلمة السر"
-                        placeholder="••••••••"
-                        validation={validatePassword}
-                        type="password"
-                    />
-                </div>
-
-                <div className={styles.actions}>
-                    <Button
-                        type="primary"
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        className={styles.submitBtn}
-                    >
-                        {isLoading ? "جاري التحميل..." : "تسجيل الدخول"}
-                    </Button>
-
-                    <div className={styles.footer}>
-                        <span>ليس لديك حساب؟</span>
-                        <button
-                            type="button"
-                            className={styles.textBtn}
-                            onClick={() => router.push("/register")}
-                        >
-                            تسجيل حساب جديد
-                        </button>
+                {/* تغليف الحقول بـ form واستخدام onSubmit */}
+                <form onSubmit={handleSubmit} className={styles.formContainer}>
+                    <div className={styles.formSection}>
+                        <TextBox
+                            ref={emailRef}
+                            label="البريد الإلكتروني"
+                            placeholder="example@mail.com"
+                            validation={emailValidation}
+                            type="email"
+                        />
+                        <TextBox
+                            ref={passwordRef}
+                            label="كلمة السر"
+                            placeholder="••••••••"
+                            validation={passwordValidation}
+                            type="password"
+                        />
+                        <div style={{ textAlign: "right", marginTop: "-10px" }}>
+                            <button
+                                type="button"
+                                className={styles.textBtn}
+                                style={{ fontSize: "0.85em" }}
+                                onClick={() => router.push("/forgot-password")}
+                            >
+                                نسيت كلمة المرور؟
+                            </button>
+                        </div>
                     </div>
-                </div>
+
+                    <div className={styles.actions}>
+                        <Button
+                            htmlType="submit"
+                            variant="primary"
+                            disabled={isLoading}
+                            className={styles.submitBtn}
+                        >
+                            {isLoading ? "جاري التحميل..." : "تسجيل الدخول"}
+                        </Button>
+
+                        <div className={styles.footer}>
+                            <span>ليس لديك حساب؟</span>
+                            <button
+                                type="button"
+                                className={styles.textBtn}
+                                onClick={() => router.push("/register")}
+                            >
+                                تسجيل حساب جديد
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     )

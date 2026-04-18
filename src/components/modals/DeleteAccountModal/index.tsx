@@ -53,7 +53,7 @@ export default function DeleteAccountModal({ onClose, ...rest }: Props) {
                 <Button
                     loading={isLoading.value}
                     onClick={handleAccountDelete}
-                    type="negative"
+                    variant="negative"
                     className={styles.deleteBtn}
                 >
                     حذف الحساب

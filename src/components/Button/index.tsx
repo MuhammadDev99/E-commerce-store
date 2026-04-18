@@ -2,62 +2,72 @@
 import clsx from "clsx"
 import styles from "./style.module.css"
 import { useRouter } from "next/navigation"
+import React, { ButtonHTMLAttributes, ElementType } from "react"
+
+// تعريف الـ Props
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+    variant?: "normal" | "primary" | "negative"
+    loading?: boolean
+    icon?: ElementType
+    iconRotationDeg?: number
+    flipIconOrder?: boolean
+    href?: string
+    htmlType?: "submit" | "button" | "reset" // أضفنا هذا السطر لحل المشكلة
+}
 
 export default function Button({
     className,
     children,
-    type = "normal",
+    variant = "normal",
+    htmlType = "button", // القيمة الافتراضية للزر هي button
     disabled = false,
-    loading = false, // Added loading prop with default value
+    loading = false,
     icon: Icon,
     iconRotationDeg = 0,
     flipIconOrder = false,
     onClick,
     href,
-}: {
-    className?: string
-    children?: React.ReactNode
-    type?: "normal" | "primary" | "negative"
-    disabled?: boolean
-    loading?: boolean // Added to types
-    icon?: React.ElementType
-    iconRotationDeg?: number
-    onClick?: () => void
-    flipIconOrder?: boolean
-    href?: string
-}) {
+    ...props
+}: ButtonProps) {
     const router = useRouter()
 
-    const handleOnClick = () => {
-        // Prevent action if disabled or loading
-        if (disabled || loading) return
+    const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (disabled || loading) {
+            e.preventDefault()
+            return
+        }
 
-        onClick?.()
+        onClick?.(e)
+
         if (href) {
             router.push(href)
         }
     }
-    if (loading) children = <p>جاري التحميل...</p>
+
+    const content = loading ? <p>جاري التحميل...</p> : children
+
     return (
         <button
+            {...props}
+            type={htmlType} // هنا نمرر htmlType إلى خاصية type الحقيقية للزر
             onClick={handleOnClick}
-            disabled={disabled || loading} // Disable HTML button when loading
+            disabled={disabled || loading}
             className={clsx(
                 styles.container,
                 className,
-                styles[type],
+                styles[variant],
                 (disabled || loading) && styles.disabled,
-                loading && styles.loading, // Add loading CSS class for styling
+                loading && styles.loading,
             )}
         >
-            {flipIconOrder && children}
+            {flipIconOrder && content}
             {Icon && (
                 <Icon
                     className={styles.icon}
                     style={{ transform: `rotate(${iconRotationDeg}deg)` }}
                 />
             )}
-            {!flipIconOrder && children}
+            {!flipIconOrder && content}
         </button>
     )
 }

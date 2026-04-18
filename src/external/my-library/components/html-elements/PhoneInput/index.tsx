@@ -27,6 +27,7 @@ export interface ModernPhoneInputProps extends Omit<ComponentPropsWithoutRef<"di
     onChange?: (value: string) => void
     label?: string
     error?: string
+    required?: boolean // Added required prop
 }
 
 const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
@@ -37,22 +38,32 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
             onChange,
             label = "رقم الجوال",
             error: externalError,
+            required = false, // Default to false
             ...rest
         },
         ref,
     ) => {
-        // 1. Internal state to track the actual input value
         const [phoneNumber, setPhoneNumber] = useState(externalValue || "")
         const containerRef = useRef<HTMLDivElement>(null)
         const [isTouched, setIsTouched] = useState(false)
         const [isValid, setIsValid] = useState<boolean | null>(null)
 
-        // Sync internal state if external value changes (props update)
         useEffect(() => {
             if (externalValue !== undefined) {
                 setPhoneNumber(externalValue)
             }
         }, [externalValue])
+
+        // Logic to determine if the field is currently invalid
+        // 1. If not required and empty -> Not an error
+        // 2. If required and empty -> Error
+        // 3. If has text -> Check phone validity
+        const checkValidity = (val: string) => {
+            if (!val) {
+                return !required // Valid if not required
+            }
+            return isValidPhoneNumber(val)
+        }
 
         const isLocalError = isTouched && isValid === false
         const hasError = !!externalError || isLocalError
@@ -60,35 +71,31 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
 
         const handleChange = (val?: string) => {
             const currentPhone = val || ""
-            setPhoneNumber(currentPhone) // Update local state immediately
+            setPhoneNumber(currentPhone)
             onChange?.(currentPhone)
 
             if (currentPhone) {
-                // While typing, check if it's at least "possible" to avoid early errors
                 setIsValid(isPossiblePhoneNumber(currentPhone))
             } else {
-                setIsValid(null)
+                // If user clears the input, it's valid only if not required
+                setIsValid(required ? false : null)
             }
         }
 
         const handleBlur = () => {
             setIsTouched(true)
-            if (phoneNumber) {
-                setIsValid(isValidPhoneNumber(phoneNumber))
-            }
+            setIsValid(checkValidity(phoneNumber))
         }
 
         useImperativeHandle(ref, () => ({
             get value() {
-                // Return the internal state value, not the prop
                 return phoneNumber || ""
             },
             get error() {
                 return hasError ? displayError : undefined
             },
             validate: () => {
-                // Validate against the INTERNAL state phoneNumber
-                const isPhoneValid = phoneNumber ? isValidPhoneNumber(phoneNumber) : false
+                const isPhoneValid = checkValidity(phoneNumber)
                 setIsValid(isPhoneValid)
                 setIsTouched(true)
                 return isPhoneValid
@@ -108,7 +115,9 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
                 {...rest}
             >
                 <div className={styles.labelWrapper}>
-                    <label className={styles.label}>{label}</label>
+                    <label className={styles.label}>
+                        {label} {required && <span className="text-red-500">*</span>}
+                    </label>
                     <Phone className={styles.icon} />
                 </div>
 
@@ -116,13 +125,18 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
                     className={clsx(
                         styles.inputWrapper,
                         hasError && styles.inputError,
-                        isTouched && isValid === true && !hasError && styles.inputSuccess,
+                        // Only show success if there is a value and it is valid
+                        isTouched &&
+                            isValid === true &&
+                            phoneNumber &&
+                            !hasError &&
+                            styles.inputSuccess,
                     )}
                 >
                     <ReactPhoneInput
                         international
                         defaultCountry="SA"
-                        value={phoneNumber} // Use internal state
+                        value={phoneNumber}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         className={styles.phoneInput}
@@ -143,7 +157,8 @@ const PhoneInput = forwardRef<FormElementRef, ModernPhoneInputProps>(
                             {displayError}
                         </span>
                     )}
-                    {isTouched && isValid === true && !hasError && (
+                    {/* Show "Valid Number" only if there is actual input */}
+                    {isTouched && isValid === true && phoneNumber && !hasError && (
                         <span className={styles.successText}>
                             <svg viewBox="0 0 20 20" fill="currentColor" className={styles.icon}>
                                 <path

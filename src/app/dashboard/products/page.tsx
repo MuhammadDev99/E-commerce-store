@@ -125,7 +125,11 @@ export default function ProductsPage() {
                             </div>
                         </div>
                     </div>
-                    <Button type="primary" className={styles.addProductButton} onClick={addProduct}>
+                    <Button
+                        variant="primary"
+                        className={styles.addProductButton}
+                        onClick={addProduct}
+                    >
                         أضف المنتج
                     </Button>
                 </div>

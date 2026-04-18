@@ -226,9 +226,11 @@ export interface FormElementRef {
   error: string | undefined
   validate: () => boolean
   focus: () => void
+  scrollIntoView: (options?: ScrollIntoViewOptions) => void
 }
 
 export type UserProfile = {
+  email?: string
   phoneNumber?: string;
   firstName?: string
   lastName?: string

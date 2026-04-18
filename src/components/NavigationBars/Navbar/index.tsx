@@ -43,6 +43,7 @@ export default function Navbar({ className }: { className?: string }) {
     useSignals() // 1. Enable signals reactivity
     const router = useRouter()
     const { data: session } = authClient.useSession()
+    const isLoggedIn = session?.user
 
     // 2. Fetch cart count on mount or when session changes
     useEffect(() => {
@@ -58,7 +59,10 @@ export default function Navbar({ className }: { className?: string }) {
     return (
         <div className={clsx(styles.container, className)}>
             <div className={styles.buttons}>
-                <Link href={"/account/profile"} className={styles.accountWrapper}>
+                <Link
+                    href={isLoggedIn ? "/account/profile" : "/login"}
+                    className={styles.accountWrapper}
+                >
                     <PersonCircleSVG className={styles.account} />
                     {session && <p className={styles.name}>{session.user.name.split(" ")[0]}</p>}
                 </Link>

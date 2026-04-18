@@ -1,16 +1,17 @@
 "use client"
+
+import { useState } from "react"
 import { Product, RatedProduct } from "@/types"
 import styles from "./style.module.css"
-import { RiyalSymbolSvg } from "@/images"
 import Price from "../Price"
 import clsx from "clsx"
 import AddToCart from "../AddToCart"
 import { addItemToCart } from "@/utils"
-import { useSignals, useSignal } from "@preact/signals-react/runtime"
 import ReviewStars from "../ReviewStars"
 import NumberInput from "../form-elements/NumberInput"
 import Button from "../Button"
 import { useRouter } from "next/navigation"
+
 export default function FullProductDisplay({
     product,
     className,
@@ -18,10 +19,14 @@ export default function FullProductDisplay({
     product: RatedProduct
     className?: string
 }) {
-    useSignals()
     const router = useRouter()
-    const quantity = useSignal<number>(1)
+
+    // Use React useState instead of signals to avoid the rendering conflict
+    const [quantity, setQuantity] = useState<number>(1)
+
     const isDiscounted = product.discount && product.discount > 0
+
+    // Fallback image logic
     const thumbnail =
         product.images && product.images.length > 0
             ? product.images[0]
@@ -35,6 +40,7 @@ export default function FullProductDisplay({
 
             <div className={styles.details}>
                 <p className={styles.title}>{product.name}</p>
+
                 <div className={styles.priceContainer}>
                     <Price
                         price={product.price ?? 0}
@@ -49,28 +55,29 @@ export default function FullProductDisplay({
                         />
                     )}
                 </div>
+
                 <ReviewStars rating={product.rate ?? 0} className={styles.stars} />
+
                 <p className={styles.description}>{product.description}</p>
-                {/* <NumberInput
-                    label="الكمية"
-                    className={styles.quantity}
-                    min={1}
-                    value={quantity.value}.
-                    onChange={(value) => (quantity.value = value)}
-                /> */}
-                {/* <NumberInput
-                    label="الكمية"
-                    className={styles.quantity}
-                    min={1}
-                    value={quantity.value}
-                    onChange={(e) => (quantity.value = Number(e.target.value))}
-                /> */}
+
+                {/* Quantity Input */}
+                <div className={styles.quantityWrapper}>
+                    <NumberInput
+                        label="الكمية"
+                        className={styles.quantity}
+                        min={1}
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                    />
+                </div>
+
                 <div className={styles.actionButtons}>
                     <AddToCart
                         className={styles.addToCartButton}
                         onClick={() => {
                             if (product.id) {
-                                addItemToCart(product as Product, quantity.value)
+                                // Use the state variable directly
+                                addItemToCart(product as Product, quantity)
                             } else {
                                 console.error("Cannot add product without an ID")
                             }
